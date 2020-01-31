@@ -1,0 +1,6 @@
+PROGRAMMER ?= openocd
+OPENOCD_ADAPTER_INIT ?= '-c interface ftdi' 
+DEBUG_ADAPTER_ID = 
+
+# not using shared make as config for edbg
+include $(RIOTMAKE)/boards/sam0.inc.mk
