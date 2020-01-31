@@ -1,0 +1,7 @@
+INCLUDES += -I$(RIOTCPU)/mips32r2_common/include
+
+ifeq ($(USE_UHI_SYSCALLS),1)
+  #Use UHI to handle syscalls
+  LINKFLAGS += -luhi
+  CFLAGS += -DHAVE_HEAP_STATS
+endif
