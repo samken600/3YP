@@ -1,0 +1,9 @@
+[submodule "tools/git2cl"]
+	path = openocd/tools/git2cl
+	url = https://github.com/viccherubini/git2cl.git
+[submodule "jimtcl"]
+	path = openocd/jimtcl
+	url = https://github.com/msteveb/jimtcl.git
+[submodule "src/jtag/drivers/libjaylink"]
+	path = openocd/src/jtag/drivers/libjaylink
+	url = git://git.zapb.de/libjaylink.git
