@@ -5,3 +5,6 @@
 	path = openocd/jimtcl
 	url = https://github.com/msteveb/jimtcl.git
 
+[submodule "openocd/src/jtag/drivers/libjaylink"]
+	path = openocd/src/jtag/drivers/libjaylink
+	url = https://github.com/syntacore/libjaylink.git
