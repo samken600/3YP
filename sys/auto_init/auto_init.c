@@ -159,7 +159,7 @@ void auto_init(void)
     openthread_bootstrap();
 #endif
 #ifdef MODULE_GCOAP
-    if (!IS_ACTIVE(CONFIG_GCOAP_NO_AUTO_INIT)) {
+    if (!IS_ACTIVE(GCOAP_NO_AUTO_INIT)) {
         DEBUG("Auto init gcoap module.\n");
         gcoap_init();
     }
@@ -619,24 +619,9 @@ void auto_init(void)
     suit_init_conditions();
 #endif /* MODULE_SUIT */
 
-#ifdef MODULE_AUTO_INIT_SECURITY
-
-#ifdef MODULE_CRYPTOAUTHLIB
-    extern void auto_init_atca(void);
-    auto_init_atca();
-#endif  /* MODULE_CRYPTOAUTHLIB */
-
-#endif  /* MODULE_AUTO_INIT_SECURITY */
-
 #ifdef MODULE_TEST_UTILS_INTERACTIVE_SYNC
 #if !defined(MODULE_SHELL_COMMANDS) || !defined(MODULE_SHELL)
     test_utils_interactive_sync();
 #endif
 #endif /* MODULE_TEST_UTILS_INTERACTIVE_SYNC */
-
-#ifdef MODULE_AUTO_INIT_DHCPV6_CLIENT
-    DEBUG("auto_init DHCPv6 client");
-    extern void dhcpv6_client_auto_init(void);
-    dhcpv6_client_auto_init();
-#endif /* MODULE_AUTO_INIT_DHCPV6_CLIENT */
 }

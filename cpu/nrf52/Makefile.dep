@@ -4,5 +4,3 @@ ifneq (,$(filter nrf802154,$(USEMODULE)))
   USEMODULE += luid
   USEMODULE += netdev_ieee802154
 endif
-
-include $(RIOTCPU)/nrf5x_common/Makefile.dep

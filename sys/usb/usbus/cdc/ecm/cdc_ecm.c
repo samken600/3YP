@@ -15,8 +15,6 @@
  * @}
  */
 
-#define USB_H_USER_IS_RIOT_INTERNAL
-
 #include "event.h"
 #include "fmt.h"
 #include "kernel_defines.h"

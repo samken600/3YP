@@ -37,10 +37,9 @@
 #endif
 
 extern int main(void);
-
 static void *main_trampoline(void *arg)
 {
-    (void)arg;
+    (void) arg;
 
 #ifdef MODULE_AUTO_INIT
     auto_init();
@@ -49,13 +48,12 @@ static void *main_trampoline(void *arg)
     LOG_INFO("main(): This is RIOT! (Version: " RIOT_VERSION ")\n");
 
     main();
-
     return NULL;
 }
 
 static void *idle_thread(void *arg)
 {
-    (void)arg;
+    (void) arg;
 
     while (1) {
         pm_set_lowest();
@@ -64,22 +62,25 @@ static void *idle_thread(void *arg)
     return NULL;
 }
 
+const char *main_name = "main";
+const char *idle_name = "idle";
+
 static char main_stack[THREAD_STACKSIZE_MAIN];
 static char idle_stack[THREAD_STACKSIZE_IDLE];
 
 void kernel_init(void)
 {
-    irq_disable();
+    (void) irq_disable();
 
     thread_create(idle_stack, sizeof(idle_stack),
-                  THREAD_PRIORITY_IDLE,
-                  THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
-                  idle_thread, NULL, "idle");
+            THREAD_PRIORITY_IDLE,
+            THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
+            idle_thread, NULL, idle_name);
 
     thread_create(main_stack, sizeof(main_stack),
-                  THREAD_PRIORITY_MAIN,
-                  THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
-                  main_trampoline, NULL, "main");
+            THREAD_PRIORITY_MAIN,
+            THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
+            main_trampoline, NULL, main_name);
 
     cpu_switch_context_exit();
 }

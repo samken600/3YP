@@ -15,9 +15,6 @@
  * @author  Koen Zandberg <koen@bergzand.net>
  * @}
  */
-
-#define USB_H_USER_IS_RIOT_INTERNAL
-
 #include "periph/usbdev.h"
 #include "usb/descriptor.h"
 #include "usb/usbus.h"

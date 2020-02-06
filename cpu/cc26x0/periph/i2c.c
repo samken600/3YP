@@ -129,7 +129,6 @@ void i2c_init(i2c_t devnum)
 
 int i2c_acquire(i2c_t dev)
 {
-    (void)dev;
     assert(dev < I2C_NUMOF);
     mutex_lock(&_lock);
     return 0;
@@ -137,7 +136,6 @@ int i2c_acquire(i2c_t dev)
 
 void i2c_release(i2c_t dev)
 {
-    (void)dev;
     assert(dev < I2C_NUMOF);
     mutex_unlock(&_lock);
 }

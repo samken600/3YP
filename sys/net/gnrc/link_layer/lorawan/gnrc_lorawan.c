@@ -61,7 +61,7 @@ static inline void gnrc_lorawan_mcps_reset(gnrc_lorawan_t *mac)
     mac->mcps.fcnt_down = 0;
 }
 
-void gnrc_lorawan_set_rx2_dr(gnrc_lorawan_t *mac, uint8_t rx2_dr)
+static inline void _set_rx2_dr(gnrc_lorawan_t *mac, uint8_t rx2_dr)
 {
     mac->dl_settings &= ~GNRC_LORAWAN_DL_RX2_DR_MASK;
     mac->dl_settings |= (rx2_dr << GNRC_LORAWAN_DL_RX2_DR_POS) &
@@ -70,10 +70,9 @@ void gnrc_lorawan_set_rx2_dr(gnrc_lorawan_t *mac, uint8_t rx2_dr)
 
 static void _sleep_radio(gnrc_lorawan_t *mac)
 {
-    netdev_t *dev = gnrc_lorawan_get_netdev(mac);
     netopt_state_t state = NETOPT_STATE_SLEEP;
 
-    dev->driver->set(dev, NETOPT_STATE, &state, sizeof(state));
+    netdev_set_pass((netdev_t *) mac, NETOPT_STATE, &state, sizeof(state));
 }
 
 void gnrc_lorawan_init(gnrc_lorawan_t *mac, uint8_t *nwkskey, uint8_t *appskey)
@@ -87,20 +86,19 @@ void gnrc_lorawan_init(gnrc_lorawan_t *mac, uint8_t *nwkskey, uint8_t *appskey)
 
 void gnrc_lorawan_reset(gnrc_lorawan_t *mac)
 {
-    netdev_t *dev = gnrc_lorawan_get_netdev(mac);
     uint8_t cr = LORA_CR_4_5;
 
-    dev->driver->set(dev, NETOPT_CODING_RATE, &cr, sizeof(cr));
+    netdev_set_pass(&mac->netdev, NETOPT_CODING_RATE, &cr, sizeof(cr));
 
     uint8_t syncword = LORAMAC_DEFAULT_PUBLIC_NETWORK ? LORA_SYNCWORD_PUBLIC
                                                       : LORA_SYNCWORD_PRIVATE;
-    dev->driver->set(dev, NETOPT_SYNCWORD, &syncword, sizeof(syncword));
+    netdev_set_pass(&mac->netdev, NETOPT_SYNCWORD, &syncword, sizeof(syncword));
 
     /* Continuous reception */
     uint32_t rx_timeout = 0;
-    dev->driver->set(dev, NETOPT_RX_TIMEOUT, &rx_timeout, sizeof(rx_timeout));
+    netdev_set_pass(&mac->netdev, NETOPT_RX_TIMEOUT, &rx_timeout, sizeof(rx_timeout));
 
-    gnrc_lorawan_set_rx2_dr(mac, LORAMAC_DEFAULT_RX2_DR);
+    _set_rx2_dr(mac, LORAMAC_DEFAULT_RX2_DR);
 
     mac->toa = 0;
     gnrc_lorawan_mcps_reset(mac);
@@ -110,23 +108,21 @@ void gnrc_lorawan_reset(gnrc_lorawan_t *mac)
 
 static void _config_radio(gnrc_lorawan_t *mac, uint32_t channel_freq, uint8_t dr, int rx)
 {
-    netdev_t *dev = gnrc_lorawan_get_netdev(mac);
-
     if (channel_freq != 0) {
-        dev->driver->set(dev, NETOPT_CHANNEL_FREQUENCY, &channel_freq, sizeof(channel_freq));
+        netdev_set_pass(&mac->netdev, NETOPT_CHANNEL_FREQUENCY, &channel_freq, sizeof(channel_freq));
     }
 
     netopt_enable_t iq_invert = rx;
-    dev->driver->set(dev, NETOPT_IQ_INVERT, &iq_invert, sizeof(iq_invert));
+    netdev_set_pass(&mac->netdev, NETOPT_IQ_INVERT, &iq_invert, sizeof(iq_invert));
 
     gnrc_lorawan_set_dr(mac, dr);
 
     if (rx) {
         /* Switch to single listen mode */
         const netopt_enable_t single = true;
-        dev->driver->set(dev, NETOPT_SINGLE_RECEIVE, &single, sizeof(single));
+        netdev_set_pass(&mac->netdev, NETOPT_SINGLE_RECEIVE, &single, sizeof(single));
         const uint16_t timeout = CONFIG_GNRC_LORAWAN_MIN_SYMBOLS_TIMEOUT;
-        dev->driver->set(dev, NETOPT_RX_SYMBOL_TIMEOUT, &timeout, sizeof(timeout));
+        netdev_set_pass(&mac->netdev, NETOPT_RX_SYMBOL_TIMEOUT, &timeout, sizeof(timeout));
     }
 }
 
@@ -137,14 +133,13 @@ static void _configure_rx_window(gnrc_lorawan_t *mac, uint32_t channel_freq, uin
 
 void gnrc_lorawan_open_rx_window(gnrc_lorawan_t *mac)
 {
-    netdev_t *dev = gnrc_lorawan_get_netdev(mac);
     mac->msg.type = MSG_TYPE_TIMEOUT;
     /* Switch to RX state */
     if (mac->state == LORAWAN_STATE_RX_1) {
         xtimer_set_msg(&mac->rx, _DRIFT_FACTOR, &mac->msg, thread_getpid());
     }
     uint8_t state = NETOPT_STATE_RX;
-    dev->driver->set(dev, NETOPT_STATE, &state, sizeof(state));
+    netdev_set_pass(&mac->netdev, NETOPT_STATE, &state, sizeof(state));
 }
 
 void gnrc_lorawan_event_tx_complete(gnrc_lorawan_t *mac)
@@ -188,7 +183,7 @@ void gnrc_lorawan_event_timeout(gnrc_lorawan_t *mac)
 }
 
 /* This function uses a precomputed table to calculate time on air without
- * using floating point arithmetic */
+ * using floating point arithmetics */
 static uint32_t lora_time_on_air(size_t payload_size, uint8_t dr, uint8_t cr)
 {
     assert(dr <= LORAMAC_DR_6);
@@ -224,7 +219,6 @@ static uint32_t lora_time_on_air(size_t payload_size, uint8_t dr, uint8_t cr)
 
 void gnrc_lorawan_send_pkt(gnrc_lorawan_t *mac, gnrc_pktsnip_t *pkt, uint8_t dr)
 {
-    netdev_t *dev = gnrc_lorawan_get_netdev(mac);
     mac->state = LORAWAN_STATE_TX;
 
     iolist_t iolist = {
@@ -239,11 +233,11 @@ void gnrc_lorawan_send_pkt(gnrc_lorawan_t *mac, gnrc_pktsnip_t *pkt, uint8_t dr)
     mac->last_dr = dr;
 
     uint8_t cr;
-    dev->driver->get(dev, NETOPT_CODING_RATE, &cr, sizeof(cr));
+    netdev_get_pass(&mac->netdev, NETOPT_CODING_RATE, &cr, sizeof(cr));
 
     mac->toa = lora_time_on_air(gnrc_pkt_len(pkt), dr, cr + 4);
 
-    if (dev->driver->send(dev, &iolist) == -ENOTSUP) {
+    if (netdev_send_pass(&mac->netdev, &iolist) == -ENOTSUP) {
         DEBUG("gnrc_lorawan: Cannot send: radio is still transmitting");
     }
 
@@ -273,20 +267,81 @@ void gnrc_lorawan_process_pkt(gnrc_lorawan_t *mac, gnrc_pktsnip_t *pkt)
     gnrc_lorawan_mac_release(mac);
 }
 
+int gnrc_lorawan_netdev_get(netdev_t *dev, netopt_t opt, void *value, size_t max_len)
+{
+    int res = 0;
+    gnrc_lorawan_t *mac = (gnrc_lorawan_t *) dev;
+    uint32_t tmp;
+
+    switch (opt) {
+        case NETOPT_ADDRESS:
+            assert(max_len >= sizeof(mac->dev_addr));
+            tmp = byteorder_swapl(mac->dev_addr.u32);
+            memcpy(value, &tmp, sizeof(mac->dev_addr));
+            res = sizeof(mac->dev_addr);
+            break;
+        default:
+            res = netdev_get_pass(dev, opt, value, max_len);
+            break;
+    }
+    return res;
+}
+
+int gnrc_lorawan_netdev_set(netdev_t *dev, netopt_t opt, const void *value, size_t len)
+{
+    gnrc_lorawan_t *mac = (gnrc_lorawan_t *) dev;
+    uint32_t tmp;
+
+    if (mac->busy) {
+        return -EBUSY;
+    }
+
+    switch (opt) {
+        case NETOPT_ADDRESS:
+            assert(len == sizeof(uint32_t));
+            tmp = byteorder_swapl(*((uint32_t *) value));
+            memcpy(&mac->dev_addr, &tmp, sizeof(uint32_t));
+            break;
+        case NETOPT_LORAWAN_RX2_DR:
+            assert(len == sizeof(uint8_t));
+            _set_rx2_dr(mac, *((uint8_t *) value));
+            break;
+        default:
+            netdev_set_pass(dev, opt, value, len);
+            break;
+    }
+    return 0;
+}
+
+const netdev_driver_t gnrc_lorawan_driver = {
+    .init = netdev_init_pass,
+    .send = netdev_send_pass,
+    .recv = netdev_recv_pass,
+    .get = gnrc_lorawan_netdev_get,
+    .set = gnrc_lorawan_netdev_set,
+    .isr = netdev_isr_pass,
+};
+
+void gnrc_lorawan_setup(gnrc_lorawan_t *mac, netdev_t *lower)
+{
+    mac->netdev.driver = &gnrc_lorawan_driver;
+    mac->netdev.lower = lower;
+    lower->context = mac;
+}
+
 void gnrc_lorawan_recv(gnrc_lorawan_t *mac)
 {
-    netdev_t *dev = gnrc_lorawan_get_netdev(mac);
-    int bytes_expected = dev->driver->recv(dev, NULL, 0, 0);
+    int bytes_expected = netdev_recv_pass((netdev_t *) mac, NULL, 0, 0);
     int nread;
     struct netdev_radio_rx_info rx_info;
     gnrc_pktsnip_t *pkt = gnrc_pktbuf_add(NULL, NULL, bytes_expected, GNRC_NETTYPE_UNDEF);
     if (pkt == NULL) {
         DEBUG("_recv_ieee802154: cannot allocate pktsnip.\n");
         /* Discard packet on netdev device */
-        dev->driver->recv(dev, NULL, bytes_expected, NULL);
+        netdev_recv_pass((netdev_t *) mac, NULL, bytes_expected, NULL);
         return;
     }
-    nread = dev->driver->recv(dev, pkt->data, bytes_expected, &rx_info);
+    nread = netdev_recv_pass((netdev_t *) mac, pkt->data, bytes_expected, &rx_info);
     _sleep_radio(mac);
     if (nread <= 0) {
         gnrc_pktbuf_release(pkt);

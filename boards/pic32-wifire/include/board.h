@@ -32,6 +32,8 @@
 extern "C" {
 #endif
 
+#include "vendor/p32mz2048efg100.h"
+
 /**
  * @brief   Set how many increments of the count register per uS
  *          needed by the timer code.

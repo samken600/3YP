@@ -1,3 +1,0 @@
-MODULE = cryptoauthlib
-
-include $(RIOTBASE)/Makefile.base
