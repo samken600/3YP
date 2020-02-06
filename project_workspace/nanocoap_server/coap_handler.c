@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define DS18_POWER_PIN GPIO_PIN(PA, 19)
 #define DS18_PARAM_PIN GPIO_PIN(PA, 28)
 #include "ds18.h"
 #include "ds18_params.h"
@@ -109,11 +110,13 @@ static ssize_t _temp_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *co
     int16_t temperature;
 
     /* get temp in celsius */
+    gpio_set(DS18_POWER_PIN);
     if (ds18_get_temperature(&dev, &temperature) == DS18_OK) {
         p += fmt_s16_dec(rsp, temperature);
         code = COAP_CODE_CONTENT;
     }
     else code = COAP_CODE_INTERNAL_SERVER_ERROR;
+    gpio_clear(DS18_POWER_PIN);
 
     return coap_reply_simple(pkt, code, buf, len,
             COAP_FORMAT_TEXT, (uint8_t*)rsp, p);

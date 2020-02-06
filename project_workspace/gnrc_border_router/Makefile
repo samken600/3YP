@@ -55,7 +55,7 @@ USEMODULE += gnrc_uhcpc
 
 # Optionally include RPL as a routing protocol. When includede gnrc_uhcpc will
 # configure the node as a RPL DODAG root when receiving a prefix.
-#USEMODULE += gnrc_rpl
+USEMODULE += gnrc_rpl
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

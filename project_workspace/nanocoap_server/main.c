@@ -20,10 +20,12 @@
 #include <stdio.h>
 
 #include "net/nanocoap_sock.h"
+#include "net/gnrc/rpl.h"
 #include "xtimer.h"
 #include "shell.h"
 
-#define DS18_PARAM_PIN GPIO_PIN(PA, 28)
+#define DS18_POWER_PIN GPIO_PIN(PA, 19)
+#define DS18_PARAM_PIN GPIO_PIN(PA, 18)
 #include "ds18.h"
 #include "ds18_params.h"
 
@@ -63,12 +65,15 @@ int main(void)
     puts("RIOT nanocoap example application with shell and ds18 temperature sensor");
 
     /* initialise the temperature sensor */
+    gpio_init(DS18_POWER_PIN, GPIO_OUT);
+    gpio_set(DS18_POWER_PIN);
     int16_t result;
     result = ds18_init(&dev, &(ds18_params[0]));
     if (result == DS18_ERROR) {
         puts("[Error] The sensor could not be initialised");
         return 1;
     }
+    gpio_clear(DS18_POWER_PIN);
 
     /* nanocoap_server uses gnrc sock which uses gnrc which needs a msg queue */
     msg_init_queue(_main_msg_queue, MAIN_QUEUE_SIZE);
@@ -79,6 +84,7 @@ int main(void)
     /* print network addresses */
     puts("Configured network interfaces:");
     _gnrc_netif_config(0, NULL);
+    gnrc_rpl_init(GNRC_RPL_DEFAULT_NETIF);
 
     /* initialize nanocoap server instance by starting thread */
     thread_create(nanocoap_thread_stack, sizeof(nanocoap_thread_stack),
@@ -100,6 +106,7 @@ int get_temperature(int argc, char **argv) {
     puts("Getting temp...\n");
 
     /* get temp in celsius */
+    gpio_set(DS18_POWER_PIN);
     if (ds18_get_temperature(&dev, &temperature) == DS18_OK) {
         puts("Got temp");
         bool negative = (temperature < 0);
@@ -114,6 +121,7 @@ int get_temperature(int argc, char **argv) {
            temperature % 100);
     }
     else puts("Error");
+    gpio_clear(DS18_POWER_PIN);
  
     return 0;
 }
