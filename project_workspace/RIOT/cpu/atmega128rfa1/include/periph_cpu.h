@@ -38,7 +38,6 @@ enum {
     PORT_F  = 5,        /**< port F */
     PORT_G  = 6,        /**< port G */
 };
-/** @} */
 
 /**
  * @brief   Available external interrupt pins on the ATmega128rfa1 MCU

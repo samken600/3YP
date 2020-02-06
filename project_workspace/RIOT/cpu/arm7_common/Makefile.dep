@@ -1,4 +1,0 @@
-# use common ARM7 periph code
-USEMODULE += arm7_common_periph
-# use the nano-specs of Newlib when available
-USEMODULE += newlib_nano

@@ -39,7 +39,9 @@ endif
 
 # use edbg if selected and a device type has been set
 ifeq ($(PROGRAMMER),edbg)
-  include $(RIOTMAKE)/tools/edbg.inc.mk
+  ifneq (,$(EDBG_DEVICE_TYPE))
+    include $(RIOTMAKE)/tools/edbg.inc.mk
+  endif
 endif
 
 ifeq ($(PROGRAMMER),jlink)

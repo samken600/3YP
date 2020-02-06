@@ -48,9 +48,6 @@ extern "C" {
 #define NIMBLE_AUTOCONN_SCAN_WIN            (110U)          /* 110ms */
 #endif
 
-#ifndef NIMBLE_AUTOCONN_CONN_TIMEOUT
-#define NIMBLE_AUTOCONN_CONN_TIMEOUT        (330U)          /* 3 * SCAN_WIN */
-#endif
 #ifndef NIMBLE_AUTOCONN_CONN_ITVL
 #define NIMBLE_AUTOCONN_CONN_ITVL           (75U)           /* 75ms */
 #endif
@@ -73,7 +70,6 @@ extern "C" {
       .adv_itvl      = NIMBLE_AUTOCONN_ADV_ITVL,      \
       .scan_itvl     = NIMBLE_AUTOCONN_SCAN_ITVL,     \
       .scan_win      = NIMBLE_AUTOCONN_SCAN_WIN,      \
-      .conn_timeout  = NIMBLE_AUTOCONN_CONN_TIMEOUT,  \
       .conn_itvl     = NIMBLE_AUTOCONN_CONN_ITVL,     \
       .conn_latency  = NIMBLE_AUTOCONN_CONN_LATENCY,  \
       .conn_super_to = NIMBLE_AUTOCONN_CONN_SUPER_TO, \

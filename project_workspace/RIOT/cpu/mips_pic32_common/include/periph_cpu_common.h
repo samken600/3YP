@@ -22,8 +22,6 @@
 #ifndef PERIPH_CPU_COMMON_H
 #define PERIPH_CPU_COMMON_H
 
-#include "cpu.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,20 +43,10 @@ extern "C" {
  */
 #define CPUID_LEN           (4U)
 
-#ifndef DOXYGEN
-/**
- * @brief   Overwrite the default gpio_t type definition
- * @{
- */
-#define HAVE_GPIO_T
-typedef uint32_t gpio_t;
-/** @} */
-#endif
-
 /**
  * @brief   Override GPIO pin selection macro
  */
-#define GPIO_PIN(x, y)      (((_PORTB_BASE_ADDRESS & 0xFFFFF000) + (x << 8)) | y)
+#define GPIO_PIN(x,y)       ((x << 4) | (y & 0xf))
 
 /**
  * @brief   Available ports on the PIC32 family

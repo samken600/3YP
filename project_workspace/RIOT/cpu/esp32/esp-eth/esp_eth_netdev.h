@@ -19,10 +19,6 @@
 #ifndef ESP_ETH_NETDEV_H
 #define ESP_ETH_NETDEV_H
 
-#include <stdbool.h>
-
-#include "mutex.h"
-#include "net/ethernet.h"
 #include "net/netdev.h"
 
 #ifdef __cplusplus
@@ -49,6 +45,8 @@ typedef struct
 
     uint32_t event;                     /**< received event */
     bool     link_up;                   /**< indicates whether link is up */
+
+    gnrc_netif_t* netif;                /**< reference to the corresponding netif */
 
     mutex_t dev_lock;                   /**< device is already in use */
 

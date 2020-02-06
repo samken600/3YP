@@ -42,6 +42,8 @@
 #error "NimBLE autoconn: please select a fitting submodule"
 #endif
 
+#define CONN_TIMEOUT_MUL            (5U)
+
 enum {
     STATE_SCAN,
     STATE_ADV,
@@ -50,7 +52,6 @@ enum {
 };
 
 static volatile uint8_t _state = STATE_IDLE;
-static volatile uint8_t _enabled = 0;
 
 static bluetil_ad_t _ad;
 static uint8_t _ad_buf[BLE_HS_ADV_MAX_SZ];
@@ -95,27 +96,6 @@ static void _on_state_change(struct ble_npl_event *ev)
     }
 }
 
-static void _activate(void)
-{
-    if (_enabled && (_state == STATE_IDLE) &&
-        (nimble_netif_conn_count(NIMBLE_NETIF_UNUSED) > 0)) {
-        _state = STATE_SCAN;
-        _on_state_change(NULL);
-        DEBUG("[autoconn] ACTIVATED\n");
-    }
-}
-
-static void _deactivate(void)
-{
-    if ((_state == STATE_ADV) || (_state == STATE_SCAN)) {
-        ble_npl_callout_stop(&_state_evt);
-        nimble_scanner_stop();
-        nimble_netif_accept_stop();
-        _state = STATE_IDLE;
-        DEBUG("[autoconn] DEACTIVATED\n");
-    }
-}
-
 static int _filter_uuid(const bluetil_ad_t *ad)
 {
     bluetil_ad_data_t incomp;
@@ -153,7 +133,7 @@ static void _on_scan_evt(uint8_t type, const ble_addr_t *addr, int8_t rssi,
     bluetil_addr_swapped_cp(addr->val, addrn);
 
     if (_filter_uuid(&ad) && !nimble_netif_conn_connected(addrn)) {
-        nimble_scanner_stop();
+        nimble_autoconn_disable();
         DEBUG("[autoconn] SCAN success, initiating connection\n");
         _state = STATE_CONN;
         int res = nimble_netif_connect(addr, &_conn_params, _conn_timeout);
@@ -183,19 +163,19 @@ static void _evt_dbg(const char *msg, int handle, const uint8_t *addr)
 static void _on_netif_evt(int handle, nimble_netif_event_t event,
                           const uint8_t *addr)
 {
+    int en = 1;
+
     switch (event) {
         case NIMBLE_NETIF_ACCEPTING:
-            _evt_dbg("ACCEPTING", handle, addr);
-            break;
-        case NIMBLE_NETIF_ACCEPT_STOP:
-            _evt_dbg("ACCEPT_STOP", handle, addr);
+            en = 0;
             break;
         case NIMBLE_NETIF_INIT_MASTER:
             _evt_dbg("CONN_INIT master", handle, addr);
+            en = 0;
             break;
         case NIMBLE_NETIF_INIT_SLAVE:
             _evt_dbg("CONN_INIT slave", handle, addr);
-            _state = STATE_CONN;
+            en = 0;
             break;
         case NIMBLE_NETIF_CONNECTED_MASTER:
             _evt_dbg("CONNECTED master", handle, addr);
@@ -204,7 +184,6 @@ static void _on_netif_evt(int handle, nimble_netif_event_t event,
             break;
         case NIMBLE_NETIF_CONNECTED_SLAVE:
             _evt_dbg("CONNECTED slave", handle, addr);
-            _state = STATE_IDLE;
             break;
         case NIMBLE_NETIF_CLOSED_MASTER:
             _evt_dbg("CLOSED master", handle, addr);
@@ -219,10 +198,10 @@ static void _on_netif_evt(int handle, nimble_netif_event_t event,
             break;
         case NIMBLE_NETIF_ABORT_SLAVE:
             _evt_dbg("[autoconn] ABORT slave", handle, addr);
-            _state = STATE_IDLE;
             break;
         case NIMBLE_NETIF_CONN_UPDATED:
             _evt_dbg("UPDATED", handle, addr);
+            en = 0;
             break;
         default:
             /* this should never happen */
@@ -234,8 +213,10 @@ static void _on_netif_evt(int handle, nimble_netif_event_t event,
         _eventcb(handle, event, addr);
     }
 
-    /* if active and if free slots are available, search for new peers */
-    _activate();
+    /* search for the next connection possibility */
+    if (en) {
+        nimble_autoconn_enable();
+    }
 }
 
 static int _conn_update(nimble_netif_conn_t *conn, int handle, void *arg)
@@ -279,7 +260,7 @@ int nimble_autoconn_update(const nimble_autoconn_params_t *params,
     ble_npl_time_ms_to_ticks(params->period_jitter, &_period_jitter);
 
     /* populate the connection parameters */
-    _conn_params.scan_itvl = ((params->scan_win * 1000) / BLE_HCI_SCAN_ITVL);
+    _conn_params.scan_itvl = ((params->scan_itvl * 1000) / BLE_HCI_SCAN_ITVL);
     _conn_params.scan_window = ((params->scan_win * 1000) / BLE_HCI_SCAN_ITVL);
     _conn_params.itvl_min = ((params->conn_itvl * 1000) / BLE_HCI_CONN_ITVL);
     _conn_params.itvl_max = ((params->conn_itvl * 1000) / BLE_HCI_CONN_ITVL);
@@ -287,7 +268,7 @@ int nimble_autoconn_update(const nimble_autoconn_params_t *params,
     _conn_params.supervision_timeout = (params->conn_super_to / 10);
     _conn_params.min_ce_len = 0;
     _conn_params.max_ce_len = 0;
-    _conn_timeout = ((params->conn_timeout * 1000) / BLE_HCI_SCAN_ITVL);
+    _conn_timeout = params->adv_itvl * CONN_TIMEOUT_MUL;
 
     /* we use the same values to updated existing connections */
     struct ble_gap_upd_params conn_update_params;
@@ -348,12 +329,23 @@ int nimble_autoconn_update(const nimble_autoconn_params_t *params,
 
 void nimble_autoconn_enable(void)
 {
-    _enabled = 1;
-    _activate();
+    if (nimble_netif_conn_count(NIMBLE_NETIF_UNUSED) > 0) {
+        DEBUG("[autoconn] ACTIVE\n");
+        /* insert a random delay */
+        ble_npl_time_t delay = (ble_npl_time_t)random_uint32_range(0,
+                                                    (uint32_t)_period_jitter);
+        _state = STATE_ADV;
+        ble_npl_callout_reset(&_state_evt, delay);
+    }
 }
 
 void nimble_autoconn_disable(void)
 {
-    _enabled = 0;
-    _deactivate();
+    if ((_state == STATE_ADV) || (_state == STATE_SCAN)) {
+        DEBUG("[autoconn] DISABLED\n");
+        _state = STATE_IDLE;
+        ble_npl_callout_stop(&_state_evt);
+        nimble_scanner_stop();
+        nimble_netif_accept_stop();
+    }
 }

@@ -13,9 +13,6 @@ endif
 ifneq (,$(filter posix_semaphore,$(USEMODULE)))
   DIRS += posix/semaphore
 endif
-ifneq (,$(filter dhcpv6,$(USEMODULE)))
-  DIRS += net/application_layer/dhcpv6
-endif
 ifneq (,$(filter posix_sockets,$(USEMODULE)))
   DIRS += posix/sockets
 endif

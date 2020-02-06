@@ -1,6 +1,3 @@
-ifneq (,$(filter gnrc_dhcpv6,$(USEMODULE)))
-  DIRS += application_layer/dhcpv6
-endif
 ifneq (,$(filter gnrc_icmpv6,$(USEMODULE)))
   DIRS += network_layer/icmpv6
 endif
