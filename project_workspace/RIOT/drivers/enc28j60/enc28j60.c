@@ -326,18 +326,34 @@ static int nd_recv(netdev_t *netdev, void *buf, size_t max_len, void *info)
     (void)info;
     mutex_lock(&dev->lock);
 
+    /*
+     *  Apparently rx_rd_ptr is sometimes read incorrectly.
+     *  trying to add this in
+     */
+    uint16_t rx_read_addr, rx_read_addr_confirm;
+    do {
+        rx_read_addr = cmd_r_addr(dev, ADDR_RX_READ);
+        rx_read_addr_confirm = cmd_r_addr(dev, ADDR_RX_READ);
+    } while(rx_read_addr != rx_read_addr_confirm);
+
+
     /* set read pointer to RX read address */
-    uint16_t rx_rd_ptr = cmd_r_addr(dev, ADDR_RX_READ);
-    cmd_w_addr(dev, ADDR_READ_PTR, ERXRDPT_TO_NEXT(rx_rd_ptr));
+    // uint16_t rx_rd_ptr = cmd_r_addr(dev, ADDR_RX_READ);
+    cmd_w_addr(dev, ADDR_READ_PTR, ERXRDPT_TO_NEXT(rx_read_addr));//rx_rd_ptr));
     /* read packet header */
     cmd_rbm(dev, head, 6);
     /* TODO: care for endianness */
     next = (uint16_t)((head[1] << 8) | head[0]);
     size = (uint16_t)((head[3] << 8) | head[2]) - 4;  /* discard CRC */
-
+    
     DEBUG("[enc28j60] recv: size=%i next=%i buf=%p len=%d\n",
           (int)size, (int)next, buf, max_len);
 
+    /*
+     *  So apparently this is sometimes called with a NULL buffer if packet
+     *  set to be dropped. This causes mutex to never unlock 
+     *
+     */
     if (buf != NULL) {
         /* read packet content into the supplied buffer */
         if (size <= max_len) {
@@ -347,15 +363,33 @@ static int nd_recv(netdev_t *netdev, void *buf, size_t max_len, void *info)
             size = 0;
         }
         /* release memory */
-        cmd_w_addr(dev, ADDR_RX_READ, NEXT_TO_ERXRDPT(next));
+        /*
+         *  cmd_w_addr()
+         *  This also sometimes writes the wrong thing? Same approach as above
+         *
+         */
+        uint16_t written_next_address;
+        do {
+            cmd_w_addr(dev, ADDR_RX_READ, NEXT_TO_ERXRDPT(next));
+            written_next_address = cmd_r_addr(dev, ADDR_RX_READ);
+        }while(written_next_address != NEXT_TO_ERXRDPT(next));
+
+        //cmd_w_addr(dev, ADDR_RX_READ, NEXT_TO_ERXRDPT(next));
         cmd_bfs(dev, REG_ECON2, -1, ECON2_PKTDEC);
     }
     else if (max_len != 0) {
         /* drop the packet */
         DEBUG("[enc28j60] recv: drop packet - no buffer to receive\n");
-        cmd_w_addr(dev, ADDR_RX_READ, NEXT_TO_ERXRDPT(next));
+        //cmd_w_addr(dev, ADDR_RX_READ, NEXT_TO_ERXRDPT(next));
+        uint16_t written_next_address;
+        do {
+            cmd_w_addr(dev, ADDR_RX_READ, NEXT_TO_ERXRDPT(next));
+            written_next_address = cmd_r_addr(dev, ADDR_RX_READ);
+        }while(written_next_address != NEXT_TO_ERXRDPT(next));
         cmd_bfs(dev, REG_ECON2, -1, ECON2_PKTDEC);
     }
+
+    DEBUG("done");
 
     mutex_unlock(&dev->lock);
     return (int)size;
