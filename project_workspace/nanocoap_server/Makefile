@@ -2,7 +2,7 @@
 APPLICATION = nanocoap_server
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= samr21-xpro
+BOARD ?= atsamr21b18-mz210pa
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../RIOT/
@@ -27,19 +27,24 @@ USEMODULE += gnrc_icmpv6_error
 USEMODULE += gnrc_ipv6_router_default # MUST HAVE ONE ROUTER
 USEMODULE += gnrc_udp
 USEMODULE += gnrc_sock_udp
+
+# Additional networking modules that can be dropped if not needed
+USEMODULE += gnrc_icmpv6_echo
+
 # Add rpl routing
 USEMODULE += gnrc_rpl
 CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=6
-# Additional networking modules that can be dropped if not needed
-USEMODULE += gnrc_icmpv6_echo
 
 USEMODULE += nanocoap_sock
 
 # include this for nicely formatting the returned internal value
 USEMODULE += fmt
 
-# include sha256 (used by example blockwise handler)
-USEMODULE += hashes
+# dump packets
+USEMODULE += gnrc_pktdump
+
+# include mac layer to use
+USEMODULE += gnrc_gomach
 
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

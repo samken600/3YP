@@ -60,6 +60,12 @@ USEMODULE += gnrc_uhcpc
 # configure the node as a RPL DODAG root when receiving a prefix.
 USEMODULE += gnrc_rpl
 
+# dump packets
+USEMODULE += gnrc_pktdump
+
+# gomach
+USEMODULE += gnrc_gomach
+
 # Use the ENC28J60 for networking
 USEMODULE += enc28j60
 
