@@ -29,10 +29,12 @@ cleanup() {
 config_if_routing() {
     sysctl -w net.ipv6.conf.${TAP}.forwarding=1
     sysctl -w net.ipv6.conf.${TAP}.accept_ra=0
-
+    
+    ip link set ${TAP} up
     ip a a fe80::1/64 dev ${TAP}
     ip a a fd00:dead:beef::1/128 dev lo
     ip route add ${PREFIX} via fe80::2 dev ${TAP}
+    echo "Added route to ${PREFIX} on ${TAP}"
 }
 
 start_uhcpd() {
