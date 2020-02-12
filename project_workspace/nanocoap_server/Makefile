@@ -33,7 +33,7 @@ USEMODULE += gnrc_icmpv6_echo
 
 # Add rpl routing
 USEMODULE += gnrc_rpl
-CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=6
+CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=7
 
 USEMODULE += nanocoap_sock
 
