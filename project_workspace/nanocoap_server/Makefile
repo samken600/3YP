@@ -38,9 +38,6 @@ USEMODULE += nanocoap_sock
 # include this for nicely formatting the returned internal value
 USEMODULE += fmt
 
-# include sha256 (used by example blockwise handler)
-USEMODULE += hashes
-
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:
