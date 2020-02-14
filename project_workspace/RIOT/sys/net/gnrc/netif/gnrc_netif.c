@@ -50,7 +50,6 @@ gnrc_netif_t *gnrc_netif_create(char *stack, int stacksize, char priority,
                                 const char *name, netdev_t *netdev,
                                 const gnrc_netif_ops_t *ops)
 {
-    DEBUG("Creating for %s", name);
     gnrc_netif_t *netif = NULL;
     int res;
 
