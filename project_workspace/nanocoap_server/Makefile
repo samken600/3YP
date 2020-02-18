@@ -44,7 +44,7 @@ USEMODULE += fmt
 USEMODULE += gnrc_pktdump
 
 # include mac layer to use
-USEMODULE += gnrc_gomach
+USEMODULE += gnrc_lwmac
 
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

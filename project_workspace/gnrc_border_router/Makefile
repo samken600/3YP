@@ -64,7 +64,7 @@ USEMODULE += gnrc_rpl
 USEMODULE += gnrc_pktdump
 
 # gomach
-USEMODULE += gnrc_gomach
+USEMODULE += gnrc_lwmac
 
 # Use the ENC28J60 for networking
 USEMODULE += enc28j60
