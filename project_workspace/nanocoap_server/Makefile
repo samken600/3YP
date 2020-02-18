@@ -2,7 +2,8 @@
 APPLICATION = nanocoap_server
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= samr21-xpro
+BOARD = samr30-xpro
+ISM = 868
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../RIOT/

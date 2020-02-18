@@ -2,20 +2,21 @@
 APPLICATION = gnrc_border_router
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= samr21-xpro
+BOARD = samr30-xpro
+ISM = 868
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../RIOT
 
-# NO use ethos (ethernet over serial) for network communication and stdio over
+# use ethos (ethernet over serial) for network communication and stdio over
 # UART, but not on native, as native has a tap interface towards the host.
-#ifeq (,$(filter native,$(BOARD)))
-#  # ethos baudrate can be configured from make command
-#  ETHOS_BAUDRATE ?= 115200
-#  CFLAGS += -DETHOS_BAUDRATE=$(ETHOS_BAUDRATE)
-#else
-#  TERMFLAGS += -z [::1]:17754
-#endif
+ifeq (,$(filter native,$(BOARD)))
+  # ethos baudrate can be configured from make command
+  ETHOS_BAUDRATE ?= 115200
+  CFLAGS += -DETHOS_BAUDRATE=$(ETHOS_BAUDRATE)
+else
+  TERMFLAGS += -z [::1]:17754
+endif
 GNRC_NETIF_NUMOF := 2
 
 # SLIP legacy compatibility
@@ -60,18 +61,6 @@ USEMODULE += gnrc_uhcpc
 # configure the node as a RPL DODAG root when receiving a prefix.
 USEMODULE += gnrc_rpl
 
-# Use the ENC28J60 for networking
-USEMODULE += enc28j60
-
-# export SPI and pins. Copied from Georgois hexanode makefile
-CFLAGS += -DENC28J60_PARAM_SPI="SPI_DEV(1)"
-CFLAGS += -DENC28J60_PARAM_CS="GPIO_PIN(PB,3)"
-CFLAGS += -DENC28J60_PARAM_INT="GPIO_PIN(PA,22)"
-CFLAGS += -DENC28J60_PARAM_RESET="GPIO_PIN(PA,23)"
-
-# make sure we read local enc28j60 params file
-CFLAGS += -I$(CURDIR)
-
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:
@@ -79,7 +68,7 @@ DEVELHELP ?= 1
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
-TAP ?= enp3s0f1
+TAP ?= tap0
 IPV6_PREFIX ?= 2001:db8::/64
 
 ifeq (native,$(BOARD))
@@ -91,7 +80,7 @@ uhcpd-daemon: host-tools
 	$(RIOTTOOLS)/uhcpd/bin/uhcpd $(TAP) $(IPV6_PREFIX) &
 else
 # We override the `make term` command to use ethos
-TERMPROG ?= sudo sh $(CURDIR)/start_network.sh
+TERMPROG ?= sudo sh $(RIOTTOOLS)/ethos/start_network.sh
 TERMFLAGS ?= $(PORT) $(TAP) $(IPV6_PREFIX)
 
 # We depend on the ethos host tools to run the border router, we build them
