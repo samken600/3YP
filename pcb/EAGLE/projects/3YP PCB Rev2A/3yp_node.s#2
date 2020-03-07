@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="dots" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -17647,7 +17647,7 @@ Source: &lt;a href="http://docs-emea.rs-online.com/webdocs/0efc/0900766b80efc106
 </libraries>
 <attributes>
 <attribute name="DOC_NUM" value="1"/>
-<attribute name="REV" value="1A"/>
+<attribute name="REV" value="2A"/>
 </attributes>
 <variantdefs>
 </variantdefs>
@@ -17723,7 +17723,7 @@ Source: &lt;a href="http://docs-emea.rs-online.com/webdocs/0efc/0900766b80efc106
 (Push Button)</text>
 <text x="20.32" y="170.18" size="1.778" layer="91">User Switch
 (Push Button)</text>
-<text x="60.96" y="27.94" size="1.778" layer="91">Pull ups for I2C lines</text>
+<text x="63.5" y="68.58" size="1.778" layer="91">Pull ups for I2C lines</text>
 <text x="175.26" y="88.9" size="1.778" layer="91">High Side Load Switch
 &amp; DS18 Temperature Sensor</text>
 <text x="35.56" y="134.62" size="1.778" layer="91">Programming and IO header</text>
@@ -17733,7 +17733,7 @@ For a 18650 3.6V Battery</text>
 <text x="17.78" y="45.72" size="1.778" layer="91">User LED</text>
 <text x="83.82" y="177.8" size="1.778" layer="91">RF Antenna Connector</text>
 <text x="200.66" y="129.54" size="1.778" layer="91">Battery Holder</text>
-<text x="53.34" y="66.04" size="1.778" layer="91">SPI Flash with no Write Protect or Hold (internal pull-up)</text>
+<text x="55.88" y="33.02" size="1.778" layer="91">SPI Flash with Hold and no Write Protect (internal pull-up)</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0" smashed="yes"/>
@@ -17874,19 +17874,19 @@ For a 18650 3.6V Battery</text>
 <instance part="GND15" gate="1" x="172.72" y="71.12" smashed="yes">
 <attribute name="VALUE" x="170.18" y="68.58" size="1.778" layer="96"/>
 </instance>
-<instance part="R12" gate="G$1" x="60.96" y="12.7" smashed="yes" rot="R270">
-<attribute name="NAME" x="57.3786" y="13.97" size="1.778" layer="95" rot="R270"/>
-<attribute name="VALUE" x="62.738" y="13.97" size="1.778" layer="96" rot="R270"/>
+<instance part="R12" gate="G$1" x="63.5" y="53.34" smashed="yes" rot="R270">
+<attribute name="NAME" x="59.9186" y="54.61" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="65.278" y="54.61" size="1.778" layer="96" rot="R270"/>
 </instance>
-<instance part="R13" gate="G$1" x="81.28" y="12.7" smashed="yes" rot="R270">
-<attribute name="NAME" x="77.6986" y="13.97" size="1.778" layer="95" rot="R270"/>
-<attribute name="VALUE" x="83.058" y="13.97" size="1.778" layer="96" rot="R270"/>
+<instance part="R13" gate="G$1" x="83.82" y="53.34" smashed="yes" rot="R270">
+<attribute name="NAME" x="80.2386" y="54.61" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="85.598" y="54.61" size="1.778" layer="96" rot="R270"/>
 </instance>
-<instance part="P+3" gate="VCC" x="81.28" y="22.86" smashed="yes">
-<attribute name="VALUE" x="78.74" y="20.32" size="1.778" layer="96" rot="R90"/>
+<instance part="P+3" gate="VCC" x="83.82" y="63.5" smashed="yes">
+<attribute name="VALUE" x="81.28" y="60.96" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="P+8" gate="VCC" x="60.96" y="22.86" smashed="yes">
-<attribute name="VALUE" x="58.42" y="20.32" size="1.778" layer="96" rot="R90"/>
+<instance part="P+8" gate="VCC" x="63.5" y="63.5" smashed="yes">
+<attribute name="VALUE" x="60.96" y="60.96" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="S3" gate="G$1" x="215.9" y="55.88" smashed="yes" rot="R180">
 <attribute name="NAME" x="207.01" y="48.26" size="1.778" layer="95" rot="R180" align="center-left"/>
@@ -17936,15 +17936,15 @@ For a 18650 3.6V Battery</text>
 <attribute name="NAME" x="62.23" y="177.8" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="62.23" y="175.26" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="IC4" gate="G$1" x="55.88" y="55.88" smashed="yes">
-<attribute name="NAME" x="62.23" y="63.5" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="62.23" y="60.96" size="1.778" layer="96" align="center-left"/>
+<instance part="IC4" gate="G$1" x="60.96" y="20.32" smashed="yes">
+<attribute name="NAME" x="67.31" y="27.94" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="67.31" y="25.4" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="P+9" gate="VCC" x="96.52" y="60.96" smashed="yes">
-<attribute name="VALUE" x="93.98" y="60.96" size="1.778" layer="96" rot="R180"/>
+<instance part="P+9" gate="VCC" x="101.6" y="25.4" smashed="yes">
+<attribute name="VALUE" x="99.06" y="25.4" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="GND11" gate="1" x="53.34" y="43.18" smashed="yes">
-<attribute name="VALUE" x="50.8" y="40.64" size="1.778" layer="96"/>
+<instance part="GND11" gate="1" x="58.42" y="7.62" smashed="yes">
+<attribute name="VALUE" x="55.88" y="5.08" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -17979,12 +17979,12 @@ For a 18650 3.6V Battery</text>
 <segment>
 <pinref part="P+8" gate="VCC" pin="VCC"/>
 <pinref part="R12" gate="G$1" pin="1"/>
-<wire x1="60.96" y1="20.32" x2="60.96" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="60.96" x2="63.5" y2="58.42" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="P+3" gate="VCC" pin="VCC"/>
 <pinref part="R13" gate="G$1" pin="1"/>
-<wire x1="81.28" y1="20.32" x2="81.28" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="60.96" x2="83.82" y2="58.42" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="P+10" gate="VCC" pin="VCC"/>
@@ -18011,9 +18011,9 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="VCC"/>
-<wire x1="93.98" y1="55.88" x2="96.52" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="20.32" x2="101.6" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="P+9" gate="VCC" pin="VCC"/>
-<wire x1="96.52" y1="55.88" x2="96.52" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="101.6" y1="20.32" x2="101.6" y2="22.86" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -18145,8 +18145,8 @@ For a 18650 3.6V Battery</text>
 <segment>
 <pinref part="GND11" gate="1" pin="GND"/>
 <pinref part="IC4" gate="G$1" pin="GND"/>
-<wire x1="53.34" y1="45.72" x2="53.34" y2="48.26" width="0.1524" layer="91"/>
-<wire x1="53.34" y1="48.26" x2="55.88" y2="48.26" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="10.16" x2="58.42" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="12.7" x2="60.96" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SAMR30_RF_OUT" class="0">
@@ -18195,8 +18195,8 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="SO_(SOI)"/>
-<wire x1="55.88" y1="53.34" x2="50.8" y2="53.34" width="0.1524" layer="91"/>
-<label x="50.8" y="53.34" size="1.778" layer="95" rot="R180"/>
+<wire x1="60.96" y1="17.78" x2="55.88" y2="17.78" width="0.1524" layer="91"/>
+<label x="55.88" y="17.78" size="1.778" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="!PA15_SPI_FLASH_SS" class="0">
@@ -18207,8 +18207,8 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="!CS"/>
-<wire x1="55.88" y1="55.88" x2="50.8" y2="55.88" width="0.1524" layer="91"/>
-<label x="50.8" y="55.88" size="1.778" layer="95" rot="R180"/>
+<wire x1="60.96" y1="20.32" x2="55.88" y2="20.32" width="0.1524" layer="91"/>
+<label x="55.88" y="20.32" size="1.778" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="PA25_UART_RX" class="0">
@@ -18308,11 +18308,16 @@ For a 18650 3.6V Battery</text>
 <label x="35.56" y="116.84" size="1.778" layer="95" rot="R180"/>
 </segment>
 </net>
-<net name="PA06_NC" class="0">
+<net name="!PA06_SPI_FLASH_HOLD" class="0">
 <segment>
 <pinref part="R6" gate="G$1" pin="1"/>
 <wire x1="127" y1="68.58" x2="127" y2="58.42" width="0.1524" layer="91"/>
 <label x="127" y="58.42" size="1.778" layer="95" rot="R270"/>
+</segment>
+<segment>
+<pinref part="IC4" gate="G$1" pin="HOLD"/>
+<wire x1="99.06" y1="17.78" x2="104.14" y2="17.78" width="0.1524" layer="91"/>
+<label x="104.14" y="17.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PA08_I2C_SDA" class="0">
@@ -18323,8 +18328,8 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="R13" gate="G$1" pin="2"/>
-<wire x1="81.28" y1="7.62" x2="81.28" y2="5.08" width="0.1524" layer="91"/>
-<label x="81.28" y="5.08" size="1.778" layer="95"/>
+<wire x1="83.82" y1="48.26" x2="83.82" y2="45.72" width="0.1524" layer="91"/>
+<label x="83.82" y="45.72" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="G$1" pin="6"/>
@@ -18340,8 +18345,8 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="R12" gate="G$1" pin="2"/>
-<wire x1="60.96" y1="7.62" x2="60.96" y2="5.08" width="0.1524" layer="91"/>
-<label x="60.96" y="5.08" size="1.778" layer="95"/>
+<wire x1="63.5" y1="48.26" x2="63.5" y2="45.72" width="0.1524" layer="91"/>
+<label x="63.5" y="45.72" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="G$1" pin="7"/>
@@ -18487,8 +18492,8 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="SCK"/>
-<wire x1="93.98" y1="50.8" x2="99.06" y2="50.8" width="0.1524" layer="91"/>
-<label x="99.06" y="50.8" size="1.778" layer="95"/>
+<wire x1="99.06" y1="15.24" x2="104.14" y2="15.24" width="0.1524" layer="91"/>
+<label x="104.14" y="15.24" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PA18_SPI_MOSI" class="0">
@@ -18504,8 +18509,8 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="SI_(SIO)"/>
-<wire x1="93.98" y1="48.26" x2="99.06" y2="48.26" width="0.1524" layer="91"/>
-<label x="99.06" y="48.26" size="1.778" layer="95"/>
+<wire x1="99.06" y1="12.7" x2="104.14" y2="12.7" width="0.1524" layer="91"/>
+<label x="104.14" y="12.7" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>

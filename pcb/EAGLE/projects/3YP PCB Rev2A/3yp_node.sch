@@ -17140,7 +17140,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <wire x1="5.08" y1="2.54" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
 <text x="29.21" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
 <text x="29.21" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
-<pin name="OUT" x="0" y="0" length="middle"/>
+<pin name="OUT" x="0" y="0" length="middle" direction="sup"/>
 <pin name="GND_1" x="0" y="-2.54" length="middle"/>
 <pin name="ON/OFF" x="0" y="-5.08" length="middle"/>
 <pin name="NC" x="33.02" y="0" length="middle" direction="nc" rot="R180"/>
@@ -17197,7 +17197,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <pin name="GND" x="0" y="-2.54" length="middle" direction="pwr"/>
 <pin name="EN" x="0" y="-5.08" length="middle"/>
 <pin name="NC" x="25.4" y="0" length="middle" direction="nc" rot="R180"/>
-<pin name="OUT" x="25.4" y="-2.54" length="middle" direction="pwr" rot="R180"/>
+<pin name="VCC" x="25.4" y="-2.54" length="middle" direction="sup" rot="R180"/>
 </symbol>
 <symbol name="ATSAMR30M18A-I_RM100">
 <wire x1="5.08" y1="10.16" x2="30.48" y2="10.16" width="0.254" layer="94"/>
@@ -17511,7 +17511,7 @@ Source: &lt;a href="http://www.st.com/web/en/resource/technical/document/datashe
 <connect gate="G$1" pin="GND" pad="2"/>
 <connect gate="G$1" pin="IN" pad="1"/>
 <connect gate="G$1" pin="NC" pad="4"/>
-<connect gate="G$1" pin="OUT" pad="5"/>
+<connect gate="G$1" pin="VCC" pad="5"/>
 </connects>
 <technologies>
 <technology name="">
@@ -17999,7 +17999,7 @@ For a 18650 3.6V Battery</text>
 <wire x1="226.06" y1="160.02" x2="226.06" y2="152.4" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="1"/>
 <wire x1="226.06" y1="152.4" x2="226.06" y2="149.86" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="OUT"/>
+<pinref part="IC2" gate="G$1" pin="VCC"/>
 <wire x1="223.52" y1="152.4" x2="226.06" y2="152.4" width="0.1524" layer="91"/>
 <junction x="226.06" y="152.4"/>
 </segment>
@@ -18516,6 +18516,10 @@ For a 18650 3.6V Battery</text>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="102,1,215.9,55.88,OUT,DS18_POW,,,,"/>
+<approved hash="104,1,213.36,81.28,IC3,VDD,DS18_POW,,,"/>
+</errors>
 </schematic>
 </drawing>
 <compatibility>

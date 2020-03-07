@@ -17733,6 +17733,7 @@ For a 18650 3.6V Battery</text>
 <text x="17.78" y="45.72" size="1.778" layer="91">User LED</text>
 <text x="83.82" y="177.8" size="1.778" layer="91">RF Antenna Connector</text>
 <text x="200.66" y="129.54" size="1.778" layer="91">Battery Holder</text>
+<text x="53.34" y="66.04" size="1.778" layer="91">SPI Flash with no Write Protect or Hold (internal pull-up)</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0" smashed="yes"/>
@@ -17936,8 +17937,8 @@ For a 18650 3.6V Battery</text>
 <attribute name="VALUE" x="62.23" y="175.26" size="1.778" layer="96" align="center-left"/>
 </instance>
 <instance part="IC4" gate="G$1" x="55.88" y="55.88" smashed="yes">
-<attribute name="NAME" x="67.31" y="63.5" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="67.31" y="60.96" size="1.778" layer="96" align="center-left"/>
+<attribute name="NAME" x="62.23" y="63.5" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="62.23" y="60.96" size="1.778" layer="96" align="center-left"/>
 </instance>
 <instance part="P+9" gate="VCC" x="96.52" y="60.96" smashed="yes">
 <attribute name="VALUE" x="93.98" y="60.96" size="1.778" layer="96" rot="R180"/>
@@ -18203,6 +18204,11 @@ For a 18650 3.6V Battery</text>
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="127" y1="144.78" x2="127" y2="154.94" width="0.1524" layer="91"/>
 <label x="127" y="154.94" size="1.778" layer="95" rot="R90"/>
+</segment>
+<segment>
+<pinref part="IC4" gate="G$1" pin="!CS"/>
+<wire x1="55.88" y1="55.88" x2="50.8" y2="55.88" width="0.1524" layer="91"/>
+<label x="50.8" y="55.88" size="1.778" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="PA25_UART_RX" class="0">
@@ -18500,12 +18506,6 @@ For a 18650 3.6V Battery</text>
 <pinref part="IC4" gate="G$1" pin="SI_(SIO)"/>
 <wire x1="93.98" y1="48.26" x2="99.06" y2="48.26" width="0.1524" layer="91"/>
 <label x="99.06" y="48.26" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="N$15" class="0">
-<segment>
-<pinref part="IC4" gate="G$1" pin="!CS"/>
-<wire x1="55.88" y1="55.88" x2="50.8" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
