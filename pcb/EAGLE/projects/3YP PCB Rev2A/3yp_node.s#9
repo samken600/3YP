@@ -17066,6 +17066,29 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <wire x1="-2.4" y1="-2.62" x2="-2.4" y2="2.62" width="0.2" layer="21"/>
 <wire x1="-4.5" y1="2.58" x2="-2.75" y2="2.58" width="0.2" layer="21"/>
 </package>
+<package name="SON100P300X300X80-7N">
+<description>&lt;b&gt;DFN6&lt;/b&gt;&lt;br&gt;
+</description>
+<smd name="1" x="-1.45" y="1" dx="0.85" dy="0.45" layer="1"/>
+<smd name="2" x="-1.45" y="0" dx="0.85" dy="0.45" layer="1"/>
+<smd name="3" x="-1.45" y="-1" dx="0.85" dy="0.45" layer="1"/>
+<smd name="4" x="1.45" y="-1" dx="0.85" dy="0.45" layer="1"/>
+<smd name="5" x="1.45" y="0" dx="0.85" dy="0.45" layer="1"/>
+<smd name="6" x="1.45" y="1" dx="0.85" dy="0.45" layer="1"/>
+<smd name="7" x="0" y="0" dx="2.5" dy="1.6" layer="1" rot="R90"/>
+<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="-2.125" y1="1.75" x2="2.125" y2="1.75" width="0.05" layer="51"/>
+<wire x1="2.125" y1="1.75" x2="2.125" y2="-1.75" width="0.05" layer="51"/>
+<wire x1="2.125" y1="-1.75" x2="-2.125" y2="-1.75" width="0.05" layer="51"/>
+<wire x1="-2.125" y1="-1.75" x2="-2.125" y2="1.75" width="0.05" layer="51"/>
+<wire x1="-1.5" y1="1.5" x2="1.5" y2="1.5" width="0.1" layer="51"/>
+<wire x1="1.5" y1="1.5" x2="1.5" y2="-1.5" width="0.1" layer="51"/>
+<wire x1="1.5" y1="-1.5" x2="-1.5" y2="-1.5" width="0.1" layer="51"/>
+<wire x1="-1.5" y1="-1.5" x2="-1.5" y2="1.5" width="0.1" layer="51"/>
+<wire x1="-1.5" y1="0.75" x2="-0.75" y2="1.5" width="0.1" layer="51"/>
+<circle x="-1.875" y="1.725" radius="0.125" width="0.25" layer="25"/>
+</package>
 </packages>
 <symbols>
 <symbol name="1042P">
@@ -17140,7 +17163,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <wire x1="5.08" y1="2.54" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
 <text x="29.21" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
 <text x="29.21" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
-<pin name="OUT" x="0" y="0" length="middle"/>
+<pin name="OUT" x="0" y="0" length="middle" direction="sup"/>
 <pin name="GND_1" x="0" y="-2.54" length="middle"/>
 <pin name="ON/OFF" x="0" y="-5.08" length="middle"/>
 <pin name="NC" x="33.02" y="0" length="middle" direction="nc" rot="R180"/>
@@ -17197,7 +17220,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <pin name="GND" x="0" y="-2.54" length="middle" direction="pwr"/>
 <pin name="EN" x="0" y="-5.08" length="middle"/>
 <pin name="NC" x="25.4" y="0" length="middle" direction="nc" rot="R180"/>
-<pin name="OUT" x="25.4" y="-2.54" length="middle" direction="pwr" rot="R180"/>
+<pin name="VCC" x="25.4" y="-2.54" length="middle" direction="sup" rot="R180"/>
 </symbol>
 <symbol name="ATSAMR30M18A-I_RM100">
 <wire x1="5.08" y1="10.16" x2="30.48" y2="10.16" width="0.254" layer="94"/>
@@ -17259,6 +17282,21 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <pin name="HOLD" x="38.1" y="-2.54" length="middle" rot="R180"/>
 <pin name="SCK" x="38.1" y="-5.08" length="middle" rot="R180"/>
 <pin name="SI_(SIO)" x="38.1" y="-7.62" length="middle" rot="R180"/>
+</symbol>
+<symbol name="SI7006-A20-IM1">
+<wire x1="5.08" y1="2.54" x2="25.4" y2="2.54" width="0.254" layer="94"/>
+<wire x1="25.4" y1="-15.24" x2="25.4" y2="2.54" width="0.254" layer="94"/>
+<wire x1="25.4" y1="-15.24" x2="5.08" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="-15.24" width="0.254" layer="94"/>
+<text x="26.67" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="26.67" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="SDA" x="0" y="0" length="middle"/>
+<pin name="GND" x="0" y="-2.54" length="middle" direction="pwr"/>
+<pin name="NC_1" x="0" y="-5.08" length="middle"/>
+<pin name="TPAD" x="15.24" y="-20.32" length="middle" rot="R90"/>
+<pin name="SCL" x="30.48" y="0" length="middle" direction="in" rot="R180"/>
+<pin name="VCC" x="30.48" y="-2.54" length="middle" direction="pwr" rot="R180"/>
+<pin name="NC_2" x="30.48" y="-5.08" length="middle" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -17511,7 +17549,7 @@ Source: &lt;a href="http://www.st.com/web/en/resource/technical/document/datashe
 <connect gate="G$1" pin="GND" pad="2"/>
 <connect gate="G$1" pin="IN" pad="1"/>
 <connect gate="G$1" pin="NC" pad="4"/>
-<connect gate="G$1" pin="OUT" pad="5"/>
+<connect gate="G$1" pin="VCC" pad="5"/>
 </connects>
 <technologies>
 <technology name="">
@@ -17642,6 +17680,38 @@ Source: &lt;a href="http://docs-emea.rs-online.com/webdocs/0efc/0900766b80efc106
 </device>
 </devices>
 </deviceset>
+<deviceset name="SI7006-A20-IM1" prefix="HM">
+<description>&lt;b&gt;Si7006 Digital RH temp sensor w filter Silicon Labs Si7006-A20-IM1 Temperature &amp; Humidity Sensor, -40  +125 C, 6-Pin DFN&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://www.silabs.com/documents/public/data-sheets/Si7006-A20.pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="SI7006-A20-IM1" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SON100P300X300X80-7N">
+<connects>
+<connect gate="G$1" pin="GND" pad="2"/>
+<connect gate="G$1" pin="NC_1" pad="3"/>
+<connect gate="G$1" pin="NC_2" pad="4"/>
+<connect gate="G$1" pin="SCL" pad="6"/>
+<connect gate="G$1" pin="SDA" pad="1"/>
+<connect gate="G$1" pin="TPAD" pad="7"/>
+<connect gate="G$1" pin="VCC" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="DESCRIPTION" value="Si7006 Digital RH temp sensor w filter Silicon Labs Si7006-A20-IM1 Temperature &amp; Humidity Sensor, -40  +125 C, 6-Pin DFN" constant="no"/>
+<attribute name="HEIGHT" value="0.8mm" constant="no"/>
+<attribute name="MANUFACTURER_NAME" value="Silicon Labs" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="Si7006-A20-IM1" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="634-SI7006-A20-IM1" constant="no"/>
+<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.com/Search/Refine.aspx?Keyword=634-SI7006-A20-IM1" constant="no"/>
+<attribute name="RS_PART_NUMBER" value="8652283P" constant="no"/>
+<attribute name="RS_PRICE-STOCK" value="http://uk.rs-online.com/web/p/products/8652283P" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -17715,6 +17785,9 @@ Source: &lt;a href="http://docs-emea.rs-online.com/webdocs/0efc/0900766b80efc106
 <part name="IC4" library="SamacSys_Parts" deviceset="AT25DF321A-SH-B" device=""/>
 <part name="P+9" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VCC" device=""/>
 <part name="GND11" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="HM1" library="SamacSys_Parts" deviceset="SI7006-A20-IM1" device=""/>
+<part name="GND13" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="P+11" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VCC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -17727,12 +17800,12 @@ Source: &lt;a href="http://docs-emea.rs-online.com/webdocs/0efc/0900766b80efc106
 <text x="175.26" y="88.9" size="1.778" layer="91">High Side Load Switch
 &amp; DS18 Temperature Sensor</text>
 <text x="35.56" y="134.62" size="1.778" layer="91">Programming and IO header</text>
-<text x="170.18" y="170.18" size="1.778" layer="91">Battery Circuitry
+<text x="142.24" y="175.26" size="1.778" layer="91">Battery Circuitry
 For a 18650 3.6V Battery</text>
 <text x="241.3" y="7.62" size="1.778" layer="91">&gt;REV</text>
 <text x="17.78" y="45.72" size="1.778" layer="91">User LED</text>
 <text x="83.82" y="177.8" size="1.778" layer="91">RF Antenna Connector</text>
-<text x="200.66" y="129.54" size="1.778" layer="91">Battery Holder</text>
+<text x="213.36" y="180.34" size="1.778" layer="91">Battery Holder</text>
 <text x="55.88" y="33.02" size="1.778" layer="91">SPI Flash with Hold and no Write Protect (internal pull-up)</text>
 </plain>
 <instances>
@@ -17799,12 +17872,12 @@ For a 18650 3.6V Battery</text>
 <instance part="GND5" gate="1" x="60.96" y="111.76" smashed="yes">
 <attribute name="VALUE" x="58.42" y="109.22" size="1.778" layer="96"/>
 </instance>
-<instance part="U1" gate="G$1" x="198.12" y="111.76" smashed="yes">
-<attribute name="NAME" x="214.63" y="124.46" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="214.63" y="121.92" size="1.778" layer="96" align="center-left"/>
+<instance part="U1" gate="G$1" x="210.82" y="162.56" smashed="yes">
+<attribute name="NAME" x="227.33" y="175.26" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="227.33" y="172.72" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="GND6" gate="1" x="193.04" y="111.76" smashed="yes" rot="R270">
-<attribute name="VALUE" x="190.5" y="114.3" size="1.778" layer="96" rot="R270"/>
+<instance part="GND6" gate="1" x="205.74" y="162.56" smashed="yes" rot="R270">
+<attribute name="VALUE" x="203.2" y="165.1" size="1.778" layer="96" rot="R270"/>
 </instance>
 <instance part="P+4" gate="VCC" x="10.16" y="111.76" smashed="yes">
 <attribute name="VALUE" x="7.62" y="109.22" size="1.778" layer="96" rot="R90"/>
@@ -17860,13 +17933,13 @@ For a 18650 3.6V Battery</text>
 <attribute name="NAME" x="9.1186" y="16.51" size="1.778" layer="95" rot="R270"/>
 <attribute name="VALUE" x="14.478" y="16.51" size="1.778" layer="96" rot="R270"/>
 </instance>
-<instance part="GND10" gate="1" x="226.06" y="137.16" smashed="yes">
-<attribute name="VALUE" x="223.52" y="134.62" size="1.778" layer="96"/>
+<instance part="GND10" gate="1" x="198.12" y="142.24" smashed="yes">
+<attribute name="VALUE" x="195.58" y="139.7" size="1.778" layer="96"/>
 </instance>
-<instance part="P+7" gate="VCC" x="226.06" y="162.56" smashed="yes">
-<attribute name="VALUE" x="223.52" y="160.02" size="1.778" layer="96" rot="R90"/>
+<instance part="P+7" gate="VCC" x="198.12" y="167.64" smashed="yes">
+<attribute name="VALUE" x="195.58" y="165.1" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="GND12" gate="1" x="182.88" y="137.16" smashed="yes"/>
+<instance part="GND12" gate="1" x="154.94" y="142.24" smashed="yes"/>
 <instance part="IC3" gate="G$1" x="180.34" y="81.28" smashed="yes">
 <attribute name="NAME" x="209.55" y="88.9" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="209.55" y="86.36" size="1.778" layer="96" align="center-left"/>
@@ -17920,17 +17993,17 @@ For a 18650 3.6V Battery</text>
 <attribute name="NAME" x="222.504" y="51.181" size="1.778" layer="95"/>
 <attribute name="VALUE" x="222.504" y="46.101" size="1.778" layer="96"/>
 </instance>
-<instance part="IC2" gate="G$1" x="198.12" y="154.94" smashed="yes">
-<attribute name="NAME" x="201.93" y="162.56" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="201.93" y="160.02" size="1.778" layer="96" align="center-left"/>
+<instance part="IC2" gate="G$1" x="170.18" y="160.02" smashed="yes">
+<attribute name="NAME" x="173.99" y="167.64" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="173.99" y="165.1" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="C3" gate="G$1" x="182.88" y="152.4" smashed="yes">
-<attribute name="NAME" x="184.404" y="152.781" size="1.778" layer="95"/>
-<attribute name="VALUE" x="184.404" y="147.701" size="1.778" layer="96"/>
+<instance part="C3" gate="G$1" x="154.94" y="157.48" smashed="yes">
+<attribute name="NAME" x="156.464" y="157.861" size="1.778" layer="95"/>
+<attribute name="VALUE" x="156.464" y="152.781" size="1.778" layer="96"/>
 </instance>
-<instance part="C4" gate="G$1" x="226.06" y="147.32" smashed="yes">
-<attribute name="NAME" x="227.584" y="147.701" size="1.778" layer="95"/>
-<attribute name="VALUE" x="227.584" y="142.621" size="1.778" layer="96"/>
+<instance part="C4" gate="G$1" x="198.12" y="152.4" smashed="yes">
+<attribute name="NAME" x="199.644" y="152.781" size="1.778" layer="95"/>
+<attribute name="VALUE" x="199.644" y="147.701" size="1.778" layer="96"/>
 </instance>
 <instance part="J2" gate="G$1" x="63.5" y="170.18" smashed="yes">
 <attribute name="NAME" x="62.23" y="177.8" size="1.778" layer="95" align="center-left"/>
@@ -17945,6 +18018,16 @@ For a 18650 3.6V Battery</text>
 </instance>
 <instance part="GND11" gate="1" x="58.42" y="7.62" smashed="yes">
 <attribute name="VALUE" x="55.88" y="5.08" size="1.778" layer="96"/>
+</instance>
+<instance part="HM1" gate="G$1" x="190.5" y="124.46" smashed="yes">
+<attribute name="NAME" x="196.85" y="132.08" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="196.85" y="129.54" size="1.778" layer="96" align="center-left"/>
+</instance>
+<instance part="GND13" gate="1" x="187.96" y="116.84" smashed="yes">
+<attribute name="VALUE" x="185.42" y="114.3" size="1.778" layer="96"/>
+</instance>
+<instance part="P+11" gate="VCC" x="228.6" y="129.54" smashed="yes">
+<attribute name="VALUE" x="226.06" y="127" size="1.778" layer="96" rot="R90"/>
 </instance>
 </instances>
 <busses>
@@ -17996,12 +18079,12 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="P+7" gate="VCC" pin="VCC"/>
-<wire x1="226.06" y1="160.02" x2="226.06" y2="152.4" width="0.1524" layer="91"/>
+<wire x1="198.12" y1="165.1" x2="198.12" y2="157.48" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="1"/>
-<wire x1="226.06" y1="152.4" x2="226.06" y2="149.86" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="OUT"/>
-<wire x1="223.52" y1="152.4" x2="226.06" y2="152.4" width="0.1524" layer="91"/>
-<junction x="226.06" y="152.4"/>
+<wire x1="198.12" y1="157.48" x2="198.12" y2="154.94" width="0.1524" layer="91"/>
+<pinref part="IC2" gate="G$1" pin="VCC"/>
+<wire x1="195.58" y1="157.48" x2="198.12" y2="157.48" width="0.1524" layer="91"/>
+<junction x="198.12" y="157.48"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="G$1" pin="1"/>
@@ -18057,7 +18140,7 @@ For a 18650 3.6V Battery</text>
 <segment>
 <pinref part="U1" gate="G$1" pin="4"/>
 <pinref part="GND6" gate="1" pin="GND"/>
-<wire x1="198.12" y1="111.76" x2="195.58" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="210.82" y1="162.56" x2="208.28" y2="162.56" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="S1" gate="G$1" pin="4"/>
@@ -18084,7 +18167,7 @@ For a 18650 3.6V Battery</text>
 </segment>
 <segment>
 <pinref part="GND10" gate="1" pin="GND"/>
-<wire x1="226.06" y1="142.24" x2="226.06" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="198.12" y1="147.32" x2="198.12" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="2"/>
 </segment>
 <segment>
@@ -18134,19 +18217,25 @@ For a 18650 3.6V Battery</text>
 <segment>
 <pinref part="C3" gate="G$1" pin="2"/>
 <pinref part="GND12" gate="1" pin="GND"/>
-<wire x1="182.88" y1="139.7" x2="182.88" y2="142.24" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="144.78" x2="154.94" y2="147.32" width="0.1524" layer="91"/>
 <pinref part="IC2" gate="G$1" pin="GND"/>
-<wire x1="182.88" y1="142.24" x2="182.88" y2="147.32" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="152.4" x2="187.96" y2="152.4" width="0.1524" layer="91"/>
-<wire x1="187.96" y1="152.4" x2="187.96" y2="142.24" width="0.1524" layer="91"/>
-<wire x1="187.96" y1="142.24" x2="182.88" y2="142.24" width="0.1524" layer="91"/>
-<junction x="182.88" y="142.24"/>
+<wire x1="154.94" y1="147.32" x2="154.94" y2="152.4" width="0.1524" layer="91"/>
+<wire x1="170.18" y1="157.48" x2="160.02" y2="157.48" width="0.1524" layer="91"/>
+<wire x1="160.02" y1="157.48" x2="160.02" y2="147.32" width="0.1524" layer="91"/>
+<wire x1="160.02" y1="147.32" x2="154.94" y2="147.32" width="0.1524" layer="91"/>
+<junction x="154.94" y="147.32"/>
 </segment>
 <segment>
 <pinref part="GND11" gate="1" pin="GND"/>
 <pinref part="IC4" gate="G$1" pin="GND"/>
 <wire x1="58.42" y1="10.16" x2="58.42" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="12.7" x2="60.96" y2="12.7" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="GND13" gate="1" pin="GND"/>
+<wire x1="187.96" y1="119.38" x2="187.96" y2="121.92" width="0.1524" layer="91"/>
+<pinref part="HM1" gate="G$1" pin="GND"/>
+<wire x1="187.96" y1="121.92" x2="190.5" y2="121.92" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SAMR30_RF_OUT" class="0">
@@ -18438,22 +18527,22 @@ For a 18650 3.6V Battery</text>
 <net name="BATTERY_IN" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="5"/>
-<wire x1="218.44" y1="111.76" x2="220.98" y2="111.76" width="0.1524" layer="91"/>
-<label x="218.44" y="111.76" size="1.778" layer="95"/>
-<label x="218.44" y="111.76" size="1.778" layer="95"/>
+<wire x1="231.14" y1="162.56" x2="233.68" y2="162.56" width="0.1524" layer="91"/>
+<label x="231.14" y="162.56" size="1.778" layer="95"/>
+<label x="231.14" y="162.56" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="198.12" y1="154.94" x2="193.04" y2="154.94" width="0.1524" layer="91"/>
-<label x="167.64" y="154.94" size="1.778" layer="95"/>
+<wire x1="170.18" y1="160.02" x2="165.1" y2="160.02" width="0.1524" layer="91"/>
+<label x="139.7" y="160.02" size="1.778" layer="95"/>
 <pinref part="IC2" gate="G$1" pin="IN"/>
 <pinref part="C3" gate="G$1" pin="1"/>
-<wire x1="193.04" y1="154.94" x2="182.88" y2="154.94" width="0.1524" layer="91"/>
-<wire x1="182.88" y1="154.94" x2="167.64" y2="154.94" width="0.1524" layer="91"/>
-<junction x="182.88" y="154.94"/>
+<wire x1="165.1" y1="160.02" x2="154.94" y2="160.02" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="160.02" x2="139.7" y2="160.02" width="0.1524" layer="91"/>
+<junction x="154.94" y="160.02"/>
 <pinref part="IC2" gate="G$1" pin="EN"/>
-<wire x1="198.12" y1="149.86" x2="193.04" y2="149.86" width="0.1524" layer="91"/>
-<wire x1="193.04" y1="149.86" x2="193.04" y2="154.94" width="0.1524" layer="91"/>
-<junction x="193.04" y="154.94"/>
+<wire x1="170.18" y1="154.94" x2="165.1" y2="154.94" width="0.1524" layer="91"/>
+<wire x1="165.1" y1="154.94" x2="165.1" y2="160.02" width="0.1524" layer="91"/>
+<junction x="165.1" y="160.02"/>
 </segment>
 </net>
 <net name="DS18_POW" class="0">
@@ -18513,9 +18602,20 @@ For a 18650 3.6V Battery</text>
 <label x="104.14" y="12.7" size="1.778" layer="95"/>
 </segment>
 </net>
+<net name="N$11" class="0">
+<segment>
+<pinref part="HM1" gate="G$1" pin="VCC"/>
+<wire x1="220.98" y1="121.92" x2="223.52" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="223.52" y1="121.92" x2="223.52" y2="124.46" width="0.1524" layer="91"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="102,1,215.9,55.88,OUT,DS18_POW,,,,"/>
+<approved hash="104,1,213.36,81.28,IC3,VDD,DS18_POW,,,"/>
+</errors>
 </schematic>
 </drawing>
 <compatibility>

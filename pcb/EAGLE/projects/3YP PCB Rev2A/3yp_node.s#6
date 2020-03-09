@@ -17787,7 +17787,6 @@ Source: &lt;a href="https://www.silabs.com/documents/public/data-sheets/Si7006-A
 <part name="GND11" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="HM1" library="SamacSys_Parts" deviceset="SI7006-A20-IM1" device=""/>
 <part name="GND13" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="P+11" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VCC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -18025,9 +18024,6 @@ For a 18650 3.6V Battery</text>
 </instance>
 <instance part="GND13" gate="1" x="187.96" y="116.84" smashed="yes">
 <attribute name="VALUE" x="185.42" y="114.3" size="1.778" layer="96"/>
-</instance>
-<instance part="P+11" gate="VCC" x="228.6" y="129.54" smashed="yes">
-<attribute name="VALUE" x="226.06" y="127" size="1.778" layer="96" rot="R90"/>
 </instance>
 </instances>
 <busses>
@@ -18425,6 +18421,11 @@ For a 18650 3.6V Battery</text>
 <wire x1="58.42" y1="116.84" x2="60.96" y2="116.84" width="0.1524" layer="91"/>
 <label x="60.96" y="116.84" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="HM1" gate="G$1" pin="SDA"/>
+<wire x1="190.5" y1="124.46" x2="185.42" y2="124.46" width="0.1524" layer="91"/>
+<label x="185.42" y="124.46" size="1.778" layer="95" rot="R180"/>
+</segment>
 </net>
 <net name="PA09_I2C_SCL" class="0">
 <segment>
@@ -18441,6 +18442,11 @@ For a 18650 3.6V Battery</text>
 <pinref part="SV1" gate="G$1" pin="7"/>
 <wire x1="38.1" y1="114.3" x2="35.56" y2="114.3" width="0.1524" layer="91"/>
 <label x="35.56" y="114.3" size="1.778" layer="95" rot="R180"/>
+</segment>
+<segment>
+<pinref part="HM1" gate="G$1" pin="SCL"/>
+<wire x1="220.98" y1="124.46" x2="226.06" y2="124.46" width="0.1524" layer="91"/>
+<label x="226.06" y="124.46" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PA28_DS18_EN" class="0">
@@ -18605,8 +18611,7 @@ For a 18650 3.6V Battery</text>
 <net name="N$11" class="0">
 <segment>
 <pinref part="HM1" gate="G$1" pin="VCC"/>
-<wire x1="220.98" y1="121.92" x2="223.52" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="223.52" y1="121.92" x2="223.52" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="220.98" y1="121.92" x2="226.06" y2="121.92" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
