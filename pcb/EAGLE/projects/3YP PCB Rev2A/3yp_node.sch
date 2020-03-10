@@ -9123,6 +9123,10 @@ Source: &lt;a href="http://datasheets.avx.com/TAJ.pdf"&gt; Datasheet &lt;/a&gt;<
 <part name="GND13" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="C7" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="100n"/>
 <part name="GND14" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="C8" library="SamacSys_Parts" deviceset="TAJP106K006RNJ" device="" value="10u"/>
+<part name="GND19" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="C9" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="100n"/>
+<part name="C10" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="100n"/>
 </parts>
 <sheets>
 <sheet>
@@ -9141,7 +9145,7 @@ For a 18650 3.6V Battery</text>
 <text x="17.78" y="45.72" size="1.778" layer="91">User LED</text>
 <text x="83.82" y="177.8" size="1.778" layer="91">RF Antenna Connector</text>
 <text x="213.36" y="180.34" size="1.778" layer="91">Battery Holder</text>
-<text x="55.88" y="33.02" size="1.778" layer="91">SPI Flash with Hold and no Write Protect (internal pull-up)</text>
+<text x="40.64" y="33.02" size="1.778" layer="91">SPI Flash with Hold and no Write Protect (internal pull-up)</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0" smashed="yes"/>
@@ -9368,6 +9372,21 @@ For a 18650 3.6V Battery</text>
 <instance part="GND14" gate="1" x="223.52" y="109.22" smashed="yes">
 <attribute name="VALUE" x="220.98" y="106.68" size="1.778" layer="96"/>
 </instance>
+<instance part="C8" gate="G$1" x="104.14" y="22.86" smashed="yes">
+<attribute name="NAME" x="105.664" y="25.781" size="1.778" layer="95"/>
+<attribute name="VALUE" x="105.664" y="18.161" size="1.778" layer="96"/>
+</instance>
+<instance part="GND19" gate="1" x="121.92" y="22.86" smashed="yes" rot="R90">
+<attribute name="VALUE" x="124.46" y="20.32" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C9" gate="G$1" x="109.22" y="30.48" smashed="yes" rot="R90">
+<attribute name="NAME" x="108.839" y="32.004" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="113.919" y="32.004" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C10" gate="G$1" x="99.06" y="88.9" smashed="yes" rot="R180">
+<attribute name="NAME" x="105.156" y="88.519" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="105.156" y="93.599" size="1.778" layer="96" rot="R180"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -9377,11 +9396,15 @@ For a 18650 3.6V Battery</text>
 <pinref part="P+1" gate="VCC" pin="VCC"/>
 <wire x1="83.82" y1="96.52" x2="88.9" y2="96.52" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="+"/>
-<wire x1="88.9" y1="96.52" x2="106.68" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="96.52" x2="99.06" y2="96.52" width="0.1524" layer="91"/>
 <junction x="88.9" y="96.52"/>
+<wire x1="99.06" y1="96.52" x2="106.68" y2="96.52" width="0.1524" layer="91"/>
 <wire x1="106.68" y1="96.52" x2="106.68" y2="101.6" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="VDD"/>
 <wire x1="106.68" y1="101.6" x2="109.22" y2="101.6" width="0.1524" layer="91"/>
+<pinref part="C10" gate="G$1" pin="2"/>
+<wire x1="99.06" y1="93.98" x2="99.06" y2="96.52" width="0.1524" layer="91"/>
+<junction x="99.06" y="96.52"/>
 </segment>
 <segment>
 <pinref part="R8" gate="G$1" pin="1"/>
@@ -9436,6 +9459,13 @@ For a 18650 3.6V Battery</text>
 <wire x1="99.06" y1="20.32" x2="101.6" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="P+9" gate="VCC" pin="VCC"/>
 <wire x1="101.6" y1="20.32" x2="101.6" y2="22.86" width="0.1524" layer="91"/>
+<pinref part="C8" gate="G$1" pin="+"/>
+<wire x1="104.14" y1="22.86" x2="101.6" y2="22.86" width="0.1524" layer="91"/>
+<junction x="101.6" y="22.86"/>
+<wire x1="104.14" y1="22.86" x2="104.14" y2="30.48" width="0.1524" layer="91"/>
+<junction x="104.14" y="22.86"/>
+<pinref part="C9" gate="G$1" pin="1"/>
+<wire x1="104.14" y1="30.48" x2="106.68" y2="30.48" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -9466,10 +9496,14 @@ For a 18650 3.6V Battery</text>
 <pinref part="GND1" gate="1" pin="GND"/>
 <wire x1="83.82" y1="83.82" x2="88.9" y2="83.82" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="-"/>
-<wire x1="88.9" y1="83.82" x2="109.22" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="83.82" x2="99.06" y2="83.82" width="0.1524" layer="91"/>
 <junction x="88.9" y="83.82"/>
 <pinref part="IC1" gate="G$1" pin="GND_2"/>
+<wire x1="99.06" y1="83.82" x2="109.22" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="109.22" y1="99.06" x2="109.22" y2="83.82" width="0.1524" layer="91"/>
+<pinref part="C10" gate="G$1" pin="1"/>
+<wire x1="99.06" y1="86.36" x2="99.06" y2="83.82" width="0.1524" layer="91"/>
+<junction x="99.06" y="83.82"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="G$1" pin="8"/>
@@ -9580,6 +9614,15 @@ For a 18650 3.6V Battery</text>
 <pinref part="C7" gate="G$1" pin="2"/>
 <pinref part="GND14" gate="1" pin="GND"/>
 <wire x1="223.52" y1="111.76" x2="223.52" y2="114.3" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="C8" gate="G$1" pin="-"/>
+<pinref part="GND19" gate="1" pin="GND"/>
+<wire x1="116.84" y1="22.86" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
+<pinref part="C9" gate="G$1" pin="2"/>
+<wire x1="114.3" y1="30.48" x2="119.38" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="30.48" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
+<junction x="119.38" y="22.86"/>
 </segment>
 </net>
 <net name="SAMR30_RF_OUT" class="0">
