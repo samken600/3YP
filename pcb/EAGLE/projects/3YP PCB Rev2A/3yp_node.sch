@@ -9970,6 +9970,7 @@ For a 18650 3.6V Battery</text>
 <errors>
 <approved hash="102,1,215.9,55.88,OUT,DS18_POW,,,,"/>
 <approved hash="104,1,213.36,81.28,IC3,VDD,DS18_POW,,,"/>
+<approved hash="104,1,220.98,121.92,HM1,VCC,DS18_POW,,,"/>
 </errors>
 </schematic>
 </drawing>
