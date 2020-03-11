@@ -2120,7 +2120,9 @@ Please make sure your boards conform to these design rules.
 <wire x1="63.754" y1="19.724" x2="64.809" y2="18.669" width="0.254" layer="1"/>
 <wire x1="65.979" y1="18.669" x2="66.04" y2="18.608" width="0.254" layer="1"/>
 <wire x1="64.809" y1="18.669" x2="65.979" y2="18.669" width="0.254" layer="1"/>
-<wire x1="65.659" y1="16.063" x2="66.04" y2="18.608" width="0" layer="19" extent="1-1"/>
+<wire x1="65.659" y1="16.063" x2="65.659" y2="17.145" width="0.254" layer="1"/>
+<wire x1="65.659" y1="17.145" x2="66.04" y2="17.526" width="0.254" layer="1"/>
+<wire x1="66.04" y1="17.526" x2="66.04" y2="18.608" width="0.254" layer="1"/>
 </signal>
 <signal name="GND">
 <contactref element="IC1" pad="J21"/>

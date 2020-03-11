@@ -2101,13 +2101,11 @@ Please make sure your boards conform to these design rules.
 <wire x1="79.756" y1="26.035" x2="79.756" y2="24.13" width="0.254" layer="1"/>
 <wire x1="79.756" y1="24.13" x2="74.146" y2="18.52" width="0.254" layer="1"/>
 <wire x1="74.146" y1="18.52" x2="69.261" y2="18.52" width="0.254" layer="1"/>
-<wire x1="63.815" y1="19.663" x2="63.754" y2="19.724" width="0.254" layer="1"/>
 <wire x1="62.672" y1="16.495" x2="63.642" y2="16.495" width="0.254" layer="1"/>
 <wire x1="31.877" y1="20.889" x2="35.411" y2="20.889" width="0.254" layer="1"/>
 <wire x1="64.074" y1="16.063" x2="65.659" y2="16.063" width="0.254" layer="1"/>
 <wire x1="63.642" y1="16.495" x2="64.074" y2="16.063" width="0.254" layer="1"/>
 <contactref element="C8" pad="1"/>
-<wire x1="45.612" y1="16.168" x2="45.651" y2="16.129" width="0.254" layer="1"/>
 <contactref element="C10" pad="2"/>
 <contactref element="C9" pad="1"/>
 <wire x1="45.651" y1="16.129" x2="42.7584" y2="16.129" width="0.254" layer="1"/>
@@ -2117,12 +2115,12 @@ Please make sure your boards conform to these design rules.
 <wire x1="40.132" y1="16.168" x2="35.411" y2="20.889" width="0.254" layer="1"/>
 <wire x1="69.261" y1="18.52" x2="66.128" y2="18.52" width="0.254" layer="1"/>
 <wire x1="66.128" y1="18.52" x2="66.04" y2="18.608" width="0.254" layer="1"/>
-<wire x1="63.754" y1="19.724" x2="64.809" y2="18.669" width="0.254" layer="1"/>
 <wire x1="65.979" y1="18.669" x2="66.04" y2="18.608" width="0.254" layer="1"/>
-<wire x1="64.809" y1="18.669" x2="65.979" y2="18.669" width="0.254" layer="1"/>
+<wire x1="65.979" y1="18.669" x2="64.809" y2="18.669" width="0.254" layer="1"/>
 <wire x1="65.659" y1="16.063" x2="65.659" y2="17.145" width="0.254" layer="1"/>
 <wire x1="65.659" y1="17.145" x2="66.04" y2="17.526" width="0.254" layer="1"/>
 <wire x1="66.04" y1="17.526" x2="66.04" y2="18.608" width="0.254" layer="1"/>
+<wire x1="64.809" y1="18.669" x2="63.754" y2="19.724" width="0.254" layer="1"/>
 </signal>
 <signal name="GND">
 <contactref element="IC1" pad="J21"/>
@@ -2907,7 +2905,6 @@ Please make sure your boards conform to these design rules.
 <wire x1="44.5842" y1="18.669" x2="43.18" y2="20.0732" width="0.1524" layer="1"/>
 <wire x1="51.7398" y1="29.4132" x2="44.2722" y2="29.4132" width="0.1524" layer="1"/>
 <wire x1="44.2722" y1="29.4132" x2="43.18" y2="28.321" width="0.1524" layer="1"/>
-<wire x1="70.844" y1="22.12" x2="70.866" y2="22.098" width="0.254" layer="1"/>
 <wire x1="54.356" y1="26.797" x2="53.594" y2="27.559" width="0.1524" layer="16"/>
 <wire x1="66.167" y1="26.797" x2="54.356" y2="26.797" width="0.1524" layer="16"/>
 <wire x1="69.261" y1="22.12" x2="68.05" y2="22.12" width="0.1524" layer="1"/>
@@ -2915,7 +2912,6 @@ Please make sure your boards conform to these design rules.
 <wire x1="66.9798" y1="23.1902" x2="66.9798" y2="25.9842" width="0.1524" layer="1"/>
 <via x="66.9798" y="25.9842" extent="1-16" drill="0.35" diameter="0.6"/>
 <wire x1="66.9798" y1="25.9842" x2="66.167" y2="26.797" width="0.1524" layer="16"/>
-<wire x1="69.261" y1="22.12" x2="70.844" y2="22.12" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="PA18_SPI_MOSI">
 <contactref element="IC1" pad="J8"/>

@@ -2539,6 +2539,7 @@ Please make sure your boards conform to these design rules.
 <contactref element="C10" pad="1"/>
 <contactref element="C9" pad="2"/>
 <via x="58.42" y="22.86" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="67.0814" y="22.6568" extent="1-16" drill="0.35" diameter="0.6"/>
 </signal>
 <signal name="SAMR30_RF_OUT">
 <contactref element="IC1" pad="J23"/>
@@ -2792,10 +2793,10 @@ Please make sure your boards conform to these design rules.
 <signal name="PA27_DS18_DQ">
 <contactref element="IC1" pad="J10"/>
 <contactref element="IC3" pad="1"/>
-<wire x1="69.261" y1="20.92" x2="68.234" y2="20.92" width="0.1524" layer="1"/>
-<wire x1="68.234" y1="20.92" x2="65.5828" y2="23.5712" width="0.1524" layer="1"/>
+<wire x1="69.261" y1="20.92" x2="67.98" y2="20.92" width="0.1524" layer="1"/>
+<wire x1="67.98" y1="20.92" x2="65.5828" y2="23.3172" width="0.1524" layer="1"/>
 <wire x1="65.585" y1="24.298" x2="65.5828" y2="24.2958" width="0.1524" layer="1"/>
-<wire x1="65.5828" y1="24.2958" x2="65.5828" y2="23.5712" width="0.1524" layer="1"/>
+<wire x1="65.5828" y1="24.2958" x2="65.5828" y2="23.3172" width="0.1524" layer="1"/>
 </signal>
 <signal name="N$8">
 <contactref element="S1" pad="3"/>
@@ -2910,9 +2911,9 @@ Please make sure your boards conform to these design rules.
 <wire x1="44.2722" y1="29.4132" x2="43.18" y2="28.321" width="0.1524" layer="1"/>
 <wire x1="54.356" y1="26.797" x2="53.594" y2="27.559" width="0.1524" layer="16"/>
 <wire x1="66.167" y1="26.797" x2="54.356" y2="26.797" width="0.1524" layer="16"/>
-<wire x1="69.261" y1="22.12" x2="68.05" y2="22.12" width="0.1524" layer="1"/>
-<wire x1="68.05" y1="22.12" x2="66.9798" y2="23.1902" width="0.1524" layer="1"/>
-<wire x1="66.9798" y1="23.1902" x2="66.9798" y2="25.9842" width="0.1524" layer="1"/>
+<wire x1="69.261" y1="22.12" x2="68.558" y2="22.12" width="0.1524" layer="1"/>
+<wire x1="68.558" y1="22.12" x2="66.9798" y2="23.6982" width="0.1524" layer="1"/>
+<wire x1="66.9798" y1="23.6982" x2="66.9798" y2="25.9842" width="0.1524" layer="1"/>
 <via x="66.9798" y="25.9842" extent="1-16" drill="0.35" diameter="0.6"/>
 <wire x1="66.9798" y1="25.9842" x2="66.167" y2="26.797" width="0.1524" layer="16"/>
 </signal>
