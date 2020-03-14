@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DS18_POWER_PIN GPIO_PIN(PA, 19)
-#define DS18_PARAM_PIN GPIO_PIN(PA, 28)
+#define DS18_POWER_PIN GPIO_PIN(PA, 28)
+#define DS18_PARAM_PIN GPIO_PIN(PA, 13)
 #include "ds18.h"
 #include "ds18_params.h"
 
