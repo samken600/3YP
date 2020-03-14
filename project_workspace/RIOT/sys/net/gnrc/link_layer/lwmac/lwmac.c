@@ -27,7 +27,9 @@
 
 #include "timex.h"
 #include "random.h"
+#include "od.h"
 #include "periph/rtt.h"
+//#include "periph/pm.h"
 #include "net/gnrc/netif.h"
 #include "net/gnrc/netif/hdr.h"
 #include "net/gnrc/netif/internal.h"
@@ -41,14 +43,14 @@
 #include "include/rx_state_machine.h"
 #include "include/lwmac_internal.h"
 
-#define ENABLE_DEBUG    (0)
+#define ENABLE_DEBUG    (1)
 #include "debug.h"
 
 #ifndef LOG_LEVEL
 /**
  * @brief Default log level define
  */
-#define LOG_LEVEL LOG_WARNING
+#define LOG_LEVEL LOG_DEBUG
 #endif
 
 #include "log.h"
@@ -178,9 +180,9 @@ static gnrc_pktsnip_t *_recv(gnrc_netif_t *netif)
             pkt->type = state->proto;
 #if ENABLE_DEBUG
             DEBUG("_recv_ieee802154: received packet from %s of length %u\n",
-                  gnrc_netif_addr_to_str(src_str, sizeof(src_str),
-                                         gnrc_netif_hdr_get_src_addr(hdr),
-                                         hdr->src_l2addr_len),
+                  gnrc_netif_addr_to_str((uint8_t *)src_str, sizeof(src_str),
+                                         (char *)gnrc_netif_hdr_get_src_addr(hdr)),
+                                         //hdr->src_l2addr_len),
                   nread);
 #if defined(MODULE_OD)
             od_hex_dump(pkt->data, nread, OD_WIDTH_DEFAULT);
@@ -303,6 +305,8 @@ void lwmac_set_state(gnrc_netif_t *netif, gnrc_lwmac_state_t newstate)
                 alarm = _next_inphase_event(netif->mac.prot.lwmac.last_wakeup,
                                             RTT_US_TO_TICKS(GNRC_LWMAC_WAKEUP_INTERVAL_US));
                 rtt_set_alarm(alarm, rtt_cb, (void *) GNRC_LWMAC_EVENT_RTT_WAKEUP_PENDING);
+// Try here??
+                //pm_set(1); // Enter standby mode
             }
 
             /* Return immediately, so no rescheduling */

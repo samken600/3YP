@@ -19,10 +19,13 @@
 
 #include <stdio.h>
 
+#include "periph/rtt.h"
+#include "periph/pm.h"
 #include "net/nanocoap_sock.h"
 #include "net/gnrc/rpl.h"
 #include "xtimer.h"
 #include "shell.h"
+#include "ps.h"
 
 #define DS18_POWER_PIN GPIO_PIN(PA, 28)
 #define DS18_PARAM_PIN GPIO_PIN(PA, 13)
@@ -51,18 +54,46 @@ void *nanocoap_thread(void *arg) {
     return NULL;
 }
 
+void cb(void *arg) {
+    (void)arg;
+    puts("Hello there");
+}
+
 /* global object for ds18 sensor */
 ds18_t dev;
 int get_temperature(int argc, char **argv);
 
+/*int pwr_test(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
+
+    PM->STDBYCFG.bit.PDCFG = PM_STDBYCFG_PDCFG_PD01;
+
+    uint32_t start = rtt_get_counter();
+    rtt_set_alarm((start + 10 * RTT_FREQUENCY) & RTT_MAX_VALUE, cb, 0);
+
+    pm_set(3);
+    
+    puts("Hey");
+    rtt_init();
+    //xtimer_init();
+    xtimer_sleep(1);
+
+    puts("Yo");
+    ps();
+
+    return 0;
+}*/
+
 static const shell_command_t shell_commands[] = {
     { "get_temp", "gets temperature in celcius", get_temperature },
+//    { "test", "test power", pwr_test },
     { NULL, NULL, NULL }
 };
 
 int main(void)
 {
-    puts("RIOT nanocoap example application with shell and ds18 temperature sensor");
+//    puts("RIOT nanocoap example application with shell and ds18 temperature sensor");
 
     /* initialise the temperature sensor */
     gpio_init(DS18_POWER_PIN, GPIO_OUT);
@@ -78,12 +109,12 @@ int main(void)
     /* nanocoap_server uses gnrc sock which uses gnrc which needs a msg queue */
     msg_init_queue(_main_msg_queue, MAIN_QUEUE_SIZE);
 
-    puts("Waiting for address autoconfiguration...");
+//    puts("Waiting for address autoconfiguration...");
     xtimer_sleep(3);
 
     /* print network addresses */
-    puts("Configured network interfaces:");
-    _gnrc_netif_config(0, NULL);
+//    puts("Configured network interfaces:");
+//    _gnrc_netif_config(0, NULL);
     gnrc_rpl_init(GNRC_RPL_DEFAULT_NETIF);
 
     /* initialize nanocoap server instance by starting thread */
