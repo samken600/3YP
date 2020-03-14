@@ -39,6 +39,7 @@
 #include "od.h"
 #include "random.h"
 #include "shell.h"
+#include "test_utils/expect.h"
 #include "xtimer.h"
 
 #define TEST_SAMPLE         "This is a test. Failure might sometimes be an " \
@@ -110,7 +111,7 @@ static void test_ipv6_ext_frag_rbuf_get(void)
     TEST_ASSERT_MESSAGE(&ipv6 == rbuf->ipv6, "IPv6 header is not the same");
 
     /* check that reassembly buffer never gets full */
-    for (unsigned i = 1; i < (2 * GNRC_IPV6_EXT_FRAG_RBUF_SIZE); i++) {
+    for (unsigned i = 1; i < (2 * CONFIG_GNRC_IPV6_EXT_FRAG_RBUF_SIZE); i++) {
         rbuf = gnrc_ipv6_ext_frag_rbuf_get(
                 &ipv6, TEST_ID + i
             );
@@ -171,7 +172,7 @@ static void test_ipv6_ext_frag_rbuf_gc(void)
     TEST_ASSERT_NOT_NULL(rbuf->pkt);
     TEST_ASSERT_MESSAGE(pkt->data == rbuf->ipv6, "IPv6 header is not the same");
 
-    rbuf->arrival -= GNRC_IPV6_EXT_FRAG_RBUF_TIMEOUT_US;
+    rbuf->arrival -= CONFIG_GNRC_IPV6_EXT_FRAG_RBUF_TIMEOUT_US;
     gnrc_ipv6_ext_frag_rbuf_gc();
     TEST_ASSERT_NULL(rbuf->pkt);
     TEST_ASSERT_NULL(rbuf->ipv6);
@@ -410,7 +411,7 @@ static void test_ipv6_ext_frag_reass_out_of_order_rbuf_full(void)
     static const uint32_t foreign_id = TEST_ID + 44U;
 
 
-    TEST_ASSERT_EQUAL_INT(1, GNRC_IPV6_EXT_FRAG_RBUF_SIZE);
+    TEST_ASSERT_EQUAL_INT(1, CONFIG_GNRC_IPV6_EXT_FRAG_RBUF_SIZE);
     /* prepare fragment from a from a foreign datagram */
     ipv6->nh = PROTNUM_IPV6_EXT_FRAG;
     ipv6->hl = TEST_HL;
@@ -640,7 +641,7 @@ static int unittests(int argc, char** argv)
 static int mock_get_device_type(netdev_t *dev, void *value, size_t max_len)
 {
     (void)dev;
-    assert(max_len == sizeof(uint16_t));
+    expect(max_len == sizeof(uint16_t));
     *((uint16_t *)value) = NETDEV_TYPE_TEST;
     return sizeof(uint16_t);
 }
@@ -648,8 +649,8 @@ static int mock_get_device_type(netdev_t *dev, void *value, size_t max_len)
 static int mock_get_max_packet_size(netdev_t *dev, void *value, size_t max_len)
 {
     (void)dev;
-    assert(max_len == sizeof(uint16_t));
-    assert(eth_netif != NULL);
+    expect(max_len == sizeof(uint16_t));
+    expect(eth_netif != NULL);
     *((uint16_t *)value) = eth_netif->ipv6.mtu - 8;
     return sizeof(uint16_t);
 }

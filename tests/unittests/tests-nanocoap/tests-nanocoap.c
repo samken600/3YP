@@ -306,8 +306,10 @@ static void test_nanocoap__get_multi_query(void)
     coap_pkt_t pkt;
     uint16_t msgid = 0xABCD;
     uint8_t token[2] = {0xDA, 0xEC};
-    char qs[] = "ab=cde&f=gh";
-    size_t query_opt_len = 13;    /* first opt header is 2 bytes long */
+    char key1[] = "ab";
+    char val1[] = "cde";
+    char key2[] = "f";
+    char qs[] = "ab=cde&f";
 
     size_t len = coap_build_hdr((coap_hdr_t *)&buf[0], COAP_TYPE_NON,
                                 &token[0], 2, COAP_METHOD_GET, msgid);
@@ -315,8 +317,11 @@ static void test_nanocoap__get_multi_query(void)
     coap_pkt_init(&pkt, &buf[0], sizeof(buf), len);
 
     uint8_t *query_pos = &pkt.payload[0];
-    len = coap_opt_add_string(&pkt, COAP_OPT_URI_QUERY, &qs[0], '&');
-    TEST_ASSERT_EQUAL_INT(query_opt_len, len);
+    /* first opt header is 2 bytes long */
+    ssize_t optlen = coap_opt_add_uquery(&pkt, key1, val1);
+    TEST_ASSERT_EQUAL_INT(8, optlen);
+    optlen = coap_opt_add_uquery(&pkt, key2, NULL);
+    TEST_ASSERT_EQUAL_INT(2, optlen);
 
     char query[20] = {0};
     coap_get_uri_query(&pkt, (uint8_t *)&query[0]);
@@ -329,7 +334,70 @@ static void test_nanocoap__get_multi_query(void)
     /* skip initial '&' from coap_get_uri_query() */
     TEST_ASSERT_EQUAL_STRING((char *)qs, &query[1]);
 }
+/*
+ * Builds on get_multi_query test, to use coap_opt_add_uquery2().
+ */
+static void test_nanocoap__add_uquery2(void)
+{
+    uint8_t buf[_BUF_SIZE];
+    coap_pkt_t pkt;
+    uint16_t msgid = 0xABCD;
+    uint8_t token[2] = {0xDA, 0xEC};
+    char keys[] = "a;bcd;";
+    int key1_len = 1;
+    int key2_len = 3;
+    char vals[] = "do;re";
+    int val1_len = 2;
+    char qs1[] = "a=do";
+    size_t query1_opt_len = 6;    /* first opt header is 2 bytes long */
+    char qs2[] = "a=do&bcd";
+    size_t query2_opt_len = 4;
+    char qs3[] = "a=do&bcd&bcd";
+    size_t query3_opt_len = 4;
 
+    size_t len = coap_build_hdr((coap_hdr_t *)&buf[0], COAP_TYPE_NON,
+                                &token[0], 2, COAP_METHOD_GET, msgid);
+
+    coap_pkt_init(&pkt, &buf[0], sizeof(buf), len);
+
+    /* includes key and value */
+    char query[20] = {0};
+    len = coap_opt_add_uquery2(&pkt, keys, key1_len, vals, val1_len);
+    TEST_ASSERT_EQUAL_INT(query1_opt_len, len);
+    coap_get_uri_query(&pkt, (uint8_t *)&query[0]);
+    /* skip initial '&' from coap_get_uri_query() */
+    TEST_ASSERT_EQUAL_STRING((char *)qs1, &query[1]);
+
+    /* includes key only */
+    memset(query, 0, 20);
+    len = coap_opt_add_uquery2(&pkt, &keys[2], key2_len, NULL, 0);
+    TEST_ASSERT_EQUAL_INT(query2_opt_len, len);
+    coap_get_uri_query(&pkt, (uint8_t *)&query[0]);
+    /* skip initial '&' from coap_get_uri_query() */
+    TEST_ASSERT_EQUAL_STRING((char *)qs2, &query[1]);
+
+    /* includes key only; value not NULL but zero length */
+    memset(query, 0, 20);
+    len = coap_opt_add_uquery2(&pkt, &keys[2], key2_len, &vals[3], 0);
+    TEST_ASSERT_EQUAL_INT(query3_opt_len, len);
+    coap_get_uri_query(&pkt, (uint8_t *)&query[0]);
+    /* skip initial '&' from coap_get_uri_query() */
+    TEST_ASSERT_EQUAL_STRING((char *)qs3, &query[1]);
+
+    /* fails an assert, so only run when disabled */
+#ifdef NDEBUG
+    char qs4[] = "a=do&bcd&bcd&bcd";
+    size_t query4_opt_len = 4;
+
+    /* includes key only; value NULL and length > 0 */
+    memset(query, 0, 20);
+    len = coap_opt_add_uquery2(&pkt, &keys[2], key2_len, NULL, 1);
+    TEST_ASSERT_EQUAL_INT(query4_opt_len, len);
+    coap_get_uri_query(&pkt, (uint8_t *)&query[0]);
+    /* skip initial '&' from coap_get_uri_query() */
+    TEST_ASSERT_EQUAL_STRING((char *)qs4, &query[1]);
+#endif
+}
 /*
  * Builds on get_req test, to test building a PDU that completely fills the
  * buffer, and one that tries to overfill the buffer.
@@ -658,6 +726,7 @@ Test *tests_nanocoap_tests(void)
         new_TestFixture(test_nanocoap__get_path_too_long),
         new_TestFixture(test_nanocoap__get_query),
         new_TestFixture(test_nanocoap__get_multi_query),
+        new_TestFixture(test_nanocoap__add_uquery2),
         new_TestFixture(test_nanocoap__option_add_buffer_max),
         new_TestFixture(test_nanocoap__options_get_opaque),
         new_TestFixture(test_nanocoap__options_iterate),

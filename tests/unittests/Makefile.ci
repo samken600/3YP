@@ -9,16 +9,15 @@ BOARD_INSUFFICIENT_MEMORY := \
     arduino-mkrzero \
     arduino-nano \
     arduino-uno \
+    arduino-zero \
     atmega256rfr2-xpro \
     atmega328p \
-    arduino-zero \
     b-l072z-lrwan1 \
     blackpill \
     blackpill-128kib \
     bluepill \
     bluepill-128kib \
     calliope-mini \
-    cc1352-launchpad \
     cc2650-launchpad \
     cc2650stk \
     chronos \
@@ -34,6 +33,7 @@ BOARD_INSUFFICIENT_MEMORY := \
     hifive1b \
     i-nucleo-lrwan1 \
     ikea-tradfri \
+    im880b \
     limifrog-v1 \
     lobaro-lorabox \
     lsn50 \
@@ -63,7 +63,9 @@ BOARD_INSUFFICIENT_MEMORY := \
     nucleo-l432kc \
     nucleo-l433rc \
     nz32-sc151 \
+    olimexino-stm32 \
     opencm904 \
+    openlabs-kw41z-mini-256kib \
     pba-d-01-kw2x \
     samd21-xpro \
     saml10-xpro \

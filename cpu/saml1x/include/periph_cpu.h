@@ -30,15 +30,17 @@ extern "C" {
  * @brief   Override the default initial PM blocker
  * @todo   Idle modes are enabled by default, deep sleep mode blocked
  */
-#define PM_BLOCKER_INITIAL  { .val_u32 = 0x00000001 }
+#define PM_BLOCKER_INITIAL  0x00000001
 
 /**
- * @brief   Mapping of pins to EXTI lines, -1 means not EXTI possible
+ * @name   SAML1x GCLK definitions
+ * @{
  */
-static const int8_t exti_config[1][32] = {
-    { 0,  1,  2,  3,  4,  5,  6,  7, -1, 0,  1,  2, -1, -1, 3, 4,
-      5,  6,  7,  0, -1, -1,  1,  2,  3, 4, -1,  5, -1, -1, 6, 7},
+enum {
+    SAM0_GCLK_MAIN = 0,                 /**< 16 MHz main clock      */
+    SAM0_GCLK_32KHZ,                    /**< 32 kHz clock           */
 };
+/** @} */
 
 #ifndef DOXYGEN
 #define HAVE_ADC_RES_T

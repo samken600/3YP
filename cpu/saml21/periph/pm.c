@@ -41,7 +41,7 @@ void pm_set(unsigned mode)
             default: /* Falls through */
             case 2:
                 DEBUG_PUTS("pm_set(): setting IDLE mode.");
-#if defined(CPU_MODEL_SAMR30G18A) || defined(CPU_MODEL_SAMR34J18B)
+#if !defined(PM_SLEEPCFG_SLEEPMODE_IDLE2)
                 _mode = PM_SLEEPCFG_SLEEPMODE_IDLE;
 #else
                 _mode = PM_SLEEPCFG_SLEEPMODE_IDLE2;
@@ -55,5 +55,5 @@ void pm_set(unsigned mode)
         while (PM->SLEEPCFG.bit.SLEEPMODE != _mode) {}
     }
 
-    cortexm_sleep(0);
+    sam0_cortexm_sleep(0);
 }

@@ -7,10 +7,10 @@
  */
 
 /**
- * @defgroup    drivers_ili9341 ili9341 display driver
- * @ingroup     drivers
+ * @defgroup    drivers_ili9341 ILI9341 display driver
+ * @ingroup     drivers_display
  *
- * @brief       ili9341 Display driver
+ * @brief       Driver for the ILI9341 display
  *
  * @{
  *
@@ -35,6 +35,10 @@
 
 #include "periph/spi.h"
 #include "periph/gpio.h"
+
+#ifdef MODULE_DISP_DEV
+#include "disp_dev.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,6 +102,9 @@ typedef struct {
  * @brief   Device descriptor for a ili9341
  */
 typedef struct {
+#ifdef MODULE_DISP_DEV
+    disp_dev_t *dev;                    /**< Pointer to the generic display device */
+#endif
     const ili9341_params_t *params;     /**< Device initialization parameters */
 } ili9341_t;
 
@@ -124,7 +131,7 @@ int ili9341_init(ili9341_t *dev, const ili9341_params_t *params);
  * @param[in]   y2      y coordinate of the opposite corner
  * @param[in]   color   single color to fill the area with
  */
-void ili9341_fill(ili9341_t *dev, uint16_t x1, uint16_t x2,
+void ili9341_fill(const ili9341_t *dev, uint16_t x1, uint16_t x2,
                   uint16_t y1, uint16_t y2, uint16_t color);
 
 /**
@@ -143,7 +150,7 @@ void ili9341_fill(ili9341_t *dev, uint16_t x1, uint16_t x2,
  * @param[in]   y2      y coordinate of the opposite corner
  * @param[in]   color   array of colors to fill the area with
  */
-void ili9341_pixmap(ili9341_t *dev, uint16_t x1, uint16_t x2, uint16_t y1,
+void ili9341_pixmap(const ili9341_t *dev, uint16_t x1, uint16_t x2, uint16_t y1,
                  uint16_t y2, const uint16_t *color);
 
 /**
@@ -154,7 +161,7 @@ void ili9341_pixmap(ili9341_t *dev, uint16_t x1, uint16_t x2, uint16_t y1,
  * @param[in]   data    command data to the device
  * @param[in]   len     length of the command data
  */
-void ili9341_write_cmd(ili9341_t *dev, uint8_t cmd, const uint8_t *data,
+void ili9341_write_cmd(const ili9341_t *dev, uint8_t cmd, const uint8_t *data,
                        size_t len);
 
 /**
@@ -167,21 +174,21 @@ void ili9341_write_cmd(ili9341_t *dev, uint8_t cmd, const uint8_t *data,
  * @param[out]  data    data from the device
  * @param[in]   len     length of the returned data
  */
-void ili9341_read_cmd(ili9341_t *dev, uint8_t cmd, uint8_t *data, size_t len);
+void ili9341_read_cmd(const ili9341_t *dev, uint8_t cmd, uint8_t *data, size_t len);
 
 /**
  * @brief   Invert the display colors
  *
  * @param[in]   dev     device descriptor
  */
-void ili9341_invert_on(ili9341_t *dev);
+void ili9341_invert_on(const ili9341_t *dev);
 
 /**
  * @brief   Disable color inversion
  *
  * @param[in]   dev     device descriptor
  */
-void ili9341_invert_off(ili9341_t *dev);
+void ili9341_invert_off(const ili9341_t *dev);
 
 #ifdef __cplusplus
 }

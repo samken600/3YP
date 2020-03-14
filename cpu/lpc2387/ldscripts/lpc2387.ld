@@ -17,14 +17,6 @@ MEMORY
     ram_ethernet        : ORIGIN = 0x7FE00000, LENGTH = 16K     /* ethernet RAM                             */
 }
 
-__stack_und_size = 4;           /* stack for "undefined instruction" interrupts             */
-__stack_abt_size = 4;           /* stack for "abort" interrupts                             */
-__stack_fiq_size = 64;          /* stack for "FIQ" interrupts                               */
-__stack_irq_size = 400;         /* stack for "IRQ" normal interrupts                        */
-__stack_svc_size = 400;         /* stack for "SVC" supervisor mode                          */
-__stack_usr_size = 4096;        /* stack for user operation (kernel init)                   */
-__stack_size = __stack_und_size + __stack_abt_size + __stack_fiq_size + __stack_irq_size + __stack_svc_size + __stack_usr_size;
-
 /* now define the output sections  */
 SECTIONS
 {
@@ -112,18 +104,17 @@ SECTIONS
     .stack (NOLOAD) :
     {
         PROVIDE(__stack_start = .);
-
-        . = . + __stack_usr_size;
+        KEEP (*(.usr_stack))
         __stack_usr_start = .;
-        . = . + __stack_und_size;
+        KEEP (*(.und_stack))
         __stack_und_start = .;
-        . = . + __stack_fiq_size;
+        KEEP (*(.fiq_stack))
         __stack_fiq_start = .;
-        . = . + __stack_irq_size;
+        KEEP (*(.irq_stack))
         __stack_irq_start = .;
-        . = . + __stack_abt_size;
+        KEEP (*(.abt_stack))
         __stack_abt_start = .;
-        . = . + __stack_svc_size;
+        KEEP (*(.svc_stack))
         __stack_svc_start = .;
 
         PROVIDE(__stack_end = .);
@@ -175,10 +166,10 @@ SECTIONS
     _sram = ORIGIN(ram);
     _eram = ORIGIN(ram) + LENGTH(ram);
 
-    __heap2_size = LENGTH(ram_ethernet);
-    .heap2 (NOLOAD) :
+    .heap1 ALIGN(4) (NOLOAD) :
     {
-        PROVIDE(__heap2_start = . );
+        _sheap1 = ORIGIN(ram_ethernet);
+        _eheap1 = ORIGIN(ram_ethernet) + LENGTH(ram_ethernet);
     } > ram_ethernet
 
     . = ORIGIN(ram_usb);
@@ -187,12 +178,11 @@ SECTIONS
         *(.usbdata)
     } > ram_usb
 
-    .heap3 ALIGN(0x1000) (NOLOAD) :
+    .heap2 ALIGN(4) (NOLOAD) :
     {
-        __heap3_size = ORIGIN(ram_usb) + LENGTH(ram_usb) - ABSOLUTE(.);
-        PROVIDE(__heap3_start = . );
+        _sheap2 = . ;
+        _eheap2 = ORIGIN(ram_usb) + LENGTH(ram_usb);
     } > ram_usb
-    __heap_size = SIZEOF(.heap3);
 
     _sbackup_data_load = LOADADDR(.backup.data);
     .backup.data :  ALIGN(4) {
@@ -209,5 +199,10 @@ SECTIONS
         _ebackup_bss = .;
         /* Round size so that we can use 4 byte copy in init */
         . = ALIGN(4);
+    } > ram_battery
+
+    .heap3 (NOLOAD) : ALIGN(4) {
+        _sheap3 = . ;
+        _eheap3 = ORIGIN(ram_battery) + LENGTH(ram_battery);
     } > ram_battery
 }

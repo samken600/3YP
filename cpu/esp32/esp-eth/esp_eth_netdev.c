@@ -69,9 +69,6 @@
  */
 esp_eth_netdev_t _esp_eth_dev;
 
-/* device thread stack */
-static char _esp_eth_stack[ESP_ETH_STACKSIZE];
-
 static void _eth_gpio_config_rmii(void)
 {
     DEBUG("%s\n", __func__);
@@ -102,7 +99,7 @@ static esp_err_t IRAM_ATTR _eth_input_callback(void *buffer, uint16_t len, void 
     memcpy(_esp_eth_dev.rx_buf, buffer, len);
     _esp_eth_dev.rx_len = len;
     _esp_eth_dev.event = SYSTEM_EVENT_ETH_RX_DONE;
-    _esp_eth_dev.netdev.event_callback(&_esp_eth_dev.netdev, NETDEV_EVENT_ISR);
+    netdev_trigger_event_isr(&_esp_eth_dev.netdev);
 
     mutex_unlock(&_esp_eth_dev.dev_lock);
 
@@ -354,7 +351,7 @@ static esp_err_t IRAM_ATTR _esp_system_event_handler(void *ctx, system_event_t *
             _esp_eth_dev.link_up = true;
             if (SYSTEM_EVENT_MAX) {
                 _esp_eth_dev.event = SYSTEM_EVENT_ETH_CONNECTED;
-                _esp_eth_dev.netdev.event_callback(&_esp_eth_dev.netdev, NETDEV_EVENT_ISR);
+                netdev_trigger_event_isr(&_esp_eth_dev.netdev);
             }
             break;
         case SYSTEM_EVENT_ETH_DISCONNECTED:
@@ -362,7 +359,7 @@ static esp_err_t IRAM_ATTR _esp_system_event_handler(void *ctx, system_event_t *
             _esp_eth_dev.link_up = false;
             if (SYSTEM_EVENT_MAX) {
                 _esp_eth_dev.event = SYSTEM_EVENT_ETH_DISCONNECTED;
-                _esp_eth_dev.netdev.event_callback(&_esp_eth_dev.netdev, NETDEV_EVENT_ISR);
+                netdev_trigger_event_isr(&_esp_eth_dev.netdev);
             }
             break;
         default:
@@ -405,16 +402,6 @@ void esp_eth_setup(esp_eth_netdev_t* dev)
     _esp_eth_dev.link_up = false;
     _esp_eth_dev.rx_len = 0;
     _esp_eth_dev.tx_len = 0;
-}
-
-void auto_init_esp_eth(void)
-{
-    esp_eth_setup(&_esp_eth_dev);
-    _esp_eth_dev.netif = gnrc_netif_ethernet_create(_esp_eth_stack,
-                                                    ESP_ETH_STACKSIZE,
-                                                    ESP_ETH_PRIO,
-                                                    "esp_eth",
-                                                    (netdev_t *)&_esp_eth_dev);
 }
 
 #endif /* MODULE_ESP_ETH */

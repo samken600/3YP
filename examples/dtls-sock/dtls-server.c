@@ -39,7 +39,7 @@ char _dtls_server_stack[THREAD_STACKSIZE_MAIN +
 
 static kernel_pid_t _dtls_server_pid = KERNEL_PID_UNDEF;
 
-#ifdef DTLS_ECC
+#ifdef CONFIG_DTLS_ECC
 static const ecdsa_public_key_t other_pubkeys[] = {
     { .x = ecdsa_pub_key_x, .y = ecdsa_pub_key_y },
 };
@@ -59,7 +59,7 @@ static const credman_credential_t credential = {
         },
     },
 };
-#else /* #ifdef DTLS_PSK */
+#else /* #ifdef CONFIG_DTLS_PSK */
 static const uint8_t psk_key_0[] = PSK_DEFAULT_KEY;
 
 static const credman_credential_t credential = {
@@ -103,7 +103,7 @@ void *dtls_server_wrapper(void *arg)
     res = credman_add(&credential);
     if (res < 0 && res != CREDMAN_EXIST) {
         /* ignore duplicate credentials */
-        printf("Error cannot add credential to system: %zd\n", res);
+        printf("Error cannot add credential to system: %d\n", (int)res);
         return NULL;
     }
 
@@ -116,14 +116,14 @@ void *dtls_server_wrapper(void *arg)
                                   10 * US_PER_SEC);
             if (res < 0) {
                 if (res != -ETIMEDOUT) {
-                    printf("Error receiving UDP over DTLS %zd", res);
+                    printf("Error receiving UDP over DTLS %d", (int)res);
                 }
                 continue;
             }
-            printf("Received %zd bytes -- (echo!)\n", res);
+            printf("Received %d bytes -- (echo!)\n", (int)res);
             res = sock_dtls_send(&sock, &session, rcv, (size_t)res);
             if (res < 0) {
-                printf("Error resending DTLS message: %zd", res);
+                printf("Error resending DTLS message: %d", (int)res);
             }
         }
     }

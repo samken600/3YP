@@ -29,6 +29,7 @@
 #include "net/gnrc/udp.h"
 #include "net/protnum.h"
 #include "od.h"
+#include "test_utils/expect.h"
 #include "thread.h"
 
 #include "net/sock/async/event.h"
@@ -62,15 +63,16 @@ ipv6_hdr_t *gnrc_ipv6_get_header(gnrc_pktsnip_t *pkt)
         return NULL;
     }
 
-    assert(tmp->data != NULL);
-    assert(tmp->size >= sizeof(ipv6_hdr_t));
-    assert(ipv6_hdr_is(tmp->data));
+    expect(tmp->data != NULL);
+    expect(tmp->size >= sizeof(ipv6_hdr_t));
+    expect(ipv6_hdr_is(tmp->data));
 
     return ((ipv6_hdr_t*) tmp->data);
 }
 
-static void _recv_udp(sock_udp_t *sock, sock_async_flags_t flags)
+static void _recv_udp(sock_udp_t *sock, sock_async_flags_t flags, void *arg)
 {
+    expect(strcmp(arg, "test") == 0);
     printf("UDP event triggered: %04X\n", flags);
     if (flags & SOCK_ASYNC_MSG_RECV) {
         sock_udp_ep_t remote;
@@ -90,8 +92,9 @@ static void _recv_udp(sock_udp_t *sock, sock_async_flags_t flags)
     }
 }
 
-static void _recv_ip(sock_ip_t *sock, sock_async_flags_t flags)
+static void _recv_ip(sock_ip_t *sock, sock_async_flags_t flags, void *arg)
 {
+    expect(strcmp(arg, "test") == 0);
     printf("IP event triggered: %04X\n", flags);
     if (flags & SOCK_ASYNC_MSG_RECV) {
         sock_ip_ep_t remote;
@@ -126,8 +129,8 @@ int main(void)
     sock_udp_create(&_udp_sock, &local, NULL, 0);
     sock_ip_create(&_ip_sock, (sock_ip_ep_t *)&local, NULL, PROTNUM_UDP, 0);
 
-    sock_udp_event_init(&_udp_sock, &_ev_queue, _recv_udp);
-    sock_ip_event_init(&_ip_sock, &_ev_queue, _recv_ip);
+    sock_udp_event_init(&_udp_sock, &_ev_queue, _recv_udp, "test");
+    sock_ip_event_init(&_ip_sock, &_ev_queue, _recv_ip, "test");
     memcpy(remote.addr.ipv6, _test_remote, sizeof(_test_remote));
     remote.port = TEST_PORT - 1;
 
@@ -137,18 +140,18 @@ int main(void)
 
     /* create packet to inject for reception */
     pkt = gnrc_netif_hdr_build(NULL, 0, NULL, 0);
-    assert(pkt != NULL);
+    expect(pkt != NULL);
     memset(pkt->data, 0, pkt->size);
     pkt = gnrc_ipv6_hdr_build(pkt, (ipv6_addr_t *)&_test_remote,
                               (ipv6_addr_t *)&_test_local);
-    assert(pkt != NULL);
+    expect(pkt != NULL);
     /* module is not compiled in, so set header type manually */
     pkt->type = GNRC_NETTYPE_IPV6;
     pkt = gnrc_udp_hdr_build(pkt, TEST_PORT - 1, TEST_PORT);
-    assert(pkt != NULL);
+    expect(pkt != NULL);
     pkt = gnrc_pktbuf_add(pkt, _test_payload, sizeof(_test_payload),
                           GNRC_NETTYPE_UNDEF);
-    assert(pkt != NULL);
+    expect(pkt != NULL);
     /* we dispatch twice, so hold one time */
     gnrc_pktbuf_hold(pkt, 1);
 

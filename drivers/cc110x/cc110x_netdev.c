@@ -89,7 +89,7 @@ void cc110x_on_gdo(void *_dev)
         mutex_unlock(&dev->isr_signal);
     }
     else {
-        dev->netdev.event_callback(&dev->netdev, NETDEV_EVENT_ISR);
+        netdev_trigger_event_isr(&dev->netdev);
     }
 }
 
@@ -486,8 +486,19 @@ static int cc110x_send(netdev_t *netdev, const iolist_t *iolist)
     gpio_irq_enable(dev->params.gdo2);
 
     while ((dev->state & 0x07) == CC110X_STATE_TX_MODE) {
-        /* Block until mutex is unlocked from ISR */
-        mutex_lock(&dev->isr_signal);
+        uint64_t timeout = (dev->state != CC110X_STATE_TX_COMPLETING) ?
+                           2048 : 1024;
+        /* Block until mutex is unlocked from ISR, or a timeout occurs. The
+         * timeout prevents deadlocks when IRQs are lost. If the TX FIFO
+         * still needs to be filled, the timeout is 1024 µs - or after 32 Byte
+         * (= 50%) of the FIFO have been transmitted at 250 kbps. If
+         * no additional data needs to be fed into the FIFO, a timeout of
+         * 2048 µs is used instead to allow the frame to be completely drained
+         * before the timeout triggers. The ISR handler is prepared to be
+         * called prematurely, so we don't need to worry about extra calls
+         * to cc110x_isr() introduced by accident.
+         */
+        xtimer_mutex_lock_timeout(&dev->isr_signal, timeout);
         cc110x_isr(&dev->netdev);
     }
 
@@ -512,6 +523,27 @@ static int cc110x_get_iid(cc110x_t *dev, eui64_t *iid)
     *iid = empty_iid;
     iid->uint8[7] = dev->addr;
     return sizeof(eui64_t);
+}
+
+/**
+ * @brief   Checks if the CC110x's address filter is disabled
+ * @param   dev     Transceiver to check if in promiscuous mode
+ * @param   dest    Store the result here
+ *
+ * @return  Returns the size of @ref netopt_enable_t to confirm with the API
+ *          in @ref netdev_driver_t::get
+ */
+static int cc110x_get_promiscuous_mode(cc110x_t *dev, netopt_enable_t *dest)
+{
+    if (cc110x_acquire(dev) != SPI_OK) {
+        return -EIO;
+    }
+
+    uint8_t pktctrl1;
+    cc110x_read(dev, CC110X_REG_PKTCTRL1, &pktctrl1);
+    *dest = ((pktctrl1 & CC110X_PKTCTRL1_GET_ADDR_MODE) == CC110X_PKTCTRL1_ADDR_ALL);
+    cc110x_release(dev);
+    return sizeof(netopt_enable_t);
 }
 
 static int cc110x_get(netdev_t *netdev, netopt_t opt,
@@ -555,6 +587,9 @@ static int cc110x_get(netdev_t *netdev, netopt_t opt,
             assert(max_len == sizeof(uint16_t));
             *((uint16_t *)val) = dbm_from_tx_power[dev->tx_power];
             return sizeof(uint16_t);
+        case NETOPT_PROMISCUOUSMODE:
+            assert(max_len == sizeof(netopt_enable_t));
+            return cc110x_get_promiscuous_mode(dev, val);
         default:
             return -ENOTSUP;
     }
@@ -576,6 +611,32 @@ static int cc110x_set_addr(cc110x_t *dev, uint8_t addr)
     cc110x_write(dev, CC110X_REG_ADDR, addr);
     cc110x_release(dev);
     return 1;
+}
+
+/**
+ * @brief   Enables/disables the CC110x's address filter
+ * @param   dev     Transceiver to turn promiscuous mode on/off
+ * @param   enable  Whether to enable or disable promiscuous mode
+ *
+ * @return  Returns the size of @ref netopt_enable_t to confirm with the API
+ *          in @ref netdev_driver_t::set
+ */
+static int cc110x_set_promiscuous_mode(cc110x_t *dev, netopt_enable_t enable)
+{
+    if (cc110x_acquire(dev) != SPI_OK) {
+        return -EIO;
+    }
+
+    uint8_t pktctrl1 = CC110X_PKTCTRL1_VALUE;
+    if (enable == NETOPT_ENABLE) {
+        pktctrl1 |= CC110X_PKTCTRL1_ADDR_ALL;
+    }
+    else {
+        pktctrl1 |= CC110X_PKTCTRL1_ADDR_MATCH;
+    }
+    cc110x_write(dev, CC110X_REG_PKTCTRL1, pktctrl1);
+    cc110x_release(dev);
+    return sizeof(netopt_enable_t);
 }
 
 static int cc110x_set(netdev_t *netdev, netopt_t opt,
@@ -616,6 +677,9 @@ static int cc110x_set(netdev_t *netdev, netopt_t opt,
             }
         }
             return sizeof(uint16_t);
+        case NETOPT_PROMISCUOUSMODE:
+            assert(len == sizeof(netopt_enable_t));
+            return cc110x_set_promiscuous_mode(dev, *((const netopt_enable_t *)val));
         default:
             return -ENOTSUP;
     }

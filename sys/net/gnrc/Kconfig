@@ -7,10 +7,13 @@
 menu "GNRC Network stack"
     depends on MODULE_GNRC
 
+rsource "application_layer/dhcpv6/Kconfig"
 rsource "link_layer/lorawan/Kconfig"
 rsource "netif/Kconfig"
 rsource "network_layer/ipv6/Kconfig"
 rsource "network_layer/ipv6/blacklist/Kconfig"
+rsource "network_layer/ipv6/ext/frag/Kconfig"
 rsource "network_layer/ipv6/whitelist/Kconfig"
+rsource "network_layer/sixlowpan/Kconfig"
 
 endmenu # GNRC Network Stack

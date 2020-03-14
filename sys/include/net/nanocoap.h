@@ -142,11 +142,9 @@ extern "C" {
 #define NANOCOAP_BLOCK_SIZE_EXP_MAX  (6)
 #endif
 
-#if defined(MODULE_GCOAP) || defined(DOXYGEN)
 /** @brief   Maximum length of a query string written to a message */
 #ifndef NANOCOAP_QS_MAX
 #define NANOCOAP_QS_MAX             (64)
-#endif
 #endif
 /** @} */
 
@@ -196,6 +194,17 @@ typedef struct {
 
 /**
  * @brief   Resource handler type
+ *
+ * Functions that implement this must be prepared to be called multiple times
+ * for the same request, as the server implementations do not perform message
+ * deduplication. That optimization is [described in the CoAP
+ * specification](https://tools.ietf.org/html/rfc7252#section-4.5).
+ *
+ * This should be trivial for requests of the GET, PUT, DELETE, FETCH and
+ * iPATCH methods, as they are defined as idempotent methods in CoAP.
+ *
+ * For POST, PATCH and other non-idempotent methods, this is an additional
+ * requirement introduced by the contract of this type.
  */
 typedef ssize_t (*coap_handler_t)(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *context);
 
@@ -963,6 +972,44 @@ static inline ssize_t coap_opt_add_format(coap_pkt_t *pkt, uint16_t format)
  * @return        -ENOSPC if no available options
  */
 ssize_t coap_opt_add_opaque(coap_pkt_t *pkt, uint16_t optnum, const uint8_t *val, size_t val_len);
+
+/**
+ * @brief   Adds a single Uri-Query option in the form 'key=value' into pkt
+ *
+ * @note Use this only for null-terminated string. See @ref coap_opt_add_uquery2()
+ *       for non null-terminated string.
+ *
+ * @param[in,out] pkt         Packet being built
+ * @param[in]     key         Key to add to the query string
+ * @param[in]     val         Value to assign to @p key (may be NULL)
+ *
+ * @pre     ((pkt != NULL) && (key != NULL))
+ *
+ * @return        number of bytes written to pkt buffer
+ * @return        <0 on error
+ * @return        -ENOSPC if no available options or pkt full
+ */
+ssize_t coap_opt_add_uquery(coap_pkt_t *pkt, const char *key, const char *val);
+
+/**
+ * @brief   Adds a single Uri-Query option in the form 'key=value' into pkt
+ *
+ *
+ * @param[in,out] pkt         Packet being built
+ * @param[in]     key         Key to add to the query string
+ * @param[in]     key_len     Length of @p key
+ * @param[in]     val         Value to assign to @p key (may be NULL)
+ * @param[in]     val_len     Length of @p val. 0 if @p val is NULL
+ *
+ * @pre     ((pkt != NULL) && (key != NULL) && (key_len > 0)
+ *              && ((val_len == 0) || ((val != NULL) && (val_len > 0))))
+ *
+ * @return        number of bytes written to pkt buffer
+ * @return        <0 on error
+ * @return        -ENOSPC if no available options or pkt full
+ */
+ssize_t coap_opt_add_uquery2(coap_pkt_t *pkt, const char *key, size_t key_len,
+                             const char *val, size_t val_len);
 
 /**
  * @brief   Encode the given string as option(s) into pkt

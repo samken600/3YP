@@ -4,7 +4,8 @@
 #
 # This script is supposed to be called from RIOTs make system,
 # as it depends on certain environment variables. An OpenOCD
-# configuration file must be present in a the boards dist folder.
+# configuration file must be present in a the boards dist folder
+# or be given as "board/[...].cfg" to use an OpenOCD shipped configuration.
 #
 # Any extra command line arguments after the command name are passed on the
 # openocd command line after the configuration file name but before any other
@@ -12,6 +13,11 @@
 #
 # Global environment variables used:
 # OPENOCD:             OpenOCD command name, default: "openocd"
+#                      Care must be taken when specifying an OpenOCD version in
+#                      its build directory, as it does not look up its own
+#                      configuration files relative to the executable -- the
+#                      scripts directory needs to be passed in like this:
+#                      `OPENOCD="~/openocd/src/openocd -s ~/openocd/tcl"`.
 # OPENOCD_CONFIG:      OpenOCD configuration file name,
 #                      default: "${BOARDSDIR}/${BOARD}/dist/openocd.cfg"
 #
@@ -65,8 +71,6 @@
 : ${TELNET_PORT:=4444}
 # Default TCL port, set to 0 to disable
 : ${TCL_PORT:=6333}
-# Default path to OpenOCD configuration file
-: ${OPENOCD_CONFIG:=${BOARDSDIR}/${BOARD}/dist/openocd.cfg}
 # Default OpenOCD command
 : ${OPENOCD:=openocd}
 # Extra board initialization commands to pass to OpenOCD
@@ -105,10 +109,6 @@
 # Valid values: elf, hex, s19, bin (see OpenOCD manual for more information)
 : ${IMAGE_TYPE:=}
 
-# flash bank to read default configuration when probing fails, default to first
-# bank
-: ${FLASH_BANK:=1}
-
 #
 # Examples of alternative debugger configurations
 #
@@ -133,7 +133,7 @@ fi
 # a couple of tests for certain configuration options
 #
 test_config() {
-    if [ ! -f "${OPENOCD_CONFIG}" ]; then
+    if [ ! -f "${OPENOCD_CONFIG}" ] && [[ ! "${OPENOCD_CONFIG}" == board/* ]] ; then
         echo "Error: Unable to locate OpenOCD configuration file"
         echo "       (${OPENOCD_CONFIG})"
         exit 1
@@ -217,6 +217,8 @@ _flash_list_raw() {
             -f '${OPENOCD_CONFIG}' \
             ${OPENOCD_EXTRA_RESET_INIT} \
             -c 'init' \
+            -c 'targets' \
+            -c 'reset halt' \
             -c 'flash probe 0' \
             -c 'flash list' \
             -c 'shutdown'" 2>&1 && return
@@ -269,7 +271,8 @@ do_flash() {
     # In case of binary file, IMAGE_OFFSET should include the flash base address
     # This allows flashing normal binary files without env configuration
     if _is_binfile "${IMAGE_FILE}" "${IMAGE_TYPE}"; then
-        FLASH_ADDR=$(_flash_address ${FLASH_BANK})
+        # hardwritten to use the first bank
+        FLASH_ADDR=$(_flash_address 1)
         echo "Binfile detected, adding ROM base address: ${FLASH_ADDR}"
         IMAGE_TYPE=bin
         IMAGE_OFFSET=$(printf "0x%08x\n" "$((${IMAGE_OFFSET} + ${FLASH_ADDR}))")

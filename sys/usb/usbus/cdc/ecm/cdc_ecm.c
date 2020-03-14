@@ -15,6 +15,8 @@
  * @}
  */
 
+#define USB_H_USER_IS_RIOT_INTERNAL
+
 #include "event.h"
 #include "fmt.h"
 #include "kernel_defines.h"
@@ -314,8 +316,8 @@ static void _store_frame_chunk(usbus_cdcecm_device_t *cdcecm)
                   sizeof(size_t));
     memcpy(cdcecm->in_buf + cdcecm->len, buf, len);
     cdcecm->len += len;
-    if (len < USBUS_CDCECM_EP_DATA_SIZE && cdcecm->netdev.event_callback) {
-        cdcecm->netdev.event_callback(&cdcecm->netdev, NETDEV_EVENT_ISR);
+    if (len < USBUS_CDCECM_EP_DATA_SIZE) {
+        netdev_trigger_event_isr(&cdcecm->netdev);
     }
 }
 
