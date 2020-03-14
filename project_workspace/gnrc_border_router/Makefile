@@ -61,6 +61,9 @@ USEMODULE += gnrc_uhcpc
 # configure the node as a RPL DODAG root when receiving a prefix.
 USEMODULE += gnrc_rpl
 
+# include mac layer to use
+USEMODULE += gnrc_lwmac
+
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:

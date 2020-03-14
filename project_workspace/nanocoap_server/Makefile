@@ -28,9 +28,12 @@ USEMODULE += gnrc_icmpv6_error
 USEMODULE += gnrc_ipv6_router_default # MUST HAVE ONE ROUTER
 USEMODULE += gnrc_udp
 USEMODULE += gnrc_sock_udp
+
 # Add rpl routing
 USEMODULE += gnrc_rpl
-CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=6
+#USEMODULE += auto_init_gnrc_rpl
+CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=7
+
 # Additional networking modules that can be dropped if not needed
 USEMODULE += gnrc_icmpv6_echo
 
@@ -38,6 +41,12 @@ USEMODULE += nanocoap_sock
 
 # include this for nicely formatting the returned internal value
 USEMODULE += fmt
+
+# dump packets
+USEMODULE += gnrc_pktdump
+
+# include mac layer to use
+USEMODULE += gnrc_lwmac
 
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
