@@ -32,7 +32,7 @@ extern "C" {
  * @brief   Override the default initial PM blocker
  * @todo   Idle modes are enabled by default, deep sleep mode blocked
  */
-#define PM_BLOCKER_INITIAL  { .val_u32 = 0x00000001 }
+#define PM_BLOCKER_INITIAL      0x00000001
 
 /**
  * @name   SAMD21 sleep modes for PM
@@ -45,33 +45,16 @@ extern "C" {
 /** @} */
 
 /**
- * @brief   Mapping of pins to EXTI lines, -1 means not EXTI possible
+ * @name   SAMD21 GCLK definitions
+ * @{
  */
-static const int8_t exti_config[2][32] = {
-#ifdef CPU_MODEL_SAMD21J18A
-    { 0,  1,  2,  3,  4,  5,  6,  7, -1,  9, 10, 11, 12, 13, 14, 15,
-      0,  1,  2,  3,  4,  5,  6,  7, 12, 13, -1, 15,  8, -1, 10, 11},
-    { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-      0,  1, -1, -1, -1, -1,  6,  7, -1, -1, -1, -1, -1, -1, 14, 15},
-#elif CPU_MODEL_SAMD21G18A
-    { 0,  1,  2,  3,  4,  5,  6,  7, -1,  9, 10, 11, 12, 13, 14, 15,
-      0,  1,  2,  3,  4,  5,  6,  7, 12, 13, -1, 15,  8, -1, 10, 11},
-    {-1, -1,  2,  3, -1, -1, -1, -1,  8,  9, 10, 11, -1, -1, -1, -1,
-     -1, -1, -1, -1, -1, -1,  6,  7, -1, -1, -1, -1, -1, -1, -1, -1},
-#elif CPU_MODEL_SAMR21G18A
-    {-1,  1, -1, -1,  4,  5,  6,  7, -1,  9, 10, 11, 12, 13, 14, 15,
-     -1,  1,  2,  3, -1, -1,  6,  7, 12, 13, -1, 15,  8, -1, 10, 11},
-    { 0, -1,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      0,  1, -1, -1, -1, -1,  6,  7, -1, -1, -1, -1,  8, -1, -1, -1},
-#elif CPU_MODEL_SAMR21E18A
-    {-1, -1, -1, -1, -1, -1,  6,  7, -1,  9, 10, 11, -1, -1, 14, 15,
-     -1,  1,  2,  3, -1, -1, -1, -1, 12, 13, -1, 15,  8, -1, 10, 11},
-    { 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      0,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-#else
-    #error Please define a proper CPU_MODEL.
-#endif
+enum {
+    SAM0_GCLK_MAIN = 0,                 /**< 48 MHz main clock      */
+    SAM0_GCLK_1MHZ,                     /**< 1 MHz clock for xTimer */
+    SAM0_GCLK_32KHZ,                    /**< 32 kHz clock           */
+    SAM0_GCLK_1KHZ,                     /**< 1 kHz clock            */
 };
+/** @} */
 
 /**
  * @brief   Override SPI hardware chip select macro

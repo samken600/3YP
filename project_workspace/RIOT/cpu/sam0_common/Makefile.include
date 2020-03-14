@@ -1,6 +1,9 @@
 # Define the CPU family so we can differentiate between them in the code
 CFLAGS += -DCPU_FAM_$(call uppercase_and_underscore,$(CPU_FAM))
 
+# Generate ASF compatible model definition
+CFLAGS += -D__$(call uppercase_and_underscore,$(CPU_MODEL))__
+
 # Set ROM and RAM lengths according to CPU model
 ifneq (,$(filter samd21g18a samd21j18a saml21j18b saml21j18a samr21e18a \
         samr21g18a samr30g18a samr34j18b,$(CPU_MODEL)))
@@ -10,6 +13,10 @@ ifneq (,$(filter samd21g18a samd21j18a saml21j18b saml21j18a samr21e18a \
 endif
 ifneq (,$(filter saml10e16a saml11e16a,$(CPU_MODEL)))
   ROM_LEN ?= 64K
+  RAM_LEN ?= 16K
+endif
+ifneq (,$(filter samd21j17d,$(CPU_MODEL)))
+  ROM_LEN ?= 128K
   RAM_LEN ?= 16K
 endif
 ifneq (,$(filter samd51j20a same54p20a,$(CPU_MODEL)))
@@ -27,11 +34,5 @@ CFLAGS += -DDONT_USE_PREDEFINED_PERIPHERALS_HANDLERS
 
 # For Cortex-M cpu we use the common cortexm.ld linker script
 LINKER_SCRIPT ?= cortexm.ld
-
-# define sam0 specific pseudomodules
-PSEUDOMODULES += sam0_periph_uart_hw_fc
-
-# include sam0 common periph drivers
-USEMODULE += sam0_common_periph
 
 INCLUDES += -I$(RIOTCPU)/sam0_common/include

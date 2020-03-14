@@ -7,15 +7,20 @@
 .PHONY: mosquitto_rsmb
 
 # target for building the bossac binary
-$(RIOTTOOLS)/bossa/bossac:
-	@echo "[INFO] bossac binary not found - building it from source"
-	@make -C $(RIOTTOOLS)/bossa
-	@echo "[INFO] bossac binary successfully built!"
+$(RIOTTOOLS)/bossa-$(BOSSA_VERSION)/bossac:
+	@echo "[INFO] bossac $(BOSSA_VERSION) binary not found - building it from source"
+	@make -C $(RIOTTOOLS)/bossa-$(BOSSA_VERSION)
+	@echo "[INFO] bossac $(BOSSA_VERSION) binary successfully built!"
 
 $(RIOTTOOLS)/pic32prog/pic32prog: $(RIOTTOOLS)/pic32prog/Makefile
 	@echo "[INFO] $(@F) binary not found - building it from source now"
 	make -C $(@D)
 	@echo "[INFO] $(@F) binary successfully built!"
+
+$(RIOTTOOLS)/cc2538-bsl/cc2538-bsl.py:
+	@echo "[INFO] cc2538-bsl.py not found - fetching it from GitHub now"
+	CC= CFLAGS= make -C $(RIOTTOOLS)/cc2538-bsl
+	@echo "[INFO] cc2538-bsl.py successfully fetched!"
 
 $(RIOTTOOLS)/edbg/edbg: $(RIOTTOOLS)/edbg/Makefile
 	@echo "[INFO] edbg binary not found - building it from source now"

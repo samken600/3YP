@@ -23,6 +23,8 @@
 #define CPU_CONF_H
 
 #include <stdint.h>
+
+#include "cpu_conf_common.h"
 #include "esp_common_log.h"
 #include "xtensa_conf.h"
 #include "xtensa/xtensa_context.h"
@@ -32,17 +34,16 @@ extern "C" {
 #endif
 
 /**
- * @brief   Declare the heap_stats function as available
- */
-#define HAVE_HEAP_STATS
-
-/**
  * @name   Stack size configuration
  * @{
  */
 #define THREAD_EXTRA_STACKSIZE_PRINTF (1024)
+#ifndef THREAD_STACKSIZE_DEFAULT
 #define THREAD_STACKSIZE_DEFAULT      (2048)
+#endif
+#ifndef THREAD_STACKSIZE_IDLE
 #define THREAD_STACKSIZE_IDLE         (2048)
+#endif
 /** @} */
 
 /**

@@ -13,7 +13,6 @@ BOARD_INSUFFICIENT_MEMORY := \
     bluepill \
     bluepill-128kib \
     calliope-mini \
-    cc1352-launchpad \
     cc2650-launchpad \
     cc2650stk \
     chronos \
@@ -21,6 +20,7 @@ BOARD_INSUFFICIENT_MEMORY := \
     hifive1 \
     hifive1b \
     i-nucleo-lrwan1 \
+    im880b \
     lsn50 \
     maple-mini \
     mega-xplained \
@@ -43,6 +43,7 @@ BOARD_INSUFFICIENT_MEMORY := \
     nucleo-l031k6 \
     nucleo-l053r8 \
     nucleo-l073rz \
+    olimexino-stm32 \
     opencm904 \
     saml10-xpro \
     saml11-xpro \

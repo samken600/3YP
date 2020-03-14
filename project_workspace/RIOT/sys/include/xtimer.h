@@ -38,8 +38,14 @@
 #include "mutex.h"
 #include "kernel_types.h"
 
+#ifdef MODULE_ZTIMER_XTIMER_COMPAT
+#include "ztimer/xtimer_compat.h"
+#else
+
+#ifndef MODULE_XTIMER_ON_ZTIMER
 #include "board.h"
 #include "periph_conf.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,6 +155,15 @@ static inline void xtimer_sleep(uint32_t seconds);
  * @param[in] microseconds  the amount of microseconds the thread should sleep
  */
 static inline void xtimer_usleep(uint32_t microseconds);
+
+/**
+ * @brief Pause the execution of a thread for some microseconds
+ *
+ * See xtimer_usleep() for more information.
+ *
+ * @param[in] microseconds  the amount of microseconds the thread should sleep
+ */
+static inline void xtimer_usleep64(uint64_t microseconds);
 
 /**
  * @brief Stop execution of a thread for some time
@@ -398,6 +413,7 @@ static inline bool xtimer_less64(xtimer_ticks64_t a, xtimer_ticks64_t b);
  */
 int xtimer_mutex_lock_timeout(mutex_t *mutex, uint64_t us);
 
+#if defined(MODULE_CORE_THREAD_FLAGS) || defined(DOXYGEN)
 /**
  * @brief    Set timeout thread flag after @p timeout
  *
@@ -408,6 +424,17 @@ int xtimer_mutex_lock_timeout(mutex_t *mutex, uint64_t us);
  * @param[in]   timeout timeout in usec
  */
 void xtimer_set_timeout_flag(xtimer_t *t, uint32_t timeout);
+
+/**
+ * @brief    Set timeout thread flag after @p timeout
+ *
+ * See xtimer_set_timeout_flag() for more information.
+ *
+ * @param[in]   t       timer struct to use
+ * @param[in]   timeout timeout in usec
+ */
+void xtimer_set_timeout_flag64(xtimer_t *t, uint64_t timeout);
+#endif
 
 #if defined(MODULE_CORE_MSG) || defined(DOXYGEN)
 /**
@@ -595,6 +622,8 @@ static inline int xtimer_msg_receive_timeout64(msg_t *msg, uint64_t timeout);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* MODULE_XTIMER_ON_ZTIMER */
 
 /** @} */
 #endif /* XTIMER_H */

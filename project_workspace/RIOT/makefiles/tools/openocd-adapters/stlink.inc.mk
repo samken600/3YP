@@ -10,7 +10,6 @@ OPENOCD_ADAPTER_INIT ?= \
 ifneq (,$(DEBUG_ADAPTER_ID))
   OPENOCD_ADAPTER_INIT += -c 'hla_serial $(DEBUG_ADAPTER_ID)'
 endif
-export OPENOCD_ADAPTER_INIT
 
 # if no openocd specific configuration file, check for default locations:
 # 1. Using the default dist/openocd.cfg (automatically set by openocd.sh)
@@ -19,6 +18,6 @@ ifeq (,$(OPENOCD_CONFIG))
   # if no openocd default configuration is provided by the board,
   # use the STM32 common one
   ifeq (0,$(words $(wildcard $(BOARDSDIR)/$(BOARD)/dist/openocd.cfg)))
-    export OPENOCD_CONFIG := $(RIOTBASE)/boards/common/stm32/dist/$(CPU).cfg
+    OPENOCD_CONFIG = $(RIOTBASE)/boards/common/stm32/dist/$(CPU).cfg
   endif
 endif

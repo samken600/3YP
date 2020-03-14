@@ -29,7 +29,8 @@ export OPTIONAL_CFLAGS_BLACKLIST="-gz"
 NIGHTLY=${NIGHTLY:-0}
 RUN_TESTS=${RUN_TESTS:-${NIGHTLY}}
 
-DWQ_ENV="-E BOARDS -E APPS -E NIGHTLY -E RUN_TESTS -E ENABLE_TEST_CACHE -E TEST_HASH"
+DWQ_ENV="-E BOARDS -E APPS -E NIGHTLY -E RUN_TESTS -E ENABLE_TEST_CACHE
+         -E TEST_HASH -E CI_PULL_LABELS"
 
 check_label() {
     local label="${1}"
@@ -168,6 +169,7 @@ get_app_board_toolchain_pairs() {
 
 # use dwqc to create full "appdir board toolchain" compile job list
 get_compile_jobs() {
+    check_label "CI: skip compile test" && return
     get_apps | \
         dwqc ${DWQ_ENV} -s \
         ${DWQ_JOBID:+--subjob} \
@@ -327,24 +329,13 @@ run_test() {
 
 # execute static tests
 static_tests() {
-    local repo=${CI_BASE_REPO:-https://github.com/RIOT-OS/RIOT}
-    local branch=${CI_BASE_BRANCH:-master}
-
     print_worker
-
-    OUT="$(git remote add upstream $repo 2>&1 && git fetch upstream ${branch}:${branch} 2>&1)"
-    RES=$?
-    if [ $RES -ne 0 ]; then
-        echo "$OUT"
-        exit 1
-    fi
-
-    BUILDTEST_MCU_GROUP=static-tests ./dist/tools/ci/build_and_test.sh
+    ./dist/tools/ci/static_tests.sh
 }
 
 get_non_compile_jobs() {
     [ "$STATIC_TESTS" = "1" ] && \
-        echo "$0 static_tests###{ \"jobdir\" : \"exclusive\" }"
+        echo "$0 static_tests"
 }
 
 get_jobs() {

@@ -14,6 +14,7 @@ LOW_MEMORY_BOARDS += \
   bluepill \
   bluepill-128kib \
   calliope-mini \
+  cc1312-launchpad \
   cc1352-launchpad \
   cc2650-launchpad \
   cc2650stk \
@@ -70,7 +71,7 @@ ifneq (, $(filter $(BOARD), $(LOW_MEMORY_BOARDS)))
 endif
 
 ifneq (, $(filter $(BOARD), $(SUPER_LOW_MEMORY_BOARDS)))
-  NUMOF_TIMERS ?= 16
+  NUMOF_TIMERS ?= 12
 endif
 
 NUMOF_TIMERS ?= 1000

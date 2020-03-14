@@ -246,12 +246,6 @@ typedef enum {
     NETDEV_EVENT_CRC_ERROR,                 /**< wrong CRC */
     NETDEV_EVENT_FHSS_CHANGE_CHANNEL,       /**< channel changed */
     NETDEV_EVENT_CAD_DONE,                  /**< channel activity detection done */
-    NETDEV_EVENT_MLME_CONFIRM,              /**< MAC MLME confirm event */
-    NETDEV_EVENT_MLME_INDICATION,           /**< MAC MLME indication event */
-    NETDEV_EVENT_MCPS_CONFIRM,              /**< MAC MCPS confirm event */
-    NETDEV_EVENT_MCPS_INDICATION,           /**< MAC MCPS indication event */
-    NETDEV_EVENT_MLME_GET_BUFFER,           /**< MAC layer requests MLME buffer */
-    NETDEV_EVENT_MCPS_GET_BUFFER,           /**< MAC layer requests MCPS buffer */
     /* expand this list if needed */
 } netdev_event_t;
 
@@ -475,7 +469,20 @@ static inline int netdev_set_notsup(netdev_t *dev, netopt_t opt,
     return -ENOTSUP;
 }
 
-
+/**
+ * @brief Informs netdev there was an interrupt request from the network device.
+ *
+ *        This function calls @ref netdev_t::event_callback with
+ *        NETDEV_EVENT_ISR event.
+ *
+ * @param netdev netdev instance of the device associated to the interrupt.
+ */
+static inline void netdev_trigger_event_isr(netdev_t *netdev)
+{
+    if (netdev->event_callback) {
+        netdev->event_callback(netdev, NETDEV_EVENT_ISR);
+    }
+}
 #ifdef __cplusplus
 }
 #endif

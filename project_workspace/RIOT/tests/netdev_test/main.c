@@ -28,8 +28,6 @@
 #include "thread.h"
 #include "utlist.h"
 
-#include "test_utils/interactive_sync.h"
-
 #define _EXP_LENGTH     (64)
 
 #define _MAC_STACKSIZE  (THREAD_STACKSIZE_DEFAULT + THREAD_EXTRA_STACKSIZE_PRINTF)
@@ -117,7 +115,7 @@ static int test_send(void)
         return 0;
     }
     /* send packet to MAC layer */
-    gnrc_netapi_send(_mac_pid, pkt);
+    gnrc_netif_send(gnrc_netif_get_by_pid(_mac_pid), pkt);
     /* wait for packet status and check */
     msg_receive(&msg);
     if ((msg.type != GNRC_NETERR_MSG_TYPE) ||
@@ -154,7 +152,7 @@ static int test_receive(void)
     /* register for GNRC_NETTYPE_UNDEF */
     gnrc_netreg_register(GNRC_NETTYPE_UNDEF, &me);
     /* fire ISR event */
-    _dev.netdev.event_callback((netdev_t *)&_dev.netdev, NETDEV_EVENT_ISR);
+    netdev_trigger_event_isr((netdev_t *)&_dev.netdev);
     /* wait for packet from MAC layer*/
     msg_receive(&msg);
     /* check message */
@@ -251,8 +249,6 @@ static int test_set_addr(void)
 
 int main(void)
 {
-    test_utils_interactive_sync();
-
     /* initialization */
     gnrc_pktbuf_init();
     msg_init_queue(_main_msg_queue, _MAIN_MSG_QUEUE_SIZE);

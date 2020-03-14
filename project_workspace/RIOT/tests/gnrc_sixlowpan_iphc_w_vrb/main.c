@@ -26,6 +26,7 @@
 #include "net/gnrc/sixlowpan/frag/vrb.h"
 #include "net/gnrc/ipv6/nib.h"
 #include "net/netdev_test.h"
+#include "test_utils/expect.h"
 #include "thread.h"
 #include "xtimer.h"
 
@@ -142,7 +143,7 @@ static bool _rb_is_empty(void)
     const gnrc_sixlowpan_frag_rb_t *rb = gnrc_sixlowpan_frag_rb_array();
     unsigned res = 0;
 
-    for (unsigned i = 0; i < GNRC_SIXLOWPAN_FRAG_RBUF_SIZE; i++) {
+    for (unsigned i = 0; i < CONFIG_GNRC_SIXLOWPAN_FRAG_RBUF_SIZE; i++) {
         res += gnrc_sixlowpan_frag_rb_entry_empty(&rb[i]);
     }
     return res;
@@ -158,7 +159,7 @@ static void _test_no_vrbe_but_rbe_exists(void)
                                                  sizeof(_test_src),
                                                  TEST_TAG));
     /* and one reassembly buffer entry exists with the source and tag exists */
-    for (unsigned i = 0; i < GNRC_SIXLOWPAN_FRAG_RBUF_SIZE; i++) {
+    for (unsigned i = 0; i < CONFIG_GNRC_SIXLOWPAN_FRAG_RBUF_SIZE; i++) {
         if (!gnrc_sixlowpan_frag_rb_entry_empty(&rb[i])) {
             rbs++;
             TEST_ASSERT_EQUAL_INT(sizeof(_test_src), rb[i].super.src_len);
@@ -208,7 +209,7 @@ static void test_recv__vrb_full(void)
 
     TEST_ASSERT_NOT_NULL(pkt);
     /* Fill up VRB */
-    for (unsigned i = 0; i < GNRC_SIXLOWPAN_FRAG_VRB_SIZE; i++) {
+    for (unsigned i = 0; i < CONFIG_GNRC_SIXLOWPAN_FRAG_VRB_SIZE; i++) {
         base.tag++;
         base.arrival = xtimer_now_usec();
         TEST_ASSERT_NOT_NULL(gnrc_sixlowpan_frag_vrb_add(&base, _mock_netif,
@@ -252,7 +253,7 @@ static void run_unittests(void)
 
 static int _get_netdev_device_type(netdev_t *netdev, void *value, size_t max_len)
 {
-    assert(max_len == sizeof(uint16_t));
+    expect(max_len == sizeof(uint16_t));
     (void)netdev;
 
     *((uint16_t *)value) = NETDEV_TYPE_IEEE802154;
@@ -261,7 +262,7 @@ static int _get_netdev_device_type(netdev_t *netdev, void *value, size_t max_len
 
 static int _get_netdev_proto(netdev_t *netdev, void *value, size_t max_len)
 {
-    assert(max_len == sizeof(gnrc_nettype_t));
+    expect(max_len == sizeof(gnrc_nettype_t));
     (void)netdev;
 
     *((gnrc_nettype_t *)value) = GNRC_NETTYPE_SIXLOWPAN;
@@ -271,7 +272,7 @@ static int _get_netdev_proto(netdev_t *netdev, void *value, size_t max_len)
 static int _get_netdev_max_pdu_size(netdev_t *netdev, void *value,
                                     size_t max_len)
 {
-    assert(max_len == sizeof(uint16_t));
+    expect(max_len == sizeof(uint16_t));
     (void)netdev;
 
     *((uint16_t *)value) = sizeof(_test_6lo_payload);
@@ -281,7 +282,7 @@ static int _get_netdev_max_pdu_size(netdev_t *netdev, void *value,
 static int _get_netdev_src_len(netdev_t *netdev, void *value, size_t max_len)
 {
     (void)netdev;
-    assert(max_len == sizeof(uint16_t));
+    expect(max_len == sizeof(uint16_t));
     *((uint16_t *)value) = sizeof(_test_dst);
     return sizeof(uint16_t);
 }
@@ -289,7 +290,7 @@ static int _get_netdev_src_len(netdev_t *netdev, void *value, size_t max_len)
 static int _get_netdev_addr_long(netdev_t *netdev, void *value, size_t max_len)
 {
     (void)netdev;
-    assert(max_len >= sizeof(_test_dst));
+    expect(max_len >= sizeof(_test_dst));
     memcpy(value, _test_dst, sizeof(_test_dst));
     return sizeof(_test_dst);
 }

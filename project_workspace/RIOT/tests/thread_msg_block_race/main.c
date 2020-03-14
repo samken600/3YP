@@ -24,10 +24,9 @@
 
 #include "periph/timer.h"
 #include "random.h"
+#include "test_utils/expect.h"
 #include "thread.h"
 #include "msg.h"
-
-#include "test_utils/interactive_sync.h"
 
 #define CANARY_TYPE         (0x21fd)
 
@@ -81,8 +80,6 @@ static void *_thread(void *arg)
 
 int main(void)
 {
-    test_utils_interactive_sync();
-
     kernel_pid_t pid;
 
     timer_init(TIMER_DEV(0), TIMER_FREQ, _timer, NULL);
@@ -99,7 +96,7 @@ int main(void)
     pid = thread_create(_stack, sizeof(_stack), THREAD_PRIORITY_MAIN + 1,
                         THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
                         _thread, NULL, "nr2");
-    assert(pid != KERNEL_PID_UNDEF);
+    expect(pid != KERNEL_PID_UNDEF);
 
     while (1) {
         msg_t msg = { .type = CANARY_TYPE };

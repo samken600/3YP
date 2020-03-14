@@ -31,7 +31,7 @@
 
 #define SOCK_DTLS_CLIENT_TAG (2)
 
-#ifdef DTLS_ECC
+#ifdef CONFIG_DTLS_ECC
 static const ecdsa_public_key_t other_pubkeys[] = {
     { .x = ecdsa_pub_key_x, .y = ecdsa_pub_key_y },
 };
@@ -52,7 +52,7 @@ static const credman_credential_t credential = {
     },
 };
 
-#else /* ifdef DTLS_PSK */
+#else /* ifdef CONFIG_DTLS_PSK */
 static const uint8_t psk_id_0[] = PSK_DEFAULT_IDENTITY;
 static const uint8_t psk_key_0[] = PSK_DEFAULT_KEY;
 
@@ -118,13 +118,13 @@ static int client_send(char *addr_str, char *data, size_t datalen)
     res = credman_add(&credential);
     if (res < 0 && res != CREDMAN_EXIST) {
         /* ignore duplicate credentials */
-        printf("Error cannot add credential to system: %zd\n", res);
+        printf("Error cannot add credential to system: %d\n", (int)res);
         return -1;
     }
 
     res = sock_dtls_session_create(&dtls_sock, &remote, &session);
     if (res < 0) {
-        printf("Error creating session: %zd\n", res);
+        printf("Error creating session: %d\n", (int)res);
         sock_dtls_close(&dtls_sock);
         sock_udp_close(&udp_sock);
         return -1;

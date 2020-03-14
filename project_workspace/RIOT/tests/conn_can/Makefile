@@ -1,5 +1,7 @@
 include ../Makefile.tests_common
 
+FEATURES_BLACKLIST += arch_msp430
+
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
@@ -9,9 +11,7 @@ USEMODULE += can_isotp
 USEMODULE += conn_can_isotp_multi
 USEMODULE += can_pm
 USEMODULE += can_trx
-
-FEATURES_REQUIRED += periph_can
-FEATURES_REQUIRED += periph_gpio_irq
+USEMODULE += auto_init_can
 
 CFLAGS += -DGNRC_PKTBUF_SIZE=4096
 CFLAGS += -DCAN_PKT_BUF_SIZE=64
