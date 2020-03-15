@@ -43,7 +43,7 @@
 #include "include/rx_state_machine.h"
 #include "include/lwmac_internal.h"
 
-#define ENABLE_DEBUG    (1)
+#define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 #ifndef LOG_LEVEL
