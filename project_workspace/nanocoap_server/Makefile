@@ -33,6 +33,8 @@ USEMODULE += gnrc_sock_udp
 USEMODULE += gnrc_rpl
 #USEMODULE += auto_init_gnrc_rpl
 CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=7
+CFLAGS += -DGNRC_MAC_RX_QUEUE_SIZE=16
+CFLAGS += -DGNRC_MAC_TX_QUEUE_SIZE=16
 
 # Additional networking modules that can be dropped if not needed
 USEMODULE += gnrc_icmpv6_echo
