@@ -29,7 +29,7 @@
 #include "random.h"
 #include "od.h"
 #include "periph/rtt.h"
-//#include "periph/pm.h"
+#include "periph/pm.h"
 #include "net/gnrc/netif.h"
 #include "net/gnrc/netif/hdr.h"
 #include "net/gnrc/netif/internal.h"
@@ -713,6 +713,9 @@ void rtt_handler(uint32_t event, gnrc_netif_t *netif)
                                         RTT_US_TO_TICKS(GNRC_LWMAC_WAKEUP_INTERVAL_US));
             rtt_set_alarm(alarm, rtt_cb, (void *) GNRC_LWMAC_EVENT_RTT_WAKEUP_PENDING);
             lwmac_set_state(netif, GNRC_LWMAC_SLEEPING);
+            #if (GNRC_LWMAC_ENABLE_LOW_POWER)
+            pm_set(2);
+            #endif
             break;
         }
         /* Set initial wake-up alarm that starts the cycle */

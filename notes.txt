@@ -1,0 +1,13 @@
+
+
+- put a date into mac stuff
+- do a current profile for: standby, rx and tx
+- low power mode
+
+
+- some code doing COAP get stuff
+- have a go
+- google charts
+- matlab plot
+
+
