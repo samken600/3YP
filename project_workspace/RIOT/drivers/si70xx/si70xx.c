@@ -137,8 +137,8 @@ static int _test_device(const si70xx_t *dev)
 
     uint8_t id = _get_id(dev);
 
-    if (id != SI70XX_ID) {
-        DEBUG("[ERROR] Not a valid Si7006/13/20/21 device\n");
+    if (id != 6) {
+        DEBUG("[ERROR] Not a valid Si7006/13/20/21 device ID: %d\n", id);
         return -SI70XX_ERR_NODEV;;
     }
 
