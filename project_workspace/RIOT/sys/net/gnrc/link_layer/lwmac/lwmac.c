@@ -50,7 +50,7 @@
 /**
  * @brief Default log level define
  */
-#define LOG_LEVEL LOG_DEBUG
+#define LOG_LEVEL LOG_WARNING
 #endif
 
 #include "log.h"
