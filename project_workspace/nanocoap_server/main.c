@@ -63,7 +63,7 @@ void cb(void *arg) {
 ds18_t dev;
 int get_temperature(int argc, char **argv);
 
-/*int pwr_test(int argc, char **argv) {
+int pwr_test(int argc, char **argv) {
     (void)argc;
     (void)argv;
 
@@ -83,11 +83,11 @@ int get_temperature(int argc, char **argv);
     ps();
 
     return 0;
-}*/
+}
 
 static const shell_command_t shell_commands[] = {
     { "get_temp", "gets temperature in celcius", get_temperature },
-//    { "test", "test power", pwr_test },
+    { "test", "test power", pwr_test },
     { NULL, NULL, NULL }
 };
 
