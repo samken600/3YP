@@ -8,6 +8,9 @@ ISM = 868
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../RIOT/
 
+FEATURES_REQUIRED = periph_rtt
+DISABLE_MODULE += periph_init_rtt
+
 # include to use shell and print ips
 USEMODULE += shell
 USEMODULE += shell_commands
@@ -50,6 +53,7 @@ USEMODULE += gnrc_pktdump
 
 # include mac layer to use
 #USEMODULE += gnrc_lwmac
+CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
 
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
