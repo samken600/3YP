@@ -19,7 +19,8 @@
 
 #include <stdio.h>
 
-#include "periph/rtt.h"
+//#include "periph/rtt.h"
+//#include "periph/pm.h"
 //#include "net/nanocoap_sock.h"
 #include "xtimer.h"
 #include "board.h"
@@ -61,10 +62,36 @@ int toggle_led(int argc, char **argv) {
     return 0;
 }
 
+/*
+void cb(void *arg) {
+    (void)arg;
+    puts("Hello there");
+}
+
+int off(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
+
+    uint32_t start = rtt_get_counter();
+    rtt_set_alarm((start + 10 * RTT_FREQUENCY) & RTT_MAX_VALUE, cb, 0);
+
+    pm_set(0);
+    
+    puts("Hey");
+    
+    //xtimer_init();
+    xtimer_sleep(1);
+
+    puts("Yo");
+    //ps();
+    return 0;
+}*/
+
 static const shell_command_t shell_commands[] = {
     { "get_temp", "gets temperature in celcius", get_temperature },
     { "get_humid", "gets relative humidity", get_humidity },
     { "toggle_led", "toggles LED", toggle_led},
+//    { "off", "waits 1 second", off},
     { NULL, NULL, NULL }
 };
 
@@ -72,7 +99,7 @@ static const shell_command_t shell_commands[] = {
 int main(void)
 {
     puts("RIOT nanocoap example application with shell and ds18 temperature sensor");
-
+//    rtt_init();
     /* initialise the temperature sensor */
 //    int16_t result;
 //    result = ds18_init(&dev, &(ds18_params[0]));
