@@ -133,14 +133,14 @@ extern "C" {
  * @see     [RFC 4861, section 6.2.1](https://tools.ietf.org/html/rfc4861#section-6.2.1)
  * @see     [RFC 4861, section 10](https://tools.ietf.org/html/rfc4861#section-10)
  */
-#define NDP_MAX_INIT_RA_INTERVAL        (16000U)   /**< MAX_INITIAL_RTR_ADVERT_INTERVAL (in ms) */
+#define NDP_MAX_INIT_RA_INTERVAL        (160000U)   /**< MAX_INITIAL_RTR_ADVERT_INTERVAL (in ms) */
 #define NDP_MAX_INIT_RA_NUMOF           (3U)       /**< MAX_INITIAL_RTR_ADVERTISEMENT */
 #define NDP_MAX_FIN_RA_NUMOF            (3U)       /**< MAX_FINAL_RTR_ADVERTISEMENT */
-#define NDP_MIN_MS_DELAY_BETWEEN_RAS    (3000U)    /**< MIN_DELAY_BETWEEN_RAS (in ms) */
-#define NDP_MAX_RA_DELAY                (500U)     /**< MAX_RA_DELAY_TIME (in ms) */
-#define NDP_MAX_RA_INTERVAL_MS          (600000U)  /**< default of MaxRtrAdvInterval (in ms) */
-#define NDP_MIN_RA_INTERVAL_MS          (198000U)  /**< default of MinRtrAdvInterval (in ms) */
-#define NDP_RTR_LTIME_SEC               (1800U)    /**< default of AdvDefaultLifetime (in sec) */
+#define NDP_MIN_MS_DELAY_BETWEEN_RAS    (30000U)    /**< MIN_DELAY_BETWEEN_RAS (in ms) */
+#define NDP_MAX_RA_DELAY                (5000U)     /**< MAX_RA_DELAY_TIME (in ms) */
+#define NDP_MAX_RA_INTERVAL_MS          (6000000U)  /**< default of MaxRtrAdvInterval (in ms) */
+#define NDP_MIN_RA_INTERVAL_MS          (1980000U)  /**< default of MinRtrAdvInterval (in ms) */
+#define NDP_RTR_LTIME_SEC               (18000U)    /**< default of AdvDefaultLifetime (in sec) */
 /** @} */
 
 /**
@@ -188,9 +188,9 @@ extern "C" {
  * retransmission time is 1ms.
  */
 #define NDP_MAX_NS_NUMOF            (17U)
-#define NDP_DELAY_FIRST_PROBE_MS    (5000U)     /**< DELAY_FIRST_PROBE_TIME (in ms) */
-#define NDP_MIN_RANDOM_FACTOR       (500U)      /**< MIN_RANDOM_FACTOR (x 1000) */
-#define NDP_MAX_RANDOM_FACTOR       (1500U)     /**< MAX_RANDOM_FACTOR (x 1000) */
+#define NDP_DELAY_FIRST_PROBE_MS    (50000U)     /**< DELAY_FIRST_PROBE_TIME (in ms) */
+#define NDP_MIN_RANDOM_FACTOR       (5000U)      /**< MIN_RANDOM_FACTOR (x 1000) */
+#define NDP_MAX_RANDOM_FACTOR       (15000U)     /**< MAX_RANDOM_FACTOR (x 1000) */
 /** @} */
 
 /**
