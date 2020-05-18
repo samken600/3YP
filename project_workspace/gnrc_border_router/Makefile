@@ -64,8 +64,8 @@ CFLAGS += -DGNRC_MAC_TX_QUEUE_SIZE=16
 CFLAGS += -DGNRC_MAC_RX_QUEUE_SIZE=16
 
 # include mac layer to use
-#USEMODULE += gnrc_lwmac
-#CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
+USEMODULE += gnrc_lwmac
+CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

@@ -8,16 +8,11 @@ ISM = 868
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../RIOT/
 
-FEATURES_REQUIRED = periph_rtt
-DISABLE_MODULE += periph_init_rtt
-
 # include to use shell and print ips
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += printf_float
-
-USEMODULE += xtimer
 
 # include to interface with d18 temp sensor
 USEMODULE += si7021
@@ -43,16 +38,13 @@ CFLAGS += -DGNRC_MAC_TX_QUEUE_SIZE=16
 # Additional networking modules that can be dropped if not needed
 USEMODULE += gnrc_icmpv6_echo
 
-#USEMODULE += nanocoap_sock
+USEMODULE += nanocoap_sock
 
 # include this for nicely formatting the returned internal value
 USEMODULE += fmt
 
-# dump packets
-USEMODULE += gnrc_pktdump
-
 # include mac layer to use
-#USEMODULE += gnrc_lwmac
+USEMODULE += gnrc_lwmac
 CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
 
 # Comment this out to enable code in RIOT that does safety checking
