@@ -50,9 +50,6 @@ USEMODULE += gnrc_icmpv6_echo
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
-USEMODULE += netstats_l2
-USEMODULE += netstats_ipv6
-USEMODULE += netstats_rpl
 
 # include UHCP client
 USEMODULE += gnrc_uhcpc
