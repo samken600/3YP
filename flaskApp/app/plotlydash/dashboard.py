@@ -44,7 +44,6 @@ def create_dashboard(server):
                 }
             }
         )]), html.Div( id='right', children = [
-        html.Button('Refresh Graph', id='refresh-graph', n_clicks=0),
         dcc.Input(
             id='node-input',
             placeholder='Enter node number to view stats',
@@ -61,7 +60,8 @@ def create_dashboard(server):
                 html.Tr([html.Td('Maximum Temperature'), html.Td('-', id='node-max')]),
                 html.Tr([html.Td('Temperature Variance'), html.Td('-', id='node-var')]),
             ]),
-        ])
+        ]),
+        html.Button('Refresh Graph', id='refresh-graph', n_clicks=0),
         ])],
         id='dash-container'
     )
