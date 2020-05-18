@@ -7,13 +7,8 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 import pdb
 
-def create_dashboard(server):
-    dash_app = dash.Dash(server=server,
-                         routes_pathname_prefix='/dashapp/',
-                         external_stylesheets=['/static/css/styles.css']
-                         )
-
-    df = pd.DataFrame(list(mongo.db.temp.find()))
+def get_graph():
+    df = pd.DataFrame(list(mongo.db.temp.aggregate([{'$sort': {'time': 1}}])))
 
     by_node = df.groupby('node')
     data = []
@@ -23,6 +18,15 @@ def create_dashboard(server):
             'y'     : values['temp'],
             'name'  : 'Node ' + str(node),
         })
+    return data
+
+def create_dashboard(server):
+    dash_app = dash.Dash(server=server,
+                         routes_pathname_prefix='/dashapp/',
+                         external_stylesheets=['/static/css/styles.css']
+                         )
+
+    data = get_graph()
 
     # Create layout
     dash_app.layout = html.Div(
@@ -40,6 +44,7 @@ def create_dashboard(server):
                 }
             }
         )]), html.Div( id='right', children = [
+        html.Button('Refresh Graph', id='refresh-graph', n_clicks=0),
         dcc.Input(
             id='node-input',
             placeholder='Enter node number to view stats',
@@ -81,15 +86,38 @@ def init_callbacks(app):
             try:
                 number = int(value)
             except ValueError:
-                return 'Please enter a number', '-', '-', '-', '-', '-'
+                return ( 'Enter a number', '-', '-', '-', '-', '-' )
+            except TypeError:
+                return ( 'Enter valid character', '-', '-', '-', '-', '-' )
 
             df = pd.DataFrame(list(mongo.db.temp.find({'node': number})))
             if df.empty:
                 return 'Node {} not found'.format(value), '-', '-', '-', '-', '-'
             
-            return  '{}'.format(number),                  \
+            return ('{}'.format(number),                  \
                     '{}'.format(df['temp'].count()),      \
                     '{:0.2f}'.format(df['temp'].mean()),  \
                     '{:0.2f}'.format(df['temp'].min()),   \
                     '{:0.2f}'.format(df['temp'].max()),   \
-                    '{:0.2f}'.format(df['temp'].var()) 
+                    '{:0.2f}'.format(df['temp'].var()) )
+        else:
+            return ( '-', '-', '-', '-', '-', '-' )
+
+    @app.callback(
+        Output('temp-graph','figure'),
+        [Input('refresh-graph', 'n_clicks')]
+    )
+    def update_figure(n_clicks):
+
+        data = get_graph()
+
+        return {
+            'data': data,
+            'layout': {
+                'title': 'Temperature Graph',
+                'height': 600,
+                'padding': 150,
+                'xaxis': {'title': {'text': 'Time of Reading (UTC)'}},
+                'yaxis': {'title': {'text': 'Temperature (°C)'}},
+            }
+        }
