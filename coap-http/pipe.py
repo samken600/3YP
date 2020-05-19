@@ -19,8 +19,9 @@ responses = []
 for client in clients:
     now = datetime.now()
     response = client['client'].get(path=path, timeout=15) # pretty sure timeout is in seconds
-    print(response.pretty_print())
-    responses.append({'time': now, 'response': response, 'number': client['number']})
+    if response is not None:
+        print(response.pretty_print())
+        responses.append({'time': now, 'response': response, 'number': client['number']})
     client['client'].stop()
 
 for response in responses:
