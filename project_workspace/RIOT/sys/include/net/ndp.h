@@ -143,6 +143,9 @@ extern "C" {
 #define NDP_RTR_LTIME_SEC               (18000U)    /**< default of AdvDefaultLifetime (in sec) */
 /** @} */
 
+// originally: 16000, 3000, 500, 600000, 198000 and 1800 skendall
+
+
 /**
  * @{
  * @name    Host constants

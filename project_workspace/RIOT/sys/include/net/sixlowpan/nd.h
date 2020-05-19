@@ -123,12 +123,12 @@ extern "C" {
 /**
  * @brief   RTR_SOLICITATION_INTERVAL (in msec)
  */
-#define SIXLOWPAN_ND_RS_MSEC_INTERVAL           (10000U)
+#define SIXLOWPAN_ND_RS_MSEC_INTERVAL           (60000U) // original  10000 skendall
 #define SIXLOWPAN_ND_MAX_RS_NUMOF               (3U)        /**< MAX_RTR_SOLICITATIONS */
 /**
  * @brief   MAX_RTR_SOLICITATIONS_INTERVAL (in seconds)
  */
-#define SIXLOWPAN_ND_MAX_RS_SEC_INTERVAL        (60U)
+#define SIXLOWPAN_ND_MAX_RS_SEC_INTERVAL        (120U) // originally 60 skendall
 /** @} */
 
 /**
