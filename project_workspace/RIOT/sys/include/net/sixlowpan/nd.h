@@ -94,10 +94,12 @@ extern "C" {
  * @{
  */
 #define SIXLOWPAN_ND_MAX_RA_NUMOF               (3U)        /**< MAX_RTR_ADVERTISEMENTS */
-#define SIXLOWPAN_ND_MIN_MS_DELAY_BETWEEN_RAS   (10000U)    /**< MIN_DELAY_BETWEEN_RAS (in ms) */
-#define SIXLOWPAN_ND_MAX_RA_MS_DELAY            (2000U)     /**< MAX_RA_DELAY_TIME (in ms) */
+#define SIXLOWPAN_ND_MIN_MS_DELAY_BETWEEN_RAS   (30000U)    /**< MIN_DELAY_BETWEEN_RAS (in ms) */
+#define SIXLOWPAN_ND_MAX_RA_MS_DELAY            (5000U)     /**< MAX_RA_DELAY_TIME (in ms) */
 #define SIXLOWPAN_ND_TENTATIVE_NCE_SEC_LTIME    (20U)       /**< TENTATIVE_NCE_LIFETIME (in sec) */
 /** @} */
+
+// default: 3, 10000, 2000, 20 skendall
 
 /**
  * @name    Router constants
