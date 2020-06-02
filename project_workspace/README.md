@@ -57,3 +57,22 @@ Each program can be built and run using the standard RIOT make flow. First, ente
 If building on a non-standard piece of hardware, the term BOARD can also be added to the command i.e. `make flash SERIAL=xxx BOARD=samr30-xpro` to build the code for the nodes for the SAMR30 Xplained-Pro boards.
 
 To enter the terminal, `make term SERIAL=xxx` can then be used.
+
+### Connecting to the node's headers
+
+The table below shows the connections between the FTDI cable and the board. The 470ohm resistor should be replacable with any resistor between 220 and 470ohm.
+
+|Num	|FTDI/C232HM Color	|JTAG Func  |Connection     |
+|---  |---                |---        |---            |
+|1    |Red	              |VCC        |VCC (optional) |
+|2	  |Orange             |TCK        |SWCLK          |
+|3    |Yellow             |TDI        |470ohm resistor to SWDIO|
+|4    |Green              |TDO        |SWDIO          |
+|5    |Brown              |TMS        |NC             |
+|6    |Grey               |GPIOL0     |NC             |
+|7    |Purple             |GPIOL1     |NC             |
+|8    |White              |GPIOL2     |NC             |
+|9    |Blue               |GPIOL3     |NC             |
+|10 	|Black              |GND 		    |GND            |
+
+
