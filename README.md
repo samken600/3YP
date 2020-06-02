@@ -2,7 +2,7 @@
 
 ## [Project Workspace](project_workspace)
 
-See the [README](project_workspace/README.md) inside for details on setting up RIOT.
+See the [README](project_workspace/README.md) inside for details on setting up RIOT. Note that the RIOT and openocd sub-repositories are managed with git subtrees, NOT submodules. Ensure the correct commands are used when updating these modules.
 
 * Border router files to run on SAMR30 Xplained-Pro boards (`/gnrc_border_router`)
 
