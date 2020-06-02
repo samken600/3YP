@@ -49,3 +49,11 @@ sudo make install
 ``` 
 
 See the README within the directory for more detailed information.
+
+## Building and flashing the programs
+
+Each program can be built and run using the standard RIOT make flow. First, enter the folder you want to build. Next you can either build the files first with `make all` or build and flash with `make flash`. When multiple boards are connected to a single computer, it is neccessary to specify the serial number of the board you want. This can be accessed with `make list-ttys` and the number from this used like `make flash SERIAL=xxx`.
+
+If building on a non-standard piece of hardware, the term BOARD can also be added to the command i.e. `make flash SERIAL=xxx BOARD=samr30-xpro` to build the code for the nodes for the SAMR30 Xplained-Pro boards.
+
+To enter the terminal, `make term SERIAL=xxx` can then be used.
