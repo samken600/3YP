@@ -38,7 +38,7 @@ export PATH:/opt/${ARM_FOLDER}/bin
 
 ## Installing OpenOCD
 
-Navigate to the OpenOCD folder. 
+Navigate to the [OpenOCD](../openocd) folder. 
 Process is something like: 
 
 ```bash 
