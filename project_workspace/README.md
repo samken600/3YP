@@ -75,4 +75,9 @@ The table below shows the connections between the FTDI cable and the board. The 
 |9    |Blue               |GPIOL3     |NC             |
 |10 	|Black              |GND 		    |GND            |
 
+The headers on board are shown below:
+
+![Programming and I2C Header](../report/ProgI2CHeader.png)  ![SPI Header](../report/SPIHeader.png)
+
+
 
