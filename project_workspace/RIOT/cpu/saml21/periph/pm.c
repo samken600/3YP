@@ -47,6 +47,10 @@ void pm_set(unsigned mode)
                 _mode = PM_SLEEPCFG_SLEEPMODE_IDLE2;
 #endif
                 break;
+            case 3:
+                DEBUG_PUTS("pm_set(): setting OFF mode.");
+                _mode = PM_SLEEPCFG_SLEEPMODE_OFF;
+                break;
         }
 
         /* write sleep configuration */
