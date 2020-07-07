@@ -81,6 +81,11 @@ extern "C" {
 #endif
 
 /**
+ * @defgroup net_gnrc_lwmac_conf    GNRC LWMAC compile configurations
+ * @ingroup  net_gnrc_conf
+ * @{
+ */
+/**
  * @brief Time between consecutive wake-ups.
  *
  * This macro governs power consumption, latency and throughput!
@@ -285,21 +290,12 @@ extern "C" {
 #ifndef GNRC_LWMAC_BROADCAST_CSMA_RETRIES
 #define GNRC_LWMAC_BROADCAST_CSMA_RETRIES    (3U)
 #endif
-
-/**
- * @brief Default message queue size to use for the LWMAC thread.
- *
- * The value of this macro should be enough for supporting the manipulation of
- * LWMAC.
- *
- */
-#ifndef GNRC_LWMAC_IPC_MSG_QUEUE_SIZE
-#define GNRC_LWMAC_IPC_MSG_QUEUE_SIZE        (8U)
-#endif
+/** @} */
 
 /**
  * @brief   Creates an IEEE 802.15.4 LWMAC network interface
  *
+ * @param[out] netif    The interface. May not be `NULL`.
  * @param[in] stack     The stack for the LWMAC network interface's thread.
  * @param[in] stacksize Size of @p stack.
  * @param[in] priority  Priority for the LWMAC network interface's thread.
@@ -308,12 +304,11 @@ extern "C" {
  *
  * @see @ref gnrc_netif_create()
  *
- * @return  The network interface on success.
- * @return  NULL, on error.
+ * @return  0 on success
+ * @return  negative number on error
  */
-gnrc_netif_t *gnrc_netif_lwmac_create(char *stack, int stacksize,
-                                      char priority, char *name,
-                                      netdev_t *dev);
+int gnrc_netif_lwmac_create(gnrc_netif_t *netif, char *stack, int stacksize,
+                            char priority, char *name, netdev_t *dev);
 #ifdef __cplusplus
 }
 #endif

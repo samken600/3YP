@@ -1,7 +1,11 @@
-.PHONY: info-buildsizes info-buildsizes-diff info-features-missing \
-        info-boards-features-missing
+.PHONY: info-buildsizes \
+        info-buildsizes-diff \
+        info-boards-supported \
+        info-boards-features-missing \
+        info-boards-features-blacklisted \
+        #
 
-BOARDSDIR_GLOBAL := $(BOARDSDIR)
+BOARDDIR_GLOBAL := $(BOARDDIR)
 USEMODULE_GLOBAL := $(USEMODULE)
 USEPKG_GLOBAL := $(USEPKG)
 FEATURES_REQUIRED_GLOBAL := $(FEATURES_REQUIRED)
@@ -14,7 +18,6 @@ FEATURES_BLACKLIST_GLOBAL := $(FEATURES_BLACKLIST)
 
 define board_unsatisfied_features
   BOARD             := $(1)
-  BOARDSDIR         := $(BOARDSDIR_GLOBAL)
   USEMODULE         := $(USEMODULE_GLOBAL)
   USEPKG            := $(USEPKG_GLOBAL)
   DISABLE_MODULE    := $(DISABLE_MODULE_GLOBAL)
@@ -25,35 +28,44 @@ define board_unsatisfied_features
   FEATURES_CONFLICT_MSG := $(FEATURES_CONFLICT_MSG_GLOBAL)
   FEATURES_BLACKLIST:= $(FEATURES_BLACKLIST_GLOBAL)
 
+  # Find matching board folder
+  BOARDDIR := $$(word 1,$$(foreach dir,$$(BOARDSDIRS),$$(wildcard $$(dir)/$$(BOARD)/.)))
+
   # Remove board specific variables set by Makefile.features/Makefile.dep
   FEATURES_PROVIDED :=
+  FEATURES_USED :=
 
   # Undefine variables that must not be defined when starting.
   # Some are sometime set as `?=`
   undefine CPU
   undefine CPU_MODEL
-
-  # Replicate Makefile.include handling that sets BOARDSDIR to RIOTBOARD
-  # when BOARD is not found in BOARDSDIR
-  ifeq (,$(wildcard $(BOARDSDIR_GLOBAL)/$(BOARD)/.))
-    BOARDSDIR = $(RIOTBOARD)
-  endif
+  undefine CPU_ARCH
+  undefine CPU_CORE
+  undefine CPU_FAM
 
   include $(RIOTBASE)/Makefile.features
-
-  include $(RIOTMAKE)/defaultmodules.inc.mk
-  USEMODULE += $(filter-out $(DISABLE_MODULE), $(DEFAULT_MODULE))
-
-  include $(RIOTBASE)/Makefile.dep
-
+  # FEATURES_USED must be populated first in this case so that dependency
+  # resolution can take optional features into account during the first pass.
+  # Also: This allows us to skip resolution if already a missing feature is
+  # detected
+  include $(RIOTMAKE)/features_check.inc.mk
   ifneq (,$$(FEATURES_MISSING))
-    BOARDS_FEATURES_MISSING += "$(1) $$(FEATURES_MISSING)"
-    BOARDS_WITH_MISSING_FEATURES += $(1)
-  endif
+    # Skip full dependency resolution, as even without optional modules features
+    # and architecture specific limitations already some features are missing
+    BOARDS_FEATURES_MISSING += "$$(BOARD) $$(FEATURES_MISSING)"
+    BOARDS_WITH_MISSING_FEATURES += $$(BOARD)
+  else
+    include $(RIOTMAKE)/dependency_resolution.inc.mk
 
-  ifneq (,$$(FEATURES_USED_BLACKLISTED))
-    BOARDS_FEATURES_USED_BLACKLISTED += "$(1) $$(FEATURES_USED_BLACKLISTED)"
-    BOARDS_WITH_BLACKLISTED_FEATURES += $(1)
+    ifneq (,$$(FEATURES_MISSING))
+      BOARDS_FEATURES_MISSING += "$$(BOARD) $$(FEATURES_MISSING)"
+      BOARDS_WITH_MISSING_FEATURES += $$(BOARD)
+    endif
+
+    ifneq (,$$(FEATURES_USED_BLACKLISTED))
+      BOARDS_FEATURES_USED_BLACKLISTED += "$$(BOARD) $$(FEATURES_USED_BLACKLISTED)"
+      BOARDS_WITH_BLACKLISTED_FEATURES += $$(BOARD)
+    endif
   endif
 
   ifneq (,$$(DEPENDENCY_DEBUG))
@@ -69,7 +81,7 @@ BOARDS_FEATURES_MISSING :=
 BOARDS_WITH_BLACKLISTED_FEATURES :=
 BOARDS_FEATURES_USED_BLACKLISTED :=
 
-$(foreach BOARD, $(BOARDS), $(eval $(call board_unsatisfied_features,$(BOARD))))
+$(foreach board,$(BOARDS),$(eval $(call board_unsatisfied_features,$(board))))
 BOARDS := $(filter-out $(BOARDS_WITH_MISSING_FEATURES) $(BOARDS_WITH_BLACKLISTED_FEATURES), $(BOARDS))
 
 info-buildsizes: SHELL=bash
@@ -109,6 +121,9 @@ info-boards-supported:
 info-boards-features-missing:
 	@for f in $(BOARDS_FEATURES_MISSING); do echo $${f}; done | column -t
 
+info-boards-features-blacklisted:
+	@for f in $(BOARDS_FEATURES_USED_BLACKLISTED); do echo $${f}; done | column -t
+
 # Reset BOARDSDIR so unchanged for makefiles included after, for now only
 # needed for buildtests.inc.mk
-BOARDSDIR := $(BOARDSDIR_GLOBAL)
+BOARDDIR := $(BOARDDIR_GLOBAL)

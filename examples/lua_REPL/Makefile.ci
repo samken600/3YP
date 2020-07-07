@@ -47,6 +47,7 @@ BOARD_INSUFFICIENT_MEMORY := \
     nucleo-l031k6 \
     nucleo-l053r8 \
     nucleo-l073rz \
+    nucleo-l412kb \
     nz32-sc151 \
     olimexino-stm32 \
     opencm904 \
@@ -65,6 +66,7 @@ BOARD_INSUFFICIENT_MEMORY := \
     samr34-xpro \
     seeeduino_arch-pro \
     sensebox_samd21 \
+    serpente \
     slstk3401a \
     sltb001a \
     slwstk6000b-slwrb4150a \
@@ -73,11 +75,13 @@ BOARD_INSUFFICIENT_MEMORY := \
     sodaq-explorer \
     sodaq-one \
     sodaq-sara-aff \
+    sodaq-sara-sff \
     spark-core \
     stk3600 \
     stm32f030f4-demo \
     stm32f0discovery \
     stm32f3discovery \
     stm32l0538-disco \
+    wemos-zero \
     yunjia-nrf51822 \
     #

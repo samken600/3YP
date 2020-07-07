@@ -5,5 +5,12 @@
 # directory for more details.
 
 menu "Network Device Drivers"
+rsource "at86rf215/Kconfig"
+rsource "cc110x/Kconfig"
+rsource "dose/Kconfig"
+rsource "mrf24j40/Kconfig"
+rsource "pn532/Kconfig"
+rsource "rn2xx3/Kconfig"
+rsource "slipdev/Kconfig"
 source "$(RIOTCPU)/nrf52/radio/nrf802154/Kconfig"
 endmenu # Network Device Drivers

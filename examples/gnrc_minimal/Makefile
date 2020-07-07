@@ -24,9 +24,17 @@ USEMODULE += gnrc_icmpv6_echo
 USEMODULE += prng_minstd
 
 CFLAGS += -DLOG_LEVEL=LOG_NONE  # disable log output
-CFLAGS += -DGNRC_PKTBUF_SIZE=512 -DCONFIG_GNRC_NETIF_IPV6_ADDRS_NUMOF=2 \
-          -DGNRC_NETIF_IPV6_GROUPS_NUMOF=2 -DGNRC_IPV6_NIB_NUMOF=1 \
-          -DGNRC_IPV6_NIB_OFFL_NUMOF=1 # be able to configure at least one route
+# Set GNRC_PKTBUF_SIZE via CFLAGS if not being set via Kconfig.
+ifndef CONFIG_GNRC_PKTBUF_SIZE
+  CFLAGS += -DCONFIG_GNRC_PKTBUF_SIZE=512
+endif
+CFLAGS += -DCONFIG_GNRC_NETIF_IPV6_ADDRS_NUMOF=2 \
+          -DGNRC_NETIF_IPV6_GROUPS_NUMOF=2 -DCONFIG_GNRC_IPV6_NIB_NUMOF=1 \
+          -DCONFIG_GNRC_IPV6_NIB_OFFL_NUMOF=1 # be able to configure at least one route
+
+# Enable single interface optimization. Set to 0 if more than one interface is
+# present
+CFLAGS += -DGNRC_NETIF_SINGLE=1
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1

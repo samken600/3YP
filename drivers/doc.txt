@@ -16,6 +16,12 @@
  */
 
 /**
+ * @defgroup    drivers_multimedia Multimedia Device Drivers
+ * @ingroup     drivers
+ * @brief       Drivers for external multimedia devices.
+ */
+
+/**
  * @defgroup    drivers_netdev Network Device Drivers
  * @ingroup     drivers
  * @brief       Drivers for external network devices.
@@ -71,4 +77,48 @@
  * @ingroup     drivers
  * @brief       Drivers for different kinds of devices that do not match any
  *              other category
+ */
+
+/**
+ * @defgroup    config_drivers_netdev Network Device Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for external network devices
+ */
+
+/**
+ * @defgroup    config_drivers_sensors Sensor Device Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for Sensors
+ */
+
+/**
+ * @defgroup    config_drivers_actuators Actuator Device Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for actuating devices
+ */
+
+/**
+ * @defgroup    config_drivers_storage Storage Device Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for storage devices
+ */
+
+ /**
+ * @defgroup    config_drivers_display Display Device Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for display devices
+ */
+
+/**
+ * @defgroup    config_drivers_soft_periph Soft Peripheral Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for Software emulated
+ *              @ref drivers_periph for UART, SPI, etc
+ */
+
+/**
+ * @defgroup    config_drivers_misc Miscellaneous Device Configurations
+ * @ingroup     config
+ * @brief       Compile time configurations for different kinds of
+ *              devices that do not match any other category
  */

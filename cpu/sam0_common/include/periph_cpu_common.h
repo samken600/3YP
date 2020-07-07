@@ -39,8 +39,10 @@ extern "C" {
  */
 #define PERIPH_SPI_NEEDS_INIT_CS
 #define PERIPH_SPI_NEEDS_TRANSFER_BYTE
+#ifndef MODULE_PERIPH_DMA
 #define PERIPH_SPI_NEEDS_TRANSFER_REG
 #define PERIPH_SPI_NEEDS_TRANSFER_REGS
+#endif
 /** @} */
 
 /**
@@ -95,17 +97,6 @@ enum {
  * - bit 2: pull enable
  */
 #define GPIO_MODE(pr, ie, pe)   (pr | (ie << 1) | (pe << 2))
-
-/**
- * @name    Power mode configuration
- * @{
- */
-#ifdef CPU_SAML1X
-#define PM_NUM_MODES        (2)
-#else
-#define PM_NUM_MODES        (3)
-#endif
-/** @} */
 
 #ifndef DOXYGEN
 /**
@@ -177,6 +168,8 @@ typedef enum {
     UART_FLAG_NONE            = 0x0,    /**< No flags set */
     UART_FLAG_RUN_STANDBY     = 0x1,    /**< run SERCOM in standby mode */
     UART_FLAG_WAKEUP          = 0x2,    /**< wake from sleep on receive */
+    UART_FLAG_RXINV           = 0x4,    /**< invert RX signal */
+    UART_FLAG_TXINV           = 0x8,    /**< invert TX signal */
 } uart_flag_t;
 
 #ifndef DOXYGEN
@@ -201,8 +194,8 @@ typedef enum {
 /**
  * @brief   Size of the UART TX buffer for non-blocking mode.
  */
-#ifndef SAM0_UART_TXBUF_SIZE
-#define SAM0_UART_TXBUF_SIZE    (64)
+#ifndef UART_TXBUF_SIZE
+#define UART_TXBUF_SIZE    (64)
 #endif
 
 /**
@@ -270,6 +263,16 @@ typedef enum {
     SPI_CLK_10MHZ  = 10000000U  /**< drive the SPI bus with 10MHz */
 } spi_clk_t;
 /** @} */
+
+/**
+ * @brief   SPI pin getters
+ * @{
+ */
+#define spi_pin_mosi(dev) spi_config[dev].mosi_pin
+#define spi_pin_miso(dev) spi_config[dev].miso_pin
+#define spi_pin_clk(dev)  spi_config[dev].clk_pin
+/** @} */
+
 #endif /* ndef DOXYGEN */
 
 /**
@@ -286,6 +289,10 @@ typedef struct {
     spi_misopad_t miso_pad; /**< pad to use for MISO line */
     spi_mosipad_t mosi_pad; /**< pad to use for MOSI and CLK line */
     uint8_t gclk_src;       /**< GCLK source which supplys SERCOM */
+#ifdef MODULE_PERIPH_DMA
+    uint8_t tx_trigger;     /**< DMA trigger */
+    uint8_t rx_trigger;     /**< DMA trigger */
+#endif
 } spi_conf_t;
 /** @} */
 
@@ -311,6 +318,15 @@ typedef enum {
     I2C_SPEED_HIGH      = 3400000U,    /**< high speed mode:   ~3.4Mbit/s */
 } i2c_speed_t;
 /** @} */
+
+/**
+ * @name    I2C pin getter functions
+ * @{
+ */
+#define i2c_pin_sda(dev) i2c_config[dev].sda_pin
+#define i2c_pin_scl(dev) i2c_config[dev].scl_pin
+/** @} */
+
 #endif /* ndef DOXYGEN */
 
 /**
@@ -341,9 +357,13 @@ typedef struct {
     uint16_t gclk_ctrl;     /**< GCLK_CLKCTRL_ID for the Timer */
 #endif
     uint8_t gclk_src;       /**< GCLK source which supplys Timer */
-    uint16_t prescaler;     /**< prescaler used by the Timer */
     uint16_t flags;         /**< flags for CTRA, e.g. TC_CTRLA_MODE_COUNT32 */
 } tc32_conf_t;
+
+/**
+ * @brief   Number of available timer channels
+ */
+#define TIMER_CHANNEL_NUMOF (2)
 
 /**
  * @brief   Set up alternate function (PMUX setting) for a PORT pin
@@ -368,6 +388,20 @@ void gpio_pm_cb_enter(int deep);
 void gpio_pm_cb_leave(int deep);
 
 /**
+ * @brief   Called before the power management enters a power mode
+ *
+ * @param[in] deep
+ */
+void cpu_pm_cb_enter(int deep);
+
+/**
+ * @brief   Called after the power management left a power mode
+ *
+ * @param[in] deep
+ */
+void cpu_pm_cb_leave(int deep);
+
+/**
  * @brief   Wrapper for cortexm_sleep calling power management callbacks
  *
  * @param[in] deep
@@ -378,7 +412,11 @@ static inline void sam0_cortexm_sleep(int deep)
     gpio_pm_cb_enter(deep);
 #endif
 
+    cpu_pm_cb_enter(deep);
+
     cortexm_sleep(deep);
+
+    cpu_pm_cb_leave(deep);
 
 #ifdef MODULE_PERIPH_GPIO
     gpio_pm_cb_leave(deep);
@@ -391,6 +429,39 @@ static inline void sam0_cortexm_sleep(int deep)
  * @param[in] pin   Pin to reset the multiplexing for
  */
 void gpio_disable_mux(gpio_t pin);
+
+/**
+ * @brief   Available voltage regulators on the supply controller.
+ */
+typedef enum {
+    SAM0_VREG_LDO,  /*< LDO, always available but not very power efficient */
+    SAM0_VREG_BUCK  /*< Buck converter, efficient but may clash with internal
+                        fast clock generators (see errata sheets) */
+} sam0_supc_t;
+
+/**
+ * @brief       Switch the internal voltage regulator used for generating the
+ *              internal MCU voltages.
+ *              Available options are:
+ *
+ *               - LDO: not very efficient, but will always work
+ *               - BUCK converter: Most efficient, but incompatible with the
+ *                 use of DFLL or DPLL.
+ *                 Please refer to the errata sheet, further restrictions may
+ *                 apply depending on the MCU.
+ *
+ * @param[in]   src
+ */
+static inline void sam0_set_voltage_regulator(sam0_supc_t src)
+{
+#ifdef REG_SUPC_VREG
+    SUPC->VREG.bit.SEL = src;
+    while (!SUPC->STATUS.bit.VREGRDY) {}
+#else
+    (void) src;
+    assert(0);
+#endif
+}
 
 /**
  * @brief   Returns the frequency of a GCLK provider.
@@ -615,6 +686,275 @@ typedef struct {
  * @brief Watchdog has to be initialized.
  */
 #define WDT_HAS_INIT                   (1)
+
+/**
+ * @name sam0 DMA peripheral
+ * @{
+ *
+ * The sam0 DMA peripheral has a number of channels. Each channel is a separate
+ * data stream, triggered by a configurable trigger when enabled, or triggered
+ * by software (not yet supported). In theory each DMA channel is equal and can
+ * have a configurable priority and can be triggered by the full set of triggers
+ * available.
+ *
+ * DMA descriptors, specifying a single transfer with size, source and
+ * destination, are kept in RAM and are read when the channel is enabled and
+ * triggered. On the SAML21 platform, these descriptors must reside in the LP
+ * SRAM.
+ *
+ * The DMA addresses supplied must point to the **end** of the array to be
+ * transferred. When address increment is enabled this means that the supplied
+ * src or dst argument must point to array + length. When increment is disabled,
+ * the source or destination address can be used directly. The calculation of
+ * the end of the array must be done by the calling function, because the
+ * beatsize and the increment can usually be hardcoded there and doesn't have to
+ * be retrieved from the DMA register configuration.
+ * See also section 20.6.2.7 of the SAM D21/DA1 Family Data Sheet.
+ *
+ * Example:
+ * ```
+ * void transfer_data(void *src, void *dst, size_t len)
+ * {
+ *      dma_t channel = dma_acquire_channel()
+ *      if (channel == 0xff) {
+ *          return -E_BUSY;
+ *      }
+ *
+ *      dma_setup(channel, DMA_TRIGGER_MY_PERIH, 0, true);
+ *      dma_prepare(channel, DMAC_BTCTRL_BEATSIZE_BYTE_Val,
+ *                  (uint8_t*)src + len, (uint8_t*)dst + len, len);
+ *
+ *      dma_start(channel);
+ *      dma_wait(channel);
+ *
+ *      dma_release_channel(channel);
+ * }
+ * ```
+ */
+
+/**
+ * @brief Indicates that the peripheral doesn't utilize the DMA controller.
+ *        Matches with the register configuration for software based triggers.
+ */
+#define DMA_TRIGGER_DISABLED           0
+
+/**
+ * @brief Move the DMA descriptors to the LP SRAM. Required on the SAML21
+ */
+#if defined(CPU_FAM_SAML21) || defined(DOXYGEN)
+#define DMA_DESCRIPTOR_IN_LPSRAM
+#endif
+
+/**
+ * @brief Extra attributes required for instantiating DMA descriptors.
+ */
+#ifdef DMA_DESCRIPTOR_IN_LPSRAM
+#define DMA_DESCRIPTOR_ATTRS    __attribute__((section(".backup.bss")))
+#else
+#define DMA_DESCRIPTOR_ATTRS
+#endif
+
+/**
+ * @brief DMA channel type
+ */
+typedef unsigned dma_t;
+
+/**
+ * @brief Available DMA address increment modes
+ */
+typedef enum {
+    DMA_INCR_NONE   = 0,    /**< Don't increment any addresses after a beat */
+    DMA_INCR_SRC    = 1,    /**< Increment the source address after a beat */
+    DMA_INCR_DEST   = 2,    /**< Increment destination address after a beat */
+    DMA_INCR_BOTH   = 3,    /**< Increment both addresses after a beat */
+} dma_incr_t;
+
+/**
+ * @brief   Initialize DMA
+ */
+void dma_init(void);
+
+/**
+ * @brief Acquire a DMA channel.
+ *
+ * A free DMA channel is marked as allocated and a reference is returned.
+ * DMA channels can be acquired for long periods of time, e.g. from the start to
+ * end of a number of transfers or directly at boot and never released.
+ *
+ * @returns     A reference to the DMA channel
+ * @returns     UINT8_MAX when no DMA channel is available
+ */
+dma_t dma_acquire_channel(void);
+
+/**
+ * @brief   Release a previously acquired DMA channel
+ *
+ * @param   dma     DMA channel to release
+ */
+void dma_release_channel(dma_t dma);
+
+/**
+ * @brief   Initialize a previously allocated DMA channel with one-time settings
+ *
+ * @param   dma     DMA channel reference
+ * @param   trigger Trigger to use for this DMA channel
+ * @param   prio    Channel priority
+ * @param   irq     Whether to enable the interrupt handler for this channel
+ */
+void dma_setup(dma_t dma, unsigned trigger, uint8_t prio, bool irq);
+
+/**
+ * @brief   Prepare the DMA channel for an individual transfer.
+ *
+ * @note    When increment is enabled for source or destination, the @p src
+ *          and/or @p dst must point to the **end** of the array.
+ *
+ * @param   dma     DMA channel reference
+ * @param   width   Transfer beat size to use
+ * @param   src     Source address for the transfer
+ * @param   dst     Destination address for the transfer
+ * @param   num     Number of beats to transfer
+ * @param   incr    Which of the addresses to increment after a beat
+ */
+void dma_prepare(dma_t dma, uint8_t width, const void *src, void *dst,
+                 size_t num, dma_incr_t incr);
+
+/**
+ * @brief   Prepare a transfer without modifying the destination address
+ *          settings.
+ *
+ * Can be used when repeatedly using a dma channel to transfer to the same
+ * peripheral address, leaving the destination address and related settings
+ * untouched
+ *
+ * @note    This only touches the source address, number of transfers and source
+ *          increment settings. Be sure to initialize the full descriptor
+ *          beforehand with @ref dma_prepare
+ *
+ * @note    When increment is enabled for source, the @p src must point to the
+ *          **end** of the array.
+ *
+ * @param   dma     DMA channel reference
+ * @param   src     Source address for the transfer
+ * @param   num     Number of beats to transfer
+ * @param   incr    Whether to increment the source address after a beat
+ */
+void dma_prepare_src(dma_t dma, const void *src, size_t num, bool incr);
+
+/**
+ * @brief   Prepare a transfer without modifying the source address
+ *          settings.
+ *
+ * Can be used when repeatedly using a dma channel to transfer from the same
+ * peripheral address, leaving the source address and related settings
+ * untouched
+ *
+ * @note    This only touches the destination address, the number of transfers
+ *          and destination increment settings. Be sure to initialize the full
+ *          descriptor beforehand with @ref dma_prepare
+ *
+ * @note    When increment is enabled for destination, @p dst must point to the
+ *          **end** of the array.
+ *
+ * @param   dma     DMA channel reference
+ * @param   dst     Destination address for the transfer
+ * @param   num     Number of beats to transfer
+ * @param   incr    Whether to increment the destination address after a beat
+ */
+void dma_prepare_dst(dma_t dma, void *dst, size_t num, bool incr);
+
+/**
+ * @brief   Append a second transfer descriptor after the default channel
+ *          descriptor.
+ *
+ * @note    Only a single extra transfer descriptor is supported for now.
+ *
+ * @note    @p next must remain valid throughout the full transfer duration
+ *
+ * @note    When increment is enabled for source or destination, @p src
+ *          and/or @p dst must point to the **end** of the array.
+ *
+ * @param   dma         DMA channel reference to add the descriptor to
+ * @param   descriptor  Extra transfer descriptor to append
+ * @param   width       Transfer beat size to use
+ * @param   src         Source address for the transfer
+ * @param   dst         Destination address for the transfer
+ * @param   num         Number of beats to transfer
+ * @param   incr        Which of the addresses to increment after a beat
+ */
+void dma_append(dma_t dma, DmacDescriptor *descriptor, uint8_t width,
+                const void *src, void *dst, size_t num, dma_incr_t incr);
+
+/**
+ * @brief   Append a second transfer descriptor after the default channel
+ *          descriptor, copying destination and block size from the initial
+ *          descriptor.
+ *
+ * @note    Only a single extra transfer descriptor is supported for now.
+ *
+ * @note    @p next must remain valid throughout the full transfer duration
+ *
+ * @note    When increment is enabled for source, @p src must point to the
+ *          **end** of the array.
+ *
+ * @param   dma     DMA channel reference to add the descriptor to
+ * @param   next    Extra transfer descriptor to append
+ * @param   src     Source address for the transfer
+ * @param   num     Number of beats to transfer
+ * @param   incr    Whether to increment the source address after a beat
+ */
+void dma_append_src(dma_t dma, DmacDescriptor *next, const void *src,
+                    size_t num, bool incr);
+
+/**
+ * @brief   Append a second transfer descriptor after the default channel
+ *          descriptor, copying source and block size from the initial
+ *          descriptor.
+ *
+ * @note    Only a single extra transfer descriptor is supported for now.
+ *
+ * @note    @p next must remain valid throughout the full transfer duration
+ *
+ * @note    When increment is enabled for destination, @p dst must point to the
+ *          **end** of the array.
+ *
+ * @param   dma     DMA channel reference to add the descriptor to
+ * @param   next    Extra transfer descriptor to append
+ * @param   dst     Destination address for the transfer
+ * @param   num     Number of beats to transfer
+ * @param   incr    Whether to increment the source address after a beat
+ */
+void dma_append_dst(dma_t dma, DmacDescriptor *next, void *dst, size_t num,
+                    bool incr);
+
+/**
+ * @brief   Start a DMA transfer.
+ *
+ * @param   dma     DMA channel reference
+ */
+void dma_start(dma_t dma);
+
+/**
+ * @brief   Wait for a DMA channel to finish the transfer.
+ *
+ * This function uses a blocking mutex to wait for the transfer to finish
+ *
+ * @note Use only with DMA channels of which the interrupt is enabled
+ *
+ * @param   dma     DMA channel reference
+ */
+void dma_wait(dma_t dma);
+
+/**
+ * @brief   Cancel an active DMA transfer
+ *
+ * It is not harmful to call this on an inactive channel, but it will waste some
+ * processing time
+ *
+ * @param   dma     DMA channel reference
+ */
+void dma_cancel(dma_t dma);
+/** @} */
 
 #ifdef __cplusplus
 }

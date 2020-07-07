@@ -39,6 +39,10 @@
 
 #include "nvs_flash/include/nvs_flash.h"
 
+#ifdef MODULE_ESP_WIFI_ENTERPRISE
+#include "esp_wpa2.h"
+#endif
+
 #include "esp_wifi_params.h"
 #include "esp_wifi_netdev.h"
 
@@ -398,6 +402,12 @@ static const char *_esp_wifi_disc_reasons [] = {
     "HANDSHAKE_TIMEOUT"            /* 204 */
 };
 
+/* indicator whether the WiFi interface is started */
+static unsigned _esp_wifi_started = 0;
+
+/* current channel used by the WiFi interface */
+static unsigned _esp_wifi_channel = 0;
+
 /*
  * Event handler for esp system events.
  */
@@ -412,12 +422,18 @@ static esp_err_t IRAM_ATTR _esp_system_event_handler(void *ctx, system_event_t *
 
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
+            _esp_wifi_started = 1;
             ESP_WIFI_DEBUG("WiFi started");
             result = esp_wifi_connect();
             if (result != ESP_OK) {
                 ESP_WIFI_LOG_ERROR("esp_wifi_connect failed with return "
                                    "value %d", result);
             }
+            break;
+
+        case SYSTEM_EVENT_STA_STOP:
+            _esp_wifi_started = 0;
+            ESP_WIFI_DEBUG("WiFi stopped");
             break;
 
         case SYSTEM_EVENT_SCAN_DONE:
@@ -428,7 +444,11 @@ static esp_err_t IRAM_ATTR _esp_system_event_handler(void *ctx, system_event_t *
             ESP_WIFI_LOG_INFO("WiFi connected to ssid %s, channel %d",
                               event->event_info.connected.ssid,
                               event->event_info.connected.channel);
-
+            _esp_wifi_channel = event->event_info.connected.channel;
+#ifdef MODULE_ESP_NOW
+            extern void esp_now_set_channel(uint8_t channel);
+            esp_now_set_channel(_esp_wifi_channel);
+#endif
             /* register RX callback function */
             esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, _esp_wifi_rx_cb);
 
@@ -457,19 +477,20 @@ static esp_err_t IRAM_ATTR _esp_system_event_handler(void *ctx, system_event_t *
             _esp_wifi_dev.event_disc++;
             netdev_trigger_event_isr(&_esp_wifi_dev.netdev);
 
-            /* call disconnect to reset internal state */
-            result = esp_wifi_disconnect();
-            if (result != ESP_OK) {
-                ESP_WIFI_LOG_ERROR("esp_wifi_disconnect failed with "
-                                   "return value %d", result);
-                return result;
-            }
+            if (reason != WIFI_REASON_ASSOC_LEAVE) {
+                /* call disconnect to reset internal state */
+                result = esp_wifi_disconnect();
+                if (result != ESP_OK) {
+                    ESP_WIFI_LOG_ERROR("esp_wifi_disconnect failed with "
+                                       "return value %d", result);
+                    return result;
+                }
 
-            /* try to reconnect */
-            result = esp_wifi_connect();
-            if (result != ESP_OK) {
-               ESP_WIFI_LOG_ERROR("esp_wifi_connect failed with "
-                                  "return value %d", result);
+                /* try to reconnect */
+                if (_esp_wifi_started && ((result = esp_wifi_connect()) != ESP_OK)) {
+                   ESP_WIFI_LOG_ERROR("esp_wifi_connect failed with "
+                                      "return value %d", result);
+                }
             }
 
             break;
@@ -610,15 +631,19 @@ static int _esp_wifi_get(netdev_t *netdev, netopt_t opt, void *val, size_t max_l
     switch (opt) {
         case NETOPT_IS_WIRED:
             return -ENOTSUP;
+        case NETOPT_CHANNEL:
+            CHECK_PARAM_RET(max_len >= sizeof(uint16_t), -EOVERFLOW);
+            *((uint16_t *)val) = _esp_wifi_channel;
+            return sizeof(uint16_t);
         case NETOPT_ADDRESS:
             assert(max_len >= ETHERNET_ADDR_LEN);
             esp_wifi_get_mac(ESP_MAC_WIFI_STA,(uint8_t *)val);
             return ETHERNET_ADDR_LEN;
-        case NETOPT_LINK_CONNECTED:
-            assert(max_len == 1);
+        case NETOPT_LINK:
+            assert(max_len == sizeof(netopt_enable_t));
             *((netopt_enable_t *)val) = (dev->connected) ? NETOPT_ENABLE
                                                          : NETOPT_DISABLE;
-            return 1;
+            return sizeof(netopt_enable_t);
         default:
             return netdev_eth_get(netdev, opt, val, max_len);
     }
@@ -688,14 +713,16 @@ static const netdev_driver_t _esp_wifi_driver =
 static wifi_config_t wifi_config_sta = {
     .sta = {
         .ssid = ESP_WIFI_SSID,
-#ifdef ESP_WIFI_PASS
+#if !defined(MODULE_ESP_WIFI_ENTERPRISE) && defined(ESP_WIFI_PASS)
         .password = ESP_WIFI_PASS,
 #endif
         .channel = 0,
         .scan_method = WIFI_ALL_CHANNEL_SCAN,
         .sort_method = WIFI_CONNECT_AP_BY_SIGNAL,
         .threshold.rssi = -127,
-#ifdef ESP_WIFI_PASS
+#if defined(MODULE_ESP_WIFI_ENTERPRISE)
+        .threshold.authmode = WIFI_AUTH_WPA2_ENTERPRISE
+#elif defined(ESP_WIFI_PASS)
         .threshold.authmode = WIFI_AUTH_WPA_WPA2_PSK
 #else
         .threshold.authmode = WIFI_AUTH_OPEN
@@ -703,14 +730,14 @@ static wifi_config_t wifi_config_sta = {
     }
 };
 
-#ifndef MODULE_ESP_NOW
+#if defined(MCU_ESP8266) && !defined(MODULE_ESP_NOW)
 /**
  * Static configuration for the SoftAP interface if ESP-NOW is not enabled.
  *
  * Although only the Station interface is needed, the SoftAP interface must
  * also be enabled for stability reasons to prevent the Station interface
  * from being shut down by power management in the event of silence.
- * Otherwise, the WLAN module and the WLAN task will hang sporadically.
+ * Otherwise, the WiFi module and the WiFi task will hang sporadically.
  *
  * Since the SoftAP interface is not required, we make it invisible and
  * unusable. This configuration
@@ -736,7 +763,7 @@ static wifi_config_t wifi_config_ap = {
         .beacon_interval = 60000,       /* send beacon only every 60 s */
     }
 };
-#endif
+#endif /* defined(MCU_ESP8266) && !defined(MODULE_ESP_NOW) */
 
 void esp_wifi_setup (esp_wifi_netdev_t* dev)
 {
@@ -781,19 +808,33 @@ void esp_wifi_setup (esp_wifi_netdev_t* dev)
     /* TODO */
 #endif
 
+#ifdef MCU_ESP8266
+    /*
+     * Although only the Station interface is needed, the SoftAP interface must
+     * also be enabled on ESP8266 for stability reasons to prevent the Station
+     * interface from being shut down by power management in the event of
+     * silence. Otherwise, the WiFi module and the WiFi task will hang
+     * sporadically.
+     */
     /* activate the Station and the SoftAP interface */
     result = esp_wifi_set_mode(WIFI_MODE_APSTA);
+#else /* MCU_ESP8266 */
+    /* activate only the Station interface */
+    result = esp_wifi_set_mode(WIFI_MODE_STA);
+#endif /* MCU_ESP8266 */
     if (result != ESP_OK) {
         ESP_WIFI_LOG_ERROR("esp_wifi_set_mode failed with return value %d", result);
         return;
     }
 
+#ifdef MCU_ESP8266
     /* set the SoftAP configuration */
     result = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_ap);
     if (result != ESP_OK) {
         ESP_WIFI_LOG_ERROR("esp_wifi_set_config softap failed with return value %d", result);
         return;
     }
+#endif /* MCU_ESP8266 */
 
 #endif /* MODULE_ESP_NOW */
 
@@ -803,6 +844,27 @@ void esp_wifi_setup (esp_wifi_netdev_t* dev)
         ESP_WIFI_LOG_ERROR("esp_wifi_set_config station failed with return value %d", result);
         return;
     }
+
+#ifdef MODULE_ESP_WIFI_ENTERPRISE
+
+    esp_wpa2_config_t wifi_config_wpa2 = WPA2_CONFIG_INIT_DEFAULT();
+#ifdef ESP_WIFI_EAP_ID
+    esp_wifi_sta_wpa2_ent_set_identity((const unsigned char *)ESP_WIFI_EAP_ID,
+                                       strlen(ESP_WIFI_EAP_ID));
+#endif /* ESP_WIFI_EAP_ID */
+#if defined(ESP_WIFI_EAP_USER) && defined(ESP_WIFI_EAP_PASS)
+    ESP_WIFI_DEBUG("eap_user=%s eap_pass=%s\n",
+                   ESP_WIFI_EAP_USER, ESP_WIFI_EAP_PASS);
+    esp_wifi_sta_wpa2_ent_set_username((const unsigned char *)ESP_WIFI_EAP_USER,
+                                       strlen(ESP_WIFI_EAP_USER));
+    esp_wifi_sta_wpa2_ent_set_password((const unsigned char *)ESP_WIFI_EAP_PASS,
+                                       strlen(ESP_WIFI_EAP_PASS));
+#else /* defined(ESP_WIFI_EAP_USER) && defined(ESP_WIFI_EAP_PASS) */
+#error ESP_WIFI_EAP_USER and ESP_WIFI_EAP_PASS have to define the user name \
+       and the password for EAP phase 2 authentication in esp_wifi_enterprise
+#endif /* defined(ESP_WIFI_EAP_USER) && defined(ESP_WIFI_EAP_PASS) */
+    esp_wifi_sta_wpa2_ent_enable(&wifi_config_wpa2);
+#endif /* MODULE_ESP_WIFI_ENTERPRISE */
 
     /* start the WiFi driver */
     result = esp_wifi_start();

@@ -20,8 +20,6 @@
  * @author  Sebastian Meiling <s@mlng.net>
  */
 
-#ifdef MODULE_KW2XRF
-
 #include "log.h"
 #include "board.h"
 #include "net/gnrc/netif/ieee802154.h"
@@ -44,6 +42,8 @@
 static kw2xrf_t kw2xrf_devs[KW2XRF_NUM];
 static char _kw2xrf_stacks[KW2XRF_NUM][KW2XRF_MAC_STACKSIZE];
 
+static gnrc_netif_t _netif[KW2XRF_NUM];
+
 void auto_init_kw2xrf(void)
 {
     for (unsigned i = 0; i < KW2XRF_NUM; i++) {
@@ -51,13 +51,9 @@ void auto_init_kw2xrf(void)
 
         LOG_DEBUG("[auto_init_netif] initializing kw2xrf #%u\n", i);
         kw2xrf_setup(&kw2xrf_devs[i], (kw2xrf_params_t*) p);
-        gnrc_netif_ieee802154_create(_kw2xrf_stacks[i], KW2XRF_MAC_STACKSIZE,
+        gnrc_netif_ieee802154_create(&_netif[i], _kw2xrf_stacks[i], KW2XRF_MAC_STACKSIZE,
                                      KW2XRF_MAC_PRIO, "kw2xrf",
                                      (netdev_t *)&kw2xrf_devs[i]);
     }
 }
-#else
-typedef int dont_be_pedantic;
-#endif /* MODULE_KW2XRF */
-
 /** @} */

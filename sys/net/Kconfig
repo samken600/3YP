@@ -6,8 +6,9 @@
 #
 menu "Networking"
 
-rsource "application_layer/gcoap/Kconfig"
+rsource "application_layer/Kconfig"
 rsource "gnrc/Kconfig"
 rsource "sock/Kconfig"
+rsource "link_layer/Kconfig"
 
 endmenu # Networking

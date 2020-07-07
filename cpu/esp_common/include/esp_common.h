@@ -28,14 +28,9 @@ extern "C" {
 
 #include "log.h"
 #include "esp_common_log.h"
+#include "macros/xtstr.h"
 
 #define asm __asm__
-
-/** string representation of x */
-#ifndef XTSTR
-#define _XTSTR(x)    # x
-#define XTSTR(x)    _XTSTR(x)
-#endif /* XSTR */
 
 #if !defined(ICACHE_FLASH)
 #ifndef ICACHE_RAM_ATTR
@@ -47,6 +42,14 @@ extern "C" {
 #define ICACHE_RAM_ATTR
 #endif
 #endif /* ICACHE_FLASH */
+
+#ifndef RTC_BSS_ATTR
+#define RTC_BSS_ATTR __attribute__((section(".rtc.bss")))
+#endif
+
+#ifndef RTC_DATA_ATTR
+#define RTC_DATA_ATTR __attribute__((section(".rtc.data")))
+#endif
 
 /** Print out a message that function is not yet implementd */
 #define NOT_YET_IMPLEMENTED()     LOG_INFO("%s not yet implemented\n", __func__)

@@ -72,7 +72,6 @@ extern "C" {
  * @name    DMA streams configuration
  * @{
  */
-#ifdef MODULE_PERIPH_DMA
 static const dma_conf_t dma_config[] = {
     { .stream = 3 },    /* DMA1 Channel 4 - USART1_TX */
     { .stream = 5 },    /* DMA1 Channel 6 - USART2_TX */
@@ -82,7 +81,6 @@ static const dma_conf_t dma_config[] = {
 #define DMA_1_ISR  isr_dma1_channel6
 
 #define DMA_NUMOF           ARRAY_SIZE(dma_config)
-#endif
 /** @} */
 
 /**
@@ -153,14 +151,9 @@ static const uart_conf_t uart_config[] = {
  * @name    Real time counter configuration
  * @{
  */
-#define RTT_IRQ_PRIO        1
-
-#define RTT_DEV             RTC
-#define RTT_IRQ             RTC_IRQn
-#define RTT_ISR             isr_rtc
-#define RTT_MAX_VALUE       (0xffffffff)
+#ifndef RTT_FREQUENCY
 #define RTT_FREQUENCY       (1)             /* in Hz */
-#define RTT_PRESCALER       (0x7fff)        /* run with 1 Hz */
+#endif
 /** @} */
 
 /**

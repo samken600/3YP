@@ -60,20 +60,31 @@ extern "C" {
 /** @} */
 
 /**
+ * @name    Real time counter configuration
+ * @{
+ */
+#ifndef RTT_FREQUENCY
+#define RTT_FREQUENCY       (16384)      /* in Hz */
+#endif
+/** @} */
+
+/**
  * @name    ADC configuration
  * @{
  */
 #define ADC_CONFIG {                                     \
     { .dev = 0, .pin = GPIO_PIN(PORT_A, 0), .chan = 0 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_A, 1), .chan = 1 }, \
-    { .dev = 0, .pin = GPIO_PIN(PORT_A, 2), .chan = 2 }, \
-    { .dev = 0, .pin = GPIO_PIN(PORT_A, 3), .chan = 3 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_A, 4), .chan = 4 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_A, 5), .chan = 5 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_A, 6), .chan = 6 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_A, 7), .chan = 7 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_B, 0), .chan = 8 }, \
     { .dev = 0, .pin = GPIO_PIN(PORT_B, 1), .chan = 9 }, \
+    /* ADC Temperature channel */                        \
+    { .dev = 0, .pin = GPIO_UNDEF, .chan = 16 },         \
+    /* ADC VREF channel */                               \
+    { .dev = 0, .pin = GPIO_UNDEF, .chan = 17 },         \
 }
 
 #define ADC_NUMOF           10
@@ -112,6 +123,44 @@ static const timer_conf_t timer_config[] = {
 #define TIMER_2_ISR         isr_tim4
 
 #define TIMER_NUMOF         ARRAY_SIZE(timer_config)
+/** @} */
+
+/**
+ * @name    QDEC configuration
+ * @{
+ */
+
+static const qdec_conf_t qdec_config[] = {
+    {
+        .dev      = TIM1,
+        .max      = 0x0000ffff,
+        .rcc_mask = RCC_APB2ENR_TIM1EN,
+        .chan     = { { .pin = GPIO_PIN(PORT_A, 8),             .cc_chan = 0 },
+                      { .pin = GPIO_PIN(PORT_A, 9),             .cc_chan = 1 } },
+        .bus      = APB2,
+        .irqn     = TIM1_UP_IRQn
+    },
+    {
+        .dev      = TIM3,
+        .max      = 0x0000ffff,
+        .rcc_mask = RCC_APB1ENR_TIM3EN,
+        .chan     = { { .pin = GPIO_PIN(PORT_A, 6),             .cc_chan = 0 },
+                      { .pin = GPIO_PIN(PORT_A, 7),             .cc_chan = 1 } },
+        .bus      = APB1,
+        .irqn     = TIM3_IRQn
+    },
+    {
+        .dev      = TIM4,
+        .max      = 0x0000ffff,
+        .rcc_mask = RCC_APB1ENR_TIM4EN,
+        .chan     = { { .pin = GPIO_PIN(PORT_B, 6),             .cc_chan = 0 },
+                      { .pin = GPIO_PIN(PORT_B, 7),             .cc_chan = 1 } },
+        .bus      = APB1,
+        .irqn     = TIM4_IRQn
+    }
+};
+
+#define QDEC_NUMOF           ARRAY_SIZE(qdec_config)
 /** @} */
 
 /**

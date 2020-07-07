@@ -35,7 +35,6 @@ extern "C" {
  * @name    DMA streams configuration
  * @{
  */
-#ifdef MODULE_PERIPH_DMA
 static const dma_conf_t dma_config[] = {
     { .stream = 4 },    /* DMA1 Stream 4 - USART3_TX */
     { .stream = 14 },   /* DMA2 Stream 6 - USART6_TX */
@@ -49,7 +48,6 @@ static const dma_conf_t dma_config[] = {
 #define DMA_3_ISR  isr_dma2_stream0
 
 #define DMA_NUMOF           ARRAY_SIZE(dma_config)
-#endif
 /** @} */
 
 /**
@@ -118,7 +116,16 @@ static const uart_conf_t uart_config[] = {
 static const spi_conf_t spi_config[] = {
     {
         .dev      = SPI1,
+        /* PA7 is the default MOSI pin, as it is required for compatibility with
+         * Arduino(ish) shields. Sadly, it is also connected to the RMII_DV of
+         * Ethernet PHY. We work around this by remapping the MOSI to PB5 when
+         * the on-board Ethernet PHY is used.
+         */
+#ifdef MODULE_PERIPH_ETH
+        .mosi_pin = GPIO_PIN(PORT_B, 5),
+#else
         .mosi_pin = GPIO_PIN(PORT_A, 7),
+#endif
         .miso_pin = GPIO_PIN(PORT_A, 6),
         .sclk_pin = GPIO_PIN(PORT_A, 5),
         .cs_pin   = GPIO_UNDEF,

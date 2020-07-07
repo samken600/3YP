@@ -155,6 +155,7 @@ void dhcpv6_client_req_ia_pd(unsigned netif, unsigned pfx_len)
             lease->parent.ia_id.info.netif = netif;
             lease->parent.ia_id.info.type = DHCPV6_OPT_IA_PD;
             lease->pfx_len = pfx_len;
+            break;
         }
     }
 }
@@ -366,6 +367,15 @@ static bool _check_sid_opt(dhcpv6_opt_duid_t *sid)
 #endif
     return ((byteorder_ntohs(sid->len) == server.duid_len) &&
             (memcmp(sid->duid, server.duid.u8, server.duid_len) == 0));
+}
+
+/* discard stale messages in the receive buffer */
+static void _flush_stale_replies(sock_udp_t *sock)
+{
+    int res;
+    while ((res = sock_udp_recv(sock, recv_buf, sizeof(recv_buf), 0, NULL)) >= 0) {
+        DEBUG("DHCPv6 client: discarding %d stale bytes\n", res);
+    }
 }
 
 static int _preparse_advertise(uint8_t *adv, size_t len, uint8_t **buf)
@@ -662,7 +672,6 @@ static bool _parse_reply(uint8_t *rep, size_t len)
                                     lease->pfx_len, valid, pref
                                 );
                         }
-                        return true;
                     }
                 }
                 break;
@@ -696,6 +705,7 @@ static void _solicit_servers(event_t *event)
                                 ARRAY_SIZE(oro_opts));
     msg_len += _add_ia_pd_from_config(&send_buf[msg_len]);
     DEBUG("DHCPv6 client: send SOLICIT\n");
+    _flush_stale_replies(&sock);
     res = sock_udp_send(&sock, send_buf, msg_len, &remote);
     assert(res > 0);    /* something went terribly wrong */
     while (((res = sock_udp_recv(&sock, recv_buf, sizeof(recv_buf),
@@ -802,6 +812,7 @@ static void _request_renew_rebind(uint8_t type)
     msg_len += _compose_oro_opt((dhcpv6_opt_oro_t *)&send_buf[msg_len], oro_opts,
                                 ARRAY_SIZE(oro_opts));
     msg_len += _add_ia_pd_from_config(&send_buf[msg_len]);
+    _flush_stale_replies(&sock);
     while (sock_udp_send(&sock, send_buf, msg_len, &remote) <= 0) {}
     while (((res = sock_udp_recv(&sock, recv_buf, sizeof(recv_buf),
                                  retrans_timeout, NULL)) <= 0) ||

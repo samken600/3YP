@@ -36,7 +36,7 @@ extern "C" {
  * @name    Power mode configuration
  * @{
  */
-#define PM_NUM_MODES        (4)
+#define PM_NUM_MODES        (3)
 /** @} */
 
 /**
@@ -126,7 +126,7 @@ typedef struct {
 /**
  * @brief   Number of available timer channels
  */
-#define TIMER_CHAN_NUMOF        (4U)
+#define TIMER_CHANNEL_NUMOF (4U)
 
 /**
  * @brief   Declare needed generic SPI functions
@@ -232,6 +232,16 @@ typedef struct {
 #define PERIPH_I2C_NEED_READ_REG
 #define PERIPH_I2C_NEED_WRITE_REG
 /** @} */
+
+/**
+ * Enable yday and wday calculation in rtc_normalize().
+ * Those fields are used by the RTC.
+ * @{
+ */
+#if defined(MODULE_PERIPH_RTC) && !defined(RTC_NORMALIZE_COMPAT)
+#define RTC_NORMALIZE_COMPAT    (1)
+#endif
+/* @} */
 
 #ifdef __cplusplus
 }

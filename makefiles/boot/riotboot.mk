@@ -78,8 +78,9 @@ riotboot: $(SLOT_RIOT_BINS)
 riotboot/flash-bootloader: riotboot/bootloader/flash
 riotboot/bootloader/%:
 	$(Q)/usr/bin/env -i \
-		QUIET=$(QUIET)\
-		PATH=$(PATH) BOARD=$(BOARD) DEBUG_ADAPTER_ID=$(DEBUG_ADAPTER_ID)\
+		QUIET=$(QUIET) PATH=$(PATH)\
+		EXTERNAL_BOARD_DIRS="$(EXTERNAL_BOARD_DIRS)" BOARD=$(BOARD)\
+		DEBUG_ADAPTER_ID=$(DEBUG_ADAPTER_ID)\
 			$(MAKE) --no-print-directory -C $(RIOTBOOT_DIR) $*
 
 # Generate a binary file from the bootloader which fills all the
@@ -146,8 +147,8 @@ riotboot/flash: riotboot/flash-slot0 riotboot/flash-bootloader
 FLASHFILE = $(RIOTBOOT_EXTENDED_BIN)
 
 # include suit targets
-ifneq (,$(filter suit_v4, $(USEMODULE)))
-  include $(RIOTMAKE)/suit.v4.inc.mk
+ifneq (,$(filter suit, $(USEMODULE)))
+  include $(RIOTMAKE)/suit.inc.mk
 endif
 
 else

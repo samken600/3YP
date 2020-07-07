@@ -44,10 +44,30 @@
 #define TRACE(...)
 #endif
 
+/* after power up, on an invalid JEDEC ID, wait and read N times */
+#ifndef MTD_POWER_UP_WAIT_FOR_ID
+#define MTD_POWER_UP_WAIT_FOR_ID    (0x0F)
+#endif
+
 #define MTD_32K             (32768ul)
 #define MTD_32K_ADDR_MASK   (0x7FFF)
 #define MTD_4K              (4096ul)
 #define MTD_4K_ADDR_MASK    (0xFFF)
+
+#define MBIT_AS_BYTES       ((1024 * 1024) / 8)
+
+/**
+ * @brief   JEDEC memory manufacturer ID codes.
+ *
+ *          see http://www.softnology.biz/pdf/JEP106AV.pdf
+ * @{
+ */
+#define JEDEC_BANK(n)   ((n) << 8)
+
+typedef enum {
+    SPI_NOR_JEDEC_ATMEL     = 0x1F | JEDEC_BANK(1),
+} jedec_manuf_t;
+/** @} */
 
 static int mtd_spi_nor_init(mtd_dev_t *mtd);
 static int mtd_spi_nor_read(mtd_dev_t *mtd, void *dest, uint32_t addr, uint32_t size);
@@ -72,6 +92,11 @@ static void mtd_spi_acquire(const mtd_spi_nor_t *dev)
 static void mtd_spi_release(const mtd_spi_nor_t *dev)
 {
     spi_release(dev->params->spi);
+}
+
+static bool mtd_spi_manuf_match(const mtd_jedec_id_t *id, jedec_manuf_t manuf)
+{
+    return manuf == ((id->bank << 8) | id->manuf);
 }
 
 /**
@@ -248,6 +273,11 @@ static int mtd_spi_read_jedec_id(const mtd_spi_nor_t *dev, mtd_jedec_id_t *out)
             status = -2;
             break;
         }
+        if (jedec.manuf == 0xFF || jedec.manuf == 0x00) {
+            DEBUG_PUTS("mtd_spi_read_jedec_id: failed to read manufacturer ID");
+            status = -3;
+            break;
+        }
         else {
             /* all OK! */
             break;
@@ -269,6 +299,28 @@ static int mtd_spi_read_jedec_id(const mtd_spi_nor_t *dev, mtd_jedec_id_t *out)
     }
 
     return status;
+}
+
+/**
+ * @internal
+ * @brief Get Flash capacity based on JEDEC ID
+ *
+ * @note The way the capacity is encoded differs between vendors.
+ *       This formula has been tested with flash chips from Adesto,
+ *       ISSI, Micron and Spansion, but it might not cover all cases.
+ *       Please extend the function if necessary.
+ */
+static uint32_t mtd_spi_nor_get_size(const mtd_jedec_id_t *id)
+{
+    /* old Atmel (now Adesto) parts use 5 lower bits of device ID 1 for density */
+    if (mtd_spi_manuf_match(id, SPI_NOR_JEDEC_ATMEL) &&
+        /* ID 2 is used to encode the product version, usually 1 or 2 */
+        (id->device[1] & ~0x3) == 0) {
+        return (0x1F & id->device[0]) * MBIT_AS_BYTES;
+    }
+
+    /* everyone else seems to use device ID 2 for density */
+    return 1 << id->device[1];
 }
 
 static inline void wait_for_write_complete(const mtd_spi_nor_t *dev, uint32_t us)
@@ -326,16 +378,6 @@ static int mtd_spi_nor_init(mtd_dev_t *mtd)
     DEBUG("mtd_spi_nor_init: -> spi: %lx, cs: %lx, opcodes: %p\n",
           (unsigned long)dev->params->spi, (unsigned long)dev->params->cs, (void *)dev->params->opcode);
 
-    DEBUG("mtd_spi_nor_init: %" PRIu32 " bytes "
-          "(%" PRIu32 " sectors, %" PRIu32 " bytes/sector, "
-          "%" PRIu32 " pages, "
-          "%" PRIu32 " pages/sector, %" PRIu32 " bytes/page)\n",
-          mtd->pages_per_sector * mtd->sector_count * mtd->page_size,
-          mtd->sector_count, mtd->pages_per_sector * mtd->page_size,
-          mtd->pages_per_sector * mtd->sector_count,
-          mtd->pages_per_sector, mtd->page_size);
-    DEBUG("mtd_spi_nor_init: Using %u byte addresses\n", dev->params->addr_width);
-
     if (dev->params->addr_width == 0) {
         return -EINVAL;
     }
@@ -343,6 +385,13 @@ static int mtd_spi_nor_init(mtd_dev_t *mtd)
     /* CS */
     DEBUG("mtd_spi_nor_init: CS init\n");
     spi_init_cs(dev->params->spi, dev->params->cs);
+
+    /* power up the MTD device*/
+    DEBUG("mtd_spi_nor_init: power up MTD device");
+    if (mtd_spi_nor_power(mtd, MTD_POWER_UP)) {
+        DEBUG("mtd_spi_nor_init: failed to power up MTD device");
+        return -EIO;
+    }
 
     mtd_spi_acquire(dev);
     int res = mtd_spi_read_jedec_id(dev, &dev->jedec_id);
@@ -352,6 +401,22 @@ static int mtd_spi_nor_init(mtd_dev_t *mtd)
     }
     DEBUG("mtd_spi_nor_init: Found chip with ID: (%d, 0x%02x, 0x%02x, 0x%02x)\n",
           dev->jedec_id.bank, dev->jedec_id.manuf, dev->jedec_id.device[0], dev->jedec_id.device[1]);
+
+    /* derive density from JEDEC ID  */
+    if (mtd->sector_count == 0) {
+        mtd->sector_count = mtd_spi_nor_get_size(&dev->jedec_id)
+                          / (mtd->pages_per_sector * mtd->page_size);
+    }
+
+    DEBUG("mtd_spi_nor_init: %" PRIu32 " bytes "
+          "(%" PRIu32 " sectors, %" PRIu32 " bytes/sector, "
+          "%" PRIu32 " pages, "
+          "%" PRIu32 " pages/sector, %" PRIu32 " bytes/page)\n",
+          mtd->pages_per_sector * mtd->sector_count * mtd->page_size,
+          mtd->sector_count, mtd->pages_per_sector * mtd->page_size,
+          mtd->pages_per_sector * mtd->sector_count,
+          mtd->pages_per_sector, mtd->page_size);
+    DEBUG("mtd_spi_nor_init: Using %u byte addresses\n", dev->params->addr_width);
 
     uint8_t status;
     mtd_spi_cmd_read(dev, dev->params->opcode->rdsr, &status, sizeof(status));
@@ -403,16 +468,8 @@ static int mtd_spi_nor_read(mtd_dev_t *mtd, void *dest, uint32_t addr, uint32_t 
     if (addr > chipsize) {
         return -EOVERFLOW;
     }
-    if (size > mtd->page_size) {
-        size = mtd->page_size;
-    }
     if ((addr + size) > chipsize) {
         size = chipsize - addr;
-    }
-    uint32_t page_addr_mask = dev->page_addr_mask;
-    if ((addr & page_addr_mask) != ((addr + size - 1) & page_addr_mask)) {
-        /* Reads across page boundaries must be split */
-        size = mtd->page_size - (addr & ~(page_addr_mask));
     }
     if (size == 0) {
         return 0;
@@ -423,7 +480,7 @@ static int mtd_spi_nor_read(mtd_dev_t *mtd, void *dest, uint32_t addr, uint32_t 
     mtd_spi_cmd_addr_read(dev, dev->params->opcode->read, addr_be, dest, size);
     mtd_spi_release(dev);
 
-    return size;
+    return 0;
 }
 
 static int mtd_spi_nor_write(mtd_dev_t *mtd, const void *src, uint32_t addr, uint32_t size)
@@ -461,7 +518,7 @@ static int mtd_spi_nor_write(mtd_dev_t *mtd, const void *src, uint32_t addr, uin
     wait_for_write_complete(dev, 0);
 
     mtd_spi_release(dev);
-    return size;
+    return 0;
 }
 
 static int mtd_spi_nor_erase(mtd_dev_t *mtd, uint32_t addr, uint32_t size)
@@ -539,6 +596,20 @@ static int mtd_spi_nor_power(mtd_dev_t *mtd, enum mtd_power_state power)
     switch (power) {
         case MTD_POWER_UP:
             mtd_spi_cmd(dev, dev->params->opcode->wake);
+#if defined(MODULE_XTIMER)
+            /* No sense in trying multiple times if no xtimer to wait between
+               reads */
+            uint8_t retries = 0;
+            int res = 0;
+            do {
+                xtimer_usleep(dev->params->wait_chip_wake_up);
+                res = mtd_spi_read_jedec_id(dev, &dev->jedec_id);
+                retries++;
+            } while (res < 0 || retries < MTD_POWER_UP_WAIT_FOR_ID);
+            if (res < 0) {
+                return -EIO;
+            }
+#endif
             break;
         case MTD_POWER_DOWN:
             mtd_spi_cmd(dev, dev->params->opcode->sleep);

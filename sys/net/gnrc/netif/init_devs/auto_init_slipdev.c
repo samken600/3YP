@@ -17,8 +17,6 @@
  * @author  Kaspar Schleiser <kaspar@schleiser.de>
  */
 
-#ifdef MODULE_SLIPDEV
-
 #include "log.h"
 #include "board.h"
 #include "net/gnrc/netif/raw.h"
@@ -41,6 +39,8 @@
 static slipdev_t slipdevs[SLIPDEV_NUM];
 static char _slipdev_stacks[SLIPDEV_NUM][SLIPDEV_STACKSIZE];
 
+static gnrc_netif_t _netif[SLIPDEV_NUM];
+
 void auto_init_slipdev(void)
 {
     for (unsigned i = 0; i < SLIPDEV_NUM; i++) {
@@ -49,12 +49,9 @@ void auto_init_slipdev(void)
         LOG_DEBUG("[auto_init_netif] initializing slip #%u\n", i);
 
         slipdev_setup(&slipdevs[i], p);
-        gnrc_netif_raw_create(_slipdev_stacks[i], SLIPDEV_STACKSIZE,
+        gnrc_netif_raw_create(&_netif[i], _slipdev_stacks[i], SLIPDEV_STACKSIZE,
                               SLIPDEV_PRIO, "slipdev",
                               (netdev_t *)&slipdevs[i]);
     }
 }
-#else
-typedef int dont_be_pedantic;
-#endif /* MODULE_SLIPDEV */
 /** @} */

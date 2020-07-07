@@ -20,7 +20,7 @@ else
   IFACE ?= tap0
   ETHOS_BAUDRATE ?= 115200
   CFLAGS += -DETHOS_BAUDRATE=$(ETHOS_BAUDRATE)
-  TERMPROG ?= sudo sh $(RIOTBASE)/dist/tools/ethos/ethos
+  TERMPROG ?= sudo $(RIOTBASE)/dist/tools/ethos/ethos
   TERMFLAGS ?= $(IFACE) $(PORT) $(ETHOS_BAUDRATE)
   TERMDEPS += ethos
 endif
@@ -46,5 +46,5 @@ ifeq (,$(filter native,$(BOARD)))
 .PHONY: ethos
 
 ethos:
-	$(Q)env -u CC -u CFLAGS make -C $(RIOTBASE)/dist/tools/ethos
+	$(Q)env -u CC -u CFLAGS $(MAKE) -C $(RIOTBASE)/dist/tools/ethos
 endif

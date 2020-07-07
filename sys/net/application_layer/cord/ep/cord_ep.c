@@ -48,8 +48,8 @@
 static char *_regif_buf;
 static size_t _regif_buf_len;
 
-static char _rd_loc[NANOCOAP_URI_MAX];
-static char _rd_regif[NANOCOAP_URI_MAX];
+static char _rd_loc[CONFIG_NANOCOAP_URI_MAX];
+static char _rd_regif[CONFIG_NANOCOAP_URI_MAX];
 static sock_udp_ep_t _rd_remote;
 
 static mutex_t _mutex = MUTEX_INIT;
@@ -221,7 +221,7 @@ static int _discover_internal(const sock_udp_ep_t *remote,
         return CORD_EP_ERR;
     }
     coap_hdr_set_type(pkt.hdr, COAP_TYPE_CON);
-    coap_opt_add_uquery(&pkt, "rt", "core.rd");
+    coap_opt_add_uri_query(&pkt, "rt", "core.rd");
     size_t pkt_len = coap_opt_finish(&pkt, COAP_OPT_FINISH_NONE);
     res = gcoap_req_send(buf, pkt_len, remote, _on_discover, NULL);
     if (res < 0) {

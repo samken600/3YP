@@ -218,6 +218,14 @@ typedef struct {
 /** @} */
 
 /**
+ * @name    RTT and RTC configuration
+ * @{
+ */
+#define RTT_FREQUENCY       (312500UL)
+#define RTT_MAX_VALUE       (0xFFFFFFFFUL)
+/** @} */
+
+/**
  * @name    SPI configuration
  *
  * ESP8266 has two SPI controllers:

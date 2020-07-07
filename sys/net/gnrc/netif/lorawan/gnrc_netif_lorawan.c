@@ -180,11 +180,10 @@ static void _init(gnrc_netif_t *netif)
     gnrc_lorawan_init(&netif->lorawan.mac, netif->lorawan.nwkskey, netif->lorawan.appskey);
 }
 
-gnrc_netif_t *gnrc_netif_lorawan_create(char *stack, int stacksize,
-                                        char priority, char *name,
-                                        netdev_t *dev)
+int gnrc_netif_lorawan_create(gnrc_netif_t *netif, char *stack, int stacksize,
+                              char priority, char *name, netdev_t *dev)
 {
-    return gnrc_netif_create(stack, stacksize, priority, name, dev,
+    return gnrc_netif_create(netif, stack, stacksize, priority, name, dev,
                              &lorawan_ops);
 }
 
@@ -242,7 +241,7 @@ static int _get(gnrc_netif_t *netif, gnrc_netapi_opt_t *opt)
             assert(opt->data_len >= sizeof(netopt_enable_t));
             *((netopt_enable_t *) opt->data) = netif->lorawan.otaa;
             break;
-        case NETOPT_LINK_CONNECTED:
+        case NETOPT_LINK:
             mlme_request.type = MLME_GET;
             mlme_request.mib.type = MIB_ACTIVATION_METHOD;
             gnrc_lorawan_mlme_request(&netif->lorawan.mac, &mlme_request, &mlme_confirm);
@@ -322,7 +321,7 @@ static int _set(gnrc_netif_t *netif, const gnrc_netapi_opt_t *opt)
             assert(opt->data_len >= LORAMAC_NWKSKEY_LEN);
             memcpy(netif->lorawan.nwkskey, opt->data, LORAMAC_NWKSKEY_LEN);
             break;
-        case NETOPT_LINK_CONNECTED:
+        case NETOPT_LINK:
         {
             netopt_enable_t en = *((netopt_enable_t *) opt->data);
             if (en) {
@@ -336,6 +335,7 @@ static int _set(gnrc_netif_t *netif, const gnrc_netapi_opt_t *opt)
                 }
                 else {
                     mlme_request.type = MLME_SET;
+                    mlme_request.mib.type = MIB_ACTIVATION_METHOD;
                     mlme_request.mib.activation = MLME_ACTIVATION_ABP;
                     gnrc_lorawan_mlme_request(&netif->lorawan.mac, &mlme_request, &mlme_confirm);
                 }

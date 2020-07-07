@@ -2,7 +2,6 @@ DEVELHELP := 1
 include $(CURDIR)/../Makefile.tests_common
 
 export TAP ?= tap0
-GNRC_NETIF_NUMOF := 2
 
 USEMODULE += auto_init_gnrc_netif
 USEMODULE += gnrc_dhcpv6_client_6lbr
@@ -48,5 +47,5 @@ ifeq (,$(filter native,$(BOARD)))
 .PHONY: ethos
 
 ethos:
-	$(Q)env -u CC -u CFLAGS make -C $(RIOTBASE)/dist/tools/ethos
+	$(Q)env -u CC -u CFLAGS $(MAKE) -C $(RIOTBASE)/dist/tools/ethos
 endif
