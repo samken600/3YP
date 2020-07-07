@@ -26,13 +26,6 @@ extern "C" {
 #endif
 
 /**
- * @name    xtimer tuning values
- * @{
- */
-#define XTIMER_OVERHEAD     7
-/** @} */
-
-/**
  * @name    LED pin definitions and handlers
  * @{
  */
@@ -93,6 +86,7 @@ extern "C" {
  */
 #define BTN0_PIN            GPIO_PIN(2, 10)
 #define BTN0_MODE           GPIO_IN
+#define BTN0_INT_FLANK      GPIO_FALLING
 /** @} */
 
 /**

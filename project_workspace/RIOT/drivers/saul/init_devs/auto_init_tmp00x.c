@@ -20,14 +20,13 @@
  * @}
  */
 
-#ifdef MODULE_TMP00X
-
 #include "assert.h"
 #include "log.h"
 #include "saul_reg.h"
 
 #include "tmp00x.h"
 #include "tmp00x_params.h"
+#include "kernel_defines.h"
 
 /**
  * @brief   Define the number of configured sensors
@@ -69,19 +68,15 @@ void auto_init_tmp00x(void)
             LOG_ERROR("[auto_init_saul] error set active tmp00x #%u\n", i);
             continue;
         }
-#if TMP00X_USE_LOW_POWER
-        if (tmp00x_set_standby(&tmp00x_devs[i]) != TMP00X_OK) {
-            LOG_ERROR("[auto_init_saul] error set standby tmp00x #%u\n", i);
-            continue;
+        if (IS_ACTIVE(CONFIG_TMP00X_USE_LOW_POWER)) {
+            if (tmp00x_set_standby(&tmp00x_devs[i]) != TMP00X_OK) {
+                LOG_ERROR("[auto_init_saul] error set standby tmp00x #%u\n", i);
+                continue;
+            }
         }
-#endif
         saul_entries[i].dev = &(tmp00x_devs[i]);
         saul_entries[i].name = tmp00x_saul_info[i].name;
         saul_entries[i].driver = &tmp00x_saul_driver;
         saul_reg_add(&(saul_entries[i]));
     }
 }
-
-#else
-typedef int dont_be_pedantic;
-#endif /* MODULE_TMP00X */

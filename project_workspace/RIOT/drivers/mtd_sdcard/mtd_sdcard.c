@@ -24,6 +24,7 @@
 #include "mtd_sdcard.h"
 #include "sdcard_spi.h"
 #include "sdcard_spi_internal.h"
+#include "kernel_defines.h"
 
 #include <inttypes.h>
 #include <errno.h>
@@ -68,12 +69,12 @@ static int mtd_sdcard_read(mtd_dev_t *dev, void *buff, uint32_t addr,
     DEBUG("mtd_sdcard_read: addr:%" PRIu32 " size:%" PRIu32 "\n", addr, size);
     mtd_sdcard_t *mtd_sd = (mtd_sdcard_t*)dev;
     sd_rw_response_t err;
-    int res = sdcard_spi_read_blocks(mtd_sd->sd_card, addr / SD_HC_BLOCK_SIZE,
-                                     buff, SD_HC_BLOCK_SIZE,
-                                     size / SD_HC_BLOCK_SIZE, &err);
+    sdcard_spi_read_blocks(mtd_sd->sd_card, addr / SD_HC_BLOCK_SIZE,
+                           buff, SD_HC_BLOCK_SIZE,
+                           size / SD_HC_BLOCK_SIZE, &err);
 
     if (err == SD_RW_OK) {
-        return res * SD_HC_BLOCK_SIZE;
+        return 0;
     }
     return -EIO;
 }
@@ -84,12 +85,12 @@ static int mtd_sdcard_write(mtd_dev_t *dev, const void *buff, uint32_t addr,
     DEBUG("mtd_sdcard_write: addr:%" PRIu32 " size:%" PRIu32 "\n", addr, size);
     mtd_sdcard_t *mtd_sd = (mtd_sdcard_t*)dev;
     sd_rw_response_t err;
-    int res = sdcard_spi_write_blocks(mtd_sd->sd_card, addr / SD_HC_BLOCK_SIZE,
-                                      buff, SD_HC_BLOCK_SIZE,
-                                      size / SD_HC_BLOCK_SIZE, &err);
+    sdcard_spi_write_blocks(mtd_sd->sd_card, addr / SD_HC_BLOCK_SIZE,
+                            buff, SD_HC_BLOCK_SIZE,
+                            size / SD_HC_BLOCK_SIZE, &err);
 
     if (err == SD_RW_OK) {
-        return res * SD_HC_BLOCK_SIZE;
+        return 0;
     }
     return -EIO;
 }
@@ -103,11 +104,12 @@ static int mtd_sdcard_erase(mtd_dev_t *dev,
     (void)addr;
     (void)size;
 
-#if MTD_SDCARD_SKIP_ERASE == 1
-    return 0;
-#else
-    return -ENOTSUP; /* explicit erase currently not supported */
-#endif
+    if (!IS_ACTIVE(CONFIG_MTD_SDCARD_ERASE)) {
+        return 0;
+    }
+    else {
+        return -ENOTSUP; /* explicit erase currently not supported */
+    }
 }
 
 static int mtd_sdcard_power(mtd_dev_t *dev, enum mtd_power_state power)

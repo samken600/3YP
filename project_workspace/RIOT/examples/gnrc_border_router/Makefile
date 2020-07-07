@@ -7,6 +7,18 @@ BOARD ?= samr21-xpro
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../..
 
+# Default to using ethos for providing the uplink when not on native
+UPLINK ?= ethos
+
+# Check if the selected Uplink is valid
+ifeq (,$(filter ethos slip wifi,$(UPLINK)))
+  $(error Supported uplinks are `ethos`, `slip` and `wifi`)
+endif
+
+# Set the SSID and password of your WiFi network here
+WIFI_SSID ?= "Your_WiFi_name"
+WIFI_PASS ?= "Your_secure_password"
+
 # Include packages that pull up and auto-init the link layer.
 # NOTE: 6LoWPAN will be included if IEEE802.15.4 devices are present
 USEMODULE += gnrc_netdev_default
@@ -24,8 +36,17 @@ USEMODULE += ps
 # configure the node as a RPL DODAG root when receiving a prefix.
 #USEMODULE += gnrc_rpl
 
-# Optionally use DHCPv6 instead of UHCP
-USE_DHCPV6 ?= 0
+# Optionally include DNS support. This includes resolution of names at an
+# upstream DNS server and the handling of RDNSS options in Router Advertisements
+# to auto-configure that upstream DNS server.
+#USEMODULE += sock_dns
+
+# When using a WiFi uplink we should use DHCPv6
+ifeq (wifi,$(UPLINK))
+  USE_DHCPV6 ?= 1
+else
+  USE_DHCPV6 ?= 0
+endif
 
 ifeq (1,$(USE_DHCPV6))
   # include DHCPv6 client for 6LoWPAN border router
@@ -34,13 +55,6 @@ else
   # include UHCP client
   USEMODULE += gnrc_uhcpc
 endif
-
-# Optionally use SLIP instead of ethos when not on native
-# (added to USEMODULE in Makefile.board.dep)
-USE_SLIP ?= 0
-
-# Use two network interfaces
-GNRC_NETIF_NUMOF := 2
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
@@ -52,7 +66,14 @@ QUIET ?= 1
 
 # Ethos/native TAP interface and UHCP prefix can be configured from make command
 TAP ?= tap0
-IPV6_PREFIX ?= 2001:db8::/64
+ifeq (1,$(USE_DHCPV6))
+  # with DHCPv6 the 64-bit delegated prefixes are generated from a shorter
+  # configured prefix.
+  IPV6_PREFIX ?= 2001:db8::/32
+else
+  # UHCP advertises the prefix as is.
+  IPV6_PREFIX ?= 2001:db8::/64
+endif
 
 # MODULE DEPENDENT CONFIGURATION IMPORT
 # =====================================
@@ -60,16 +81,21 @@ IPV6_PREFIX ?= 2001:db8::/64
 # communication and stdio over UART, but not on native, as native has a tap
 # interface towards the host.
 ifeq (,$(filter native,$(BOARD)))
-  ifeq (1,$(USE_SLIP))
+  ifeq (slip,$(UPLINK))
     # SLIP baudrate and UART device can be configured from make command
     SLIP_BAUDRATE ?= 115200
     include $(CURDIR)/Makefile.slip.conf
-  else
+  else ifeq (ethos,$(UPLINK))
     # ethos baudrate can be configured from make command
     ETHOS_BAUDRATE ?= 115200
     include $(CURDIR)/Makefile.ethos.conf
+  else ifeq (wifi,$(UPLINK))
+    # SSID and Password need to be configured
+    include $(CURDIR)/Makefile.wifi.conf
   endif
 else
+  # The number of native (emulated) ZigBee/6LoWPAN devices
+  ZEP_DEVICES ?= 1
   include $(CURDIR)/Makefile.native.conf
 endif
 
@@ -96,7 +122,7 @@ endif
 .PHONY: host-tools
 
 host-tools:
-	$(Q)env -u CC -u CFLAGS make -C $(RIOTTOOLS)
+	$(Q)env -u CC -u CFLAGS $(MAKE) -C $(RIOTTOOLS)
 
 # define native specific targets to only run UHCP daemon when required
 ifneq (,$(filter native,$(BOARD)))
@@ -108,9 +134,9 @@ uhcpd-daemon: host-tools
 endif
 endif
 
-ifeq (1,$(USE_SLIP))
+ifeq (slip,$(UPLINK))
 sliptty:
-	$(Q)env -u CC -u CFLAGS make -C $(RIOTTOOLS)/sliptty
+	$(Q)env -u CC -u CFLAGS $(MAKE) -C $(RIOTTOOLS)/sliptty
 endif
 
 # Set a custom channel if needed

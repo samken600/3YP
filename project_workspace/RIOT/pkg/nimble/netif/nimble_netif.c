@@ -38,6 +38,7 @@
 #include "nimble_riot.h"
 #include "host/ble_gap.h"
 #include "host/util/util.h"
+#include "mem/mem.h"
 
 #define ENABLE_DEBUG            (0)
 #include "debug.h"
@@ -67,7 +68,7 @@ static char _stack[THREAD_STACKSIZE_DEFAULT];
 static thread_t *_netif_thread;
 
 /* keep the actual device state */
-static gnrc_netif_t *_nimble_netif = NULL;
+static gnrc_netif_t _netif;
 static gnrc_nettype_t _nettype = NETTYPE;
 
 /* keep a reference to the event callback */
@@ -94,11 +95,11 @@ static void _netif_init(gnrc_netif_t *netif)
     /* save the threads context pointer, so we can set its flags */
     _netif_thread = (thread_t *)thread_get(thread_getpid());
 
-#ifdef MODULE_GNRC_SIXLOWPAN
+#if IS_USED(MODULE_GNRC_NETIF_6LO)
     /* we disable fragmentation for this device, as the L2CAP layer takes care
      * of this */
-    _nimble_netif->sixlo.max_frag_size = 0;
-#endif
+    _netif.sixlo.max_frag_size = 0;
+#endif  /* IS_USED(MODULE_GNRC_NETIF_6LO) */
 }
 
 static int _send_pkt(nimble_netif_conn_t *conn, gnrc_pktsnip_t *pkt)
@@ -141,14 +142,6 @@ static int _send_pkt(nimble_netif_conn_t *conn, gnrc_pktsnip_t *pkt)
     return num_bytes;
 }
 
-static int _netif_send_iter(nimble_netif_conn_t *conn,
-                            int handle, void *arg)
-{
-    (void)handle;
-    _send_pkt(conn, (gnrc_pktsnip_t *)arg);
-    return 0;
-}
-
 static int _netif_send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt)
 {
     assert(pkt->type == GNRC_NETTYPE_NETIF);
@@ -160,9 +153,12 @@ static int _netif_send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt)
     /* if packet is bcast or mcast, we send it to every connected node */
     if (hdr->flags &
         (GNRC_NETIF_HDR_FLAGS_BROADCAST | GNRC_NETIF_HDR_FLAGS_MULTICAST)) {
-        nimble_netif_conn_foreach(NIMBLE_NETIF_L2CAP_CONNECTED,
-                                  _netif_send_iter, pkt->next);
-        res = (int)gnrc_pkt_len(pkt->next);
+        int handle = nimble_netif_conn_get_next(NIMBLE_NETIF_CONN_INVALID,
+                                                NIMBLE_NETIF_L2CAP_CONNECTED);
+        while (handle != NIMBLE_NETIF_CONN_INVALID) {
+            res = _send_pkt(nimble_netif_conn_get(handle), pkt->next);
+            handle = nimble_netif_conn_get_next(handle, NIMBLE_NETIF_L2CAP_CONNECTED);
+        }
     }
     /* send unicast */
     else {
@@ -195,7 +191,7 @@ static const gnrc_netif_ops_t _nimble_netif_ops = {
 
 static inline int _netdev_init(netdev_t *dev)
 {
-    _nimble_netif = dev->context;
+    (void)dev;
 
     /* get our own address from the controller */
     uint8_t tmp[6];
@@ -203,7 +199,7 @@ static inline int _netdev_init(netdev_t *dev)
     assert(res == 0);
     (void)res;
 
-    bluetil_addr_swapped_cp(tmp, _nimble_netif->l2addr);
+    bluetil_addr_swapped_cp(tmp, _netif.l2addr);
     return 0;
 }
 
@@ -216,7 +212,7 @@ static inline int _netdev_get(netdev_t *dev, netopt_t opt,
     switch (opt) {
         case NETOPT_ADDRESS:
             assert(max_len >= BLE_ADDR_LEN);
-            memcpy(value, _nimble_netif->l2addr, BLE_ADDR_LEN);
+            memcpy(value, _netif.l2addr, BLE_ADDR_LEN);
             res = BLE_ADDR_LEN;
             break;
         case NETOPT_ADDR_LEN:
@@ -286,14 +282,14 @@ static void _on_data(nimble_netif_conn_t *conn, struct ble_l2cap_event *event)
 
     /* allocate netif header */
     gnrc_pktsnip_t *if_snip = gnrc_netif_hdr_build(conn->addr, BLE_ADDR_LEN,
-                                                   _nimble_netif->l2addr,
+                                                   _netif.l2addr,
                                                    BLE_ADDR_LEN);
     if (if_snip == NULL) {
         goto end;
     }
 
     /* we need to add the device PID to the netif header */
-    gnrc_netif_hdr_set_netif(if_snip->data, _nimble_netif);
+    gnrc_netif_hdr_set_netif(if_snip->data, &_netif);
 
     /* allocate space in the pktbuf to store the packet */
     gnrc_pktsnip_t *payload = gnrc_pktbuf_add(if_snip, NULL, rx_len, _nettype);
@@ -527,9 +523,8 @@ void nimble_netif_init(void)
     nimble_netif_conn_init();
 
     /* initialize of BLE related buffers */
-    res = os_mempool_init(&_mem_pool, MBUF_CNT, MBUF_SIZE, _mem, "nim_gnrc");
-    assert(res == 0);
-    res = os_mbuf_pool_init(&_mbuf_pool, &_mem_pool, MBUF_SIZE, MBUF_CNT);
+    res = mem_init_mbuf_pool(_mem, &_mem_pool, &_mbuf_pool,
+                             MBUF_CNT, MBUF_SIZE, "nim_gnrc");
     assert(res == 0);
 
     res = ble_l2cap_create_server(NIMBLE_NETIF_CID, MTU_SIZE,
@@ -537,7 +532,7 @@ void nimble_netif_init(void)
     assert(res == 0);
     (void)res;
 
-    gnrc_netif_create(_stack, sizeof(_stack), GNRC_NETIF_PRIO,
+    gnrc_netif_create(&_netif, _stack, sizeof(_stack), GNRC_NETIF_PRIO,
                       "nimble_netif", &_nimble_netdev_dummy, &_nimble_netif_ops);
 }
 
@@ -621,7 +616,7 @@ int nimble_netif_accept(const uint8_t *ad, size_t ad_len,
                             adv_params, _on_gap_slave_evt, (void *)handle);
     assert(res == 0);
 
-    _notify(handle, NIMBLE_NETIF_ACCEPTING, _nimble_netif->l2addr);
+    _notify(handle, NIMBLE_NETIF_ACCEPTING, _netif.l2addr);
 
     return NIMBLE_NETIF_OK;
 }
@@ -637,7 +632,7 @@ int nimble_netif_accept_stop(void)
     assert(res == 0);
     (void)res;
     nimble_netif_conn_free(handle, NULL);
-    _notify(handle, NIMBLE_NETIF_ACCEPT_STOP, _nimble_netif->l2addr);
+    _notify(handle, NIMBLE_NETIF_ACCEPT_STOP, _netif.l2addr);
 
     return NIMBLE_NETIF_OK;
 }

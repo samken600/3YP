@@ -90,6 +90,18 @@ uint32_t sam0_gclk_freq(uint8_t id)
     }
 }
 
+void cpu_pm_cb_enter(int deep)
+{
+    (void) deep;
+    /* will be called before entering sleep */
+}
+
+void cpu_pm_cb_leave(int deep)
+{
+    (void) deep;
+    /* will be called after wake-up */
+}
+
 /**
  * @brief   Configure clock sources and the cpu frequency
  */
@@ -254,6 +266,10 @@ void cpu_init(void)
     cortexm_init();
     /* Initialise clock sources and generic clocks */
     clk_init();
+#ifdef MODULE_PERIPH_DMA
+    /*  initialize DMA streams */
+    dma_init();
+#endif
     /* initialize stdio prior to periph_init() to allow use of DEBUG() there */
     stdio_init();
     /* trigger static peripheral initialization */

@@ -330,11 +330,6 @@ static int _create(int type, int proto, uint16_t flags, struct netconn **out)
         return -ENOMEM;
     }
     netconn_set_callback_arg(*out, NULL);
-#if LWIP_IPV4 && LWIP_IPV6
-    if (type & NETCONN_TYPE_IPV6) {
-        netconn_set_ipv6only(*out, 1);
-    }
-#endif
 #if SO_REUSE
     if (flags & SOCK_FLAGS_REUSE_EP) {
         ip_set_option((*out)->pcb.ip, SOF_REUSEADDR);
@@ -548,6 +543,13 @@ int lwip_sock_recv(struct netconn *conn, uint32_t timeout, struct netbuf **buf)
     /* unset flags */
 #if LWIP_SO_RCVTIMEO
     netconn_set_recvtimeout(conn, 0);
+#endif
+#if IS_ACTIVE(SOCK_HAS_ASYNC)
+    lwip_sock_base_t *sock = netconn_get_callback_arg(conn);
+
+    if (sock && sock->async_cb.gen && cib_avail(&conn->recvmbox.mbox.cib)) {
+        sock->async_cb.gen(sock, SOCK_ASYNC_MSG_RECV, sock->async_cb_arg);
+    }
 #endif
     return res;
 }

@@ -6,7 +6,6 @@
  * directory for more details.
  */
 
-
 #ifndef CPU_CONF_H
 #define CPU_CONF_H
 
@@ -37,6 +36,11 @@ extern "C" {
 #define __FOPEN_MAX__       4
 #define __FILENAME_MAX__    12
 /** @} */
+
+/**
+￼ * @brief   This arch uses the inlined irq API.
+￼ */
+#define IRQ_API_INLINED     (1)
 
 /**
  * @name Kernel configuration
@@ -126,6 +130,18 @@ extern "C" {
  *          (primary RAM, USB RAM, Ethernet RAM & Backup RAM)
  */
 #define NUM_HEAPS (4)
+
+/**
+ * @brief   Memory marked with this attribute is retained during deep sleep
+ *          and initialized with 0 on cold boot.
+ */
+#define BACKUP_RAM      __attribute__((section(".backup.bss")))
+
+/**
+ * @brief   Memory marked with this attribute is retained during deep sleep
+ *          and initialized with user provided data on cold boot.
+ */
+#define BACKUP_RAM_DATA __attribute__((section(".backup.data")))
 
 #ifdef __cplusplus
 }

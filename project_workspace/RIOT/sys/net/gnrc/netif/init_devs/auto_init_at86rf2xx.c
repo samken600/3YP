@@ -17,8 +17,6 @@
  * @author  Kaspar Schleiser <kaspar@schleiser.de>
  */
 
-#ifdef MODULE_AT86RF2XX
-
 #include "log.h"
 #include "board.h"
 #include "net/gnrc/netif/ieee802154.h"
@@ -45,6 +43,7 @@
 #define AT86RF2XX_NUM ARRAY_SIZE(at86rf2xx_params)
 
 static at86rf2xx_t at86rf2xx_devs[AT86RF2XX_NUM];
+static gnrc_netif_t _netif[AT86RF2XX_NUM];
 static char _at86rf2xx_stacks[AT86RF2XX_NUM][AT86RF2XX_MAC_STACKSIZE];
 
 void auto_init_at86rf2xx(void)
@@ -54,25 +53,21 @@ void auto_init_at86rf2xx(void)
 
         at86rf2xx_setup(&at86rf2xx_devs[i], &at86rf2xx_params[i]);
 #if defined(MODULE_GNRC_GOMACH)
-        gnrc_netif_gomach_create(_at86rf2xx_stacks[i],
+        gnrc_netif_gomach_create(&_netif[i], _at86rf2xx_stacks[i],
                                  AT86RF2XX_MAC_STACKSIZE,
                                  AT86RF2XX_MAC_PRIO, "at86rf2xx-gomach",
                                  (netdev_t *)&at86rf2xx_devs[i]);
 #elif defined(MODULE_GNRC_LWMAC)
-        gnrc_netif_lwmac_create(_at86rf2xx_stacks[i],
+        gnrc_netif_lwmac_create(&_netif[i], _at86rf2xx_stacks[i],
                                 AT86RF2XX_MAC_STACKSIZE,
                                 AT86RF2XX_MAC_PRIO, "at86rf2xx-lwmac",
                                 (netdev_t *)&at86rf2xx_devs[i]);
 #else
-        gnrc_netif_ieee802154_create(_at86rf2xx_stacks[i],
+        gnrc_netif_ieee802154_create(&_netif[i], _at86rf2xx_stacks[i],
                                      AT86RF2XX_MAC_STACKSIZE,
                                      AT86RF2XX_MAC_PRIO, "at86rf2xx",
                                      (netdev_t *)&at86rf2xx_devs[i]);
 #endif
     }
 }
-#else
-typedef int dont_be_pedantic;
-#endif /* MODULE_AT86RF2XX */
-
 /** @} */

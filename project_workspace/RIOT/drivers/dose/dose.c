@@ -36,7 +36,7 @@ static dose_signal_t state_transit_blocked(dose_t *ctx, dose_signal_t signal);
 static dose_signal_t state_transit_idle(dose_t *ctx, dose_signal_t signal);
 static dose_signal_t state_transit_recv(dose_t *ctx, dose_signal_t signal);
 static dose_signal_t state_transit_send(dose_t *ctx, dose_signal_t signal);
-static void state(dose_t *ctx, uint8_t src);
+static void state(dose_t *ctx, dose_signal_t src);
 static void _isr_uart(void *arg, uint8_t c);
 static void _isr_gpio(void *arg);
 static void _isr_xtimer(void *arg);
@@ -568,7 +568,7 @@ void dose_setup(dose_t *ctx, const dose_params_t *params)
      * We have to ensure it is above the XTIMER_BACKOFF. Otherwise state
      * transitions are triggered from another state transition setting up the
      * timeout. */
-    ctx->timeout_base = DOSE_TIMEOUT_USEC;
+    ctx->timeout_base = CONFIG_DOSE_TIMEOUT_USEC;
     if (ctx->timeout_base < xtimer_usec_from_ticks(min_timeout)) {
         ctx->timeout_base = xtimer_usec_from_ticks(min_timeout);
     }

@@ -19,15 +19,12 @@
  *
  * @}
  */
+#include "assert.h"
 #include "periph/rtt.h"
 #include "ztimer/periph_rtt.h"
 
 #define ENABLE_DEBUG (0)
 #include "debug.h"
-
-#ifndef RTT_MIN_VALUE
-#define RTT_MIN_VALUE (2U)
-#endif
 
 static void _ztimer_periph_rtt_callback(void *arg)
 {
@@ -36,21 +33,30 @@ static void _ztimer_periph_rtt_callback(void *arg)
 
 static void _ztimer_periph_rtt_set(ztimer_clock_t *clock, uint32_t val)
 {
-    if (val < RTT_MIN_VALUE) {
+    if (val < RTT_MIN_OFFSET) {
         /* the rtt might advance right between the call to rtt_get_counter()
          * and rtt_set_alarm(). If that happens with val==1, we'd set an alarm
          * to the current time, which would then underflow.  To avoid this, we
          * set the alarm at least two ticks in the future.  TODO: confirm this
          * is sufficient, or conceive logic to lower this value.
          *
-         * @note RTT_MIN_VALUE defaults to 2, but some platforms might have
+         * @note RTT_MIN_OFFSET defaults to 2, but some platforms might have
          * different values.
          */
-        val = RTT_MIN_VALUE;
+        val = RTT_MIN_OFFSET;
     }
 
     unsigned state = irq_disable();
-    rtt_set_alarm(rtt_get_counter() + val, _ztimer_periph_rtt_callback, clock);
+
+    /* ensure RTT_MAX_VALUE is (2^n - 1) */
+    static_assert((RTT_MAX_VALUE == UINT32_MAX) ||
+                  !((RTT_MAX_VALUE + 1) & (RTT_MAX_VALUE)),
+                  "RTT_MAX_VALUE needs to be (2^n) - 1");
+
+    rtt_set_alarm(
+        (rtt_get_counter() + val) & RTT_MAX_VALUE, _ztimer_periph_rtt_callback,
+        clock);
+
     irq_restore(state);
 }
 
@@ -78,4 +84,5 @@ void ztimer_periph_rtt_init(ztimer_periph_rtt_t *clock)
     clock->max_value = RTT_MAX_VALUE;
     rtt_init();
     rtt_poweron();
+    ztimer_init_extend(clock);
 }

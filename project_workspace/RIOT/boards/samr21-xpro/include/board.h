@@ -43,7 +43,8 @@ extern "C" {
  */
 #define CONFIG_ZTIMER_USEC_TYPE    ZTIMER_TYPE_PERIPH_TIMER
 #define CONFIG_ZTIMER_USEC_DEV     TIMER_DEV(1)
-#define CONFIG_ZTIMER_USEC_MIN     (8)
+/* timer_set() may underflow for values smaller than 9, set 10 as margin */
+#define CONFIG_ZTIMER_USEC_MIN     (10)
 /** @} */
 
 /**
@@ -55,6 +56,23 @@ extern "C" {
 #define AT86RF2XX_PARAM_INT        GPIO_PIN(PB, 0)
 #define AT86RF2XX_PARAM_SLEEP      GPIO_PIN(PA, 20)
 #define AT86RF2XX_PARAM_RESET      GPIO_PIN(PB, 15)
+
+/**
+ * @name    OpenWSN timing constants
+ *
+ * @{
+ */
+/* Measured 800us + ~10% */
+#define PORT_maxTxDataPrepare   (900/PORT_US_PER_TICK)
+/* Measured 450us + ~10% */
+#define PORT_maxRxAckPrepare    (500/PORT_US_PER_TICK)
+/* Measured 500us + ~10% */
+#define PORT_maxRxDataPrepare   (550/PORT_US_PER_TICK)
+/* Measured 660us + ~10% */
+#define PORT_maxTxAckPrepare    (750/PORT_US_PER_TICK)
+/* Measured 650us with openwsn_sctimer_rtt */
+#define PORT_delayTx            (650/PORT_US_PER_TICK)
+/** @} */
 
 /**
  * @name    LED pin definitions and handlers

@@ -1,14 +1,13 @@
-PKG_NAME=flatc
+PKG_NAME=flatbuffers
 PKG_URL=https://github.com/google/flatbuffers
 PKG_VERSION=9e7e8cbe9f675123dd41b7c62868acad39188cae
 PKG_LICENSE=Apache2.0
 
-PKG_BUILDDIR=$(CURDIR)/bin
-
 # manually set some RIOT env vars, so this Makefile can be called stand-alone
 RIOTBASE ?= $(CURDIR)/../../..
 RIOTTOOLS ?= $(CURDIR)/..
-GITCACHE ?= $(RIOTTOOLS)/git/git-cache
+PKG_SOURCE_DIR ?= $(CURDIR)/bin
+PKG_BUILD_DIR ?= $(CURDIR)/bin/build
 
 CMAKE_OPTIONS = \
     -DCMAKE_BUILD_TYPE=Release       \
@@ -17,12 +16,16 @@ CMAKE_OPTIONS = \
     -DFLATBUFFERS_BUILD_FLATLIB=OFF  \
     #
 
+ifneq (, $(CCACHE))
+    CMAKE_OPTIONS += -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+endif
+
 include $(RIOTBASE)/pkg/pkg.mk
 
 all:
-	@cd "$(PKG_BUILDDIR)" && env -i PATH="$(PATH)" cmake -G "Unix Makefiles" $(CMAKE_OPTIONS) .
-	"$(MAKE)" -C "$(PKG_BUILDDIR)"
-	@mv "$(PKG_BUILDDIR)"/flatc $(CURDIR)/flatc
+	@env -i PATH="$(PATH)" cmake -G "Unix Makefiles" $(CMAKE_OPTIONS) -H"$(PKG_SOURCE_DIR)" -B"$(PKG_BUILD_DIR)"
+	"$(MAKE)" -C "$(PKG_BUILD_DIR)"
+	@mv "$(PKG_BUILD_DIR)"/flatc $(CURDIR)/flatc
 
 distclean::
 	@rm -f $(CURDIR)/flatc

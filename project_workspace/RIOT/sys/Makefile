@@ -10,6 +10,9 @@ endif
 ifneq (,$(filter posix_inet,$(USEMODULE)))
   DIRS += posix/inet
 endif
+ifneq (,$(filter posix_select,$(USEMODULE)))
+  DIRS += posix/select
+endif
 ifneq (,$(filter posix_semaphore,$(USEMODULE)))
   DIRS += posix/semaphore
 endif
@@ -30,6 +33,9 @@ ifneq (,$(filter shell_commands,$(USEMODULE)))
 endif
 ifneq (,$(filter test_utils_interactive_sync,$(USEMODULE)))
   DIRS += test_utils/interactive_sync
+endif
+ifneq (,$(filter dummy_thread,$(USEMODULE)))
+  DIRS += test_utils/dummy_thread
 endif
 ifneq (,$(filter net_help,$(USEMODULE)))
   DIRS += net/crosslayer/net_help
@@ -147,6 +153,9 @@ ifneq (,$(filter cord_epsim,$(USEMODULE)))
 endif
 ifneq (,$(filter cord_ep,$(USEMODULE)))
     DIRS += net/application_layer/cord/ep
+endif
+ifneq (,$(filter cord_lc,$(USEMODULE)))
+    DIRS += net/application_layer/cord/lc
 endif
 ifneq (,$(filter bluetil_%,$(USEMODULE)))
   DIRS += net/ble/bluetil

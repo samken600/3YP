@@ -19,8 +19,6 @@
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
 
-#ifdef MODULE_ENC28J60
-
 #include "log.h"
 #include "enc28j60.h"
 #include "enc28j60_params.h"
@@ -48,6 +46,8 @@
 static enc28j60_t dev[ENC28J60_NUM];
 /** @} */
 
+static gnrc_netif_t _netif[ENC28J60_NUM];
+
 /**
  * @brief   Stacks for the MAC layer threads
  */
@@ -61,13 +61,9 @@ void auto_init_enc28j60(void)
 
         /* setup netdev device */
         enc28j60_setup(&dev[i], &enc28j60_params[i]);
-        gnrc_netif_ethernet_create(stack[i], ENC28J60_MAC_STACKSIZE,
+        gnrc_netif_ethernet_create(&_netif[i], stack[i], ENC28J60_MAC_STACKSIZE,
                                    ENC28J60_MAC_PRIO, "enc28j60",
                                    (netdev_t *)&dev[i]);
     }
 }
-
-#else
-typedef int dont_be_pedantic;
-#endif /* MODULE_ENC28J60 */
 /** @} */

@@ -120,10 +120,9 @@ typedef enum {
      *          RFC 4291, section 2.5.1
      *      </a>
      *
-     * @deprecated  Do not implement this in a network device. Other APIs
-     *              utilizing [netopt](@ref net_netopt) may still implement it.
-     *              Existing support of drivers will be dropped after the
-     *              2019.07 release.
+     * @note    Do not implement this in a network device driver. Other APIs
+     *          utilizing [netopt](@ref net_netopt) such as @ref net_gnrc_netif
+     *          or @ref net_netif may still implement it.
      *
      * The generation of the interface identifier is dependent on the link-layer.
      * Please refer to the appropriate IPv6 over `<link>` specification for
@@ -652,6 +651,43 @@ typedef enum {
     NETOPT_LORAWAN_MIN_RX_SYMBOL,
 
     /**
+     * @brief   (uint8_t) 802.15.4 PHY mode
+     */
+    NETOPT_IEEE802154_PHY,
+
+    /**
+     * @brief   (uint8_t) legacy O-QPSK proprietary mode
+     *          Allows to select higher data rates than standard 250 kbit/s
+     *          Not compatible across vendors, only use with radios of the same type.
+     */
+    NETOPT_OQPSK_RATE,
+
+    /**
+     * @brief   (uint8_t) MR-O-QPSK Chip Rate (kchip/s)
+     */
+    NETOPT_MR_OQPSK_CHIPS,
+
+    /**
+     * @brief   (uint8_t) MR-O-QPSK Rate Mode
+     */
+    NETOPT_MR_OQPSK_RATE,
+
+    /**
+     * @brief   (uint8_t) MR-OFDM PHY Option (Values: 1-4)
+     */
+    NETOPT_MR_OFDM_OPTION,
+
+    /**
+     * @brief   (uint8_t) MR-OFDM PHY Modulation and Coding Scheme (Values: 0-6)
+     */
+    NETOPT_MR_OFDM_MCS,
+
+    /**
+     * @brief   (uint8_t) PHY Channel Spacing (kHz)
+     */
+    NETOPT_CHANNEL_SPACING,
+
+    /**
      * @brief   (uint8_t*) phy layer syncword
      */
     NETOPT_SYNCWORD,
@@ -692,6 +728,17 @@ typedef enum {
      * be received on the next downlink
      */
     NETOPT_LINK_CHECK,
+
+    /**
+     * @brief (int8_t) Received Signal Strength Indicator (RSSI)
+     *
+     * The RSSI is an indicator for the received field strength in wireless
+     * channels. It is often represented as the ratio of received power to
+     * a given unit, for example milliwatts. With a device-dependent scaling
+     * factor, the RSSI value can be expressed as power level in the unit
+     * dBm or ASU (Arbitrary Strength Unit).
+     */
+    NETOPT_RSSI,
 
     /**
      * @brief   maximum number of options defined here.

@@ -30,24 +30,28 @@
 
 #include "kernel_types.h"
 #include "msg.h"
+#ifdef MODULE_GNRC_NETIF_BUS
+#include "msg_bus.h"
+#endif
+#include "event.h"
 #include "net/ipv6/addr.h"
 #include "net/gnrc/netapi.h"
 #include "net/gnrc/pkt.h"
 #include "net/gnrc/netif/conf.h"
-#ifdef MODULE_GNRC_LORAWAN
+#if IS_USED(MODULE_GNRC_NETIF_LORAWAN)
 #include "net/gnrc/netif/lorawan.h"
 #endif
-#ifdef MODULE_GNRC_SIXLOWPAN
+#if IS_USED(MODULE_GNRC_NETIF_6LO)
 #include "net/gnrc/netif/6lo.h"
 #endif
 #if defined(MODULE_GNRC_NETIF_DEDUP) && (GNRC_NETIF_L2ADDR_MAXLEN > 0)
 #include "net/gnrc/netif/dedup.h"
 #endif
 #include "net/gnrc/netif/flags.h"
-#ifdef MODULE_GNRC_IPV6
+#if IS_USED(MODULE_GNRC_NETIF_IPV6)
 #include "net/gnrc/netif/ipv6.h"
 #endif
-#ifdef MODULE_GNRC_MAC
+#if IS_USED(MODULE_GNRC_NETIF_MAC)
 #include "net/gnrc/netif/mac.h"
 #endif
 #include "net/ndp.h"
@@ -62,6 +66,35 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief   Per-Interface Event Message Busses
+ */
+typedef enum {
+#ifdef MODULE_GNRC_IPV6
+    GNRC_NETIF_BUS_IPV6,                    /**< provides @ref gnrc_ipv6_event_t
+                                                 messages to subscribers */
+#endif
+    GNRC_NETIF_BUS_NUMOF
+} gnrc_netif_bus_t;
+
+/**
+ * @brief   Event types for GNRC_NETIF_BUS_IPV6 per-interface message bus
+ */
+typedef enum {
+    /**
+     * @brief   Address becomes valid
+     *
+     * The event is generated when an address on the interface becomes valid.
+     * The message payload contains a pointer to the respective
+     * @ref ipv6_addr_t struct.
+     *
+     * @note If the address on the interface changed between sending
+     * the event and processing it, the pointer will point to the new address
+     * which might *not* be valid.
+     */
+    GNRC_IPV6_EVENT_ADDR_VALID,
+} gnrc_ipv6_event_t;
 
 /**
  * @brief   Operations to an interface
@@ -79,21 +112,34 @@ typedef struct {
 #ifdef MODULE_NETSTATS_L2
     netstats_t stats;                       /**< transceiver's statistics */
 #endif
-#if defined(MODULE_GNRC_LORAWAN) || DOXYGEN
+#if IS_USED(MODULE_GNRC_NETIF_LORAWAN) || defined(DOXYGEN)
     gnrc_netif_lorawan_t lorawan;           /**< LoRaWAN component */
 #endif
-#if defined(MODULE_GNRC_IPV6) || DOXYGEN
+#if IS_USED(MODULE_GNRC_NETIF_IPV6) || defined(DOXYGEN)
     gnrc_netif_ipv6_t ipv6;                 /**< IPv6 component */
 #endif
-#if defined(MODULE_GNRC_MAC) || DOXYGEN
-    gnrc_netif_mac_t mac;                  /**< @ref net_gnrc_mac component */
-#endif  /* MODULE_GNRC_MAC */
+#if IS_USED(MODULE_GNRC_NETIF_MAC) || defined(DOXYGEN)
+    gnrc_netif_mac_t mac;                   /**< @ref net_gnrc_mac component */
+#endif  /* IS_USED(MODULE_GNRC_NETIF_MAC) || defined(DOXYGEN) */
+#if IS_USED(MODULE_GNRC_NETIF_BUS) || DOXYGEN
+    msg_bus_t bus[GNRC_NETIF_BUS_NUMOF];    /**< Event Message Bus */
+#endif
     /**
      * @brief   Flags for the interface
      *
      * @see net_gnrc_netif_flags
      */
     uint32_t flags;
+#if IS_USED(MODULE_GNRC_NETIF_EVENTS) || defined(DOXYGEN)
+    /**
+     * @brief   Event queue for asynchronous events
+     */
+    event_queue_t evq;
+    /**
+     * @brief   ISR event for the network device
+     */
+    event_t event_isr;
+#endif /* MODULE_GNRC_NETIF_EVENTS */
 #if (GNRC_NETIF_L2ADDR_MAXLEN > 0) || DOXYGEN
     /**
      * @brief   The link-layer address currently used as the source address
@@ -118,7 +164,7 @@ typedef struct {
     gnrc_netif_dedup_t last_pkt;
 #endif
 #endif
-#if defined(MODULE_GNRC_SIXLOWPAN) || DOXYGEN
+#if IS_USED(MODULE_GNRC_NETIF_6LO) || defined(DOXYGEN)
     gnrc_netif_6lo_t sixlo;                 /**< 6Lo component */
 #endif
     uint8_t cur_hl;                         /**< Current hop-limit for out-going packets */
@@ -246,6 +292,7 @@ void gnrc_netif_init_devs(void);
 /**
  * @brief   Creates a network interface
  *
+ * @param[out] netif    The interface. May not be `NULL`.
  * @param[in] stack     The stack for the network interface's thread.
  * @param[in] stacksize Size of @p stack.
  * @param[in] priority  Priority for the network interface's thread.
@@ -256,15 +303,12 @@ void gnrc_netif_init_devs(void);
  * @note If @ref DEVELHELP is defined netif_params_t::name is used as the
  *       name of the network interface's thread.
  *
- * @attention   Fails and crashes (assertion error with @ref DEVELHELP or
- *              segmentation fault without) if `GNRC_NETIF_NUMOF` is lower than
- *              the number of calls to this function.
- *
- * @return  The network interface on success.
+ * @return  0 on success
+ * @return  negative number on error
  */
-gnrc_netif_t *gnrc_netif_create(char *stack, int stacksize, char priority,
-                                const char *name, netdev_t *dev,
-                                const gnrc_netif_ops_t *ops);
+int gnrc_netif_create(gnrc_netif_t *netif, char *stack, int stacksize,
+                      char priority, const char *name, netdev_t *dev,
+                      const gnrc_netif_ops_t *ops);
 
 /**
  * @brief   Get number of network interfaces actually allocated
@@ -272,6 +316,22 @@ gnrc_netif_t *gnrc_netif_create(char *stack, int stacksize, char priority,
  * @return  Number of network interfaces actually allocated
  */
 unsigned gnrc_netif_numof(void);
+
+/**
+ * @brief Check if there can only be one @ref gnrc_netif_t interface.
+ *
+ * > There can only be one!
+ *
+ * This function is used to allow compile time optimizations for
+ * single interface applications
+ *
+ * @return true, if there can only only one interface
+ * @return false, if there can be more than one interface
+ */
+static inline bool gnrc_netif_highlander(void)
+{
+    return IS_ACTIVE(GNRC_NETIF_SINGLE);
+}
 
 /**
  * @brief   Iterate over all network interfaces.
@@ -540,6 +600,23 @@ static inline int gnrc_netif_send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt)
 {
     return gnrc_netapi_send(netif->pid, pkt);
 }
+
+#if defined(MODULE_GNRC_NETIF_BUS) || DOXYGEN
+/**
+ * @brief   Get a message bus of a given @ref gnrc_netif_t interface.
+ *
+ * @param netif         pointer to the interface
+ * @param type          GNRC message bus [type](@ref gnrc_netif_bus_t)
+ *
+ * @return              the message bus for the interface
+ */
+static inline msg_bus_t* gnrc_netif_get_bus(gnrc_netif_t *netif,
+                                            gnrc_netif_bus_t type)
+{
+    assert(type < GNRC_NETIF_BUS_NUMOF);
+    return &netif->bus[type];
+}
+#endif /* MODULE_GNRC_NETIF_BUS */
 
 #ifdef __cplusplus
 }

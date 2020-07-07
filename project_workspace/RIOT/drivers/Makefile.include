@@ -32,12 +32,24 @@ ifneq (,$(filter at24mac,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/at24mac/include
 endif
 
+ifneq (,$(filter at25xxx,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/at25xxx/include
+endif
+
 ifneq (,$(filter at86rf2xx,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/at86rf2xx/include
 endif
 
+ifneq (,$(filter at86rf215,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/at86rf215/include
+endif
+
 ifneq (,$(filter ata8520e,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/ata8520e/include
+endif
+
+ifneq (,$(filter atwinc15x0,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/atwinc15x0/include
 endif
 
 ifneq (,$(filter bh1750fvi,$(USEMODULE)))
@@ -78,6 +90,14 @@ endif
 
 ifneq (,$(filter dcf77,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/dcf77/include
+endif
+
+ifneq (,$(filter dfplayer,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/dfplayer/include
+  ifneq (,$(filter arch_avr8 arch_msp430,$(FEATURES_USED)))
+    # no strerror() on AVR and MSP430
+    CFLAGS += -DDFPLAYER_NO_STRERROR
+  endif
 endif
 
 ifneq (,$(filter dht,$(USEMODULE)))
@@ -140,6 +160,10 @@ ifneq (,$(filter hdc1000,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/hdc1000/include
 endif
 
+ifneq (,$(filter hmc5883l,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/hmc5883l/include
+endif
+
 ifneq (,$(filter hts221,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/hts221/include
 endif
@@ -178,6 +202,10 @@ endif
 
 ifneq (,$(filter kw2xrf,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/kw2xrf/include
+endif
+
+ifneq (,$(filter kw41zrf,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/kw41zrf/include
 endif
 
 ifneq (,$(filter l3g4200d,$(USEMODULE)))
@@ -224,6 +252,10 @@ ifneq (,$(filter mag3110,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/mag3110/include
 endif
 
+ifneq (,$(filter mhz19,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/mhz19/include
+endif
+
 ifneq (,$(filter mma7660,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/mma7660/include
 endif
@@ -256,6 +288,10 @@ ifneq (,$(filter opt3001,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/opt3001/include
 endif
 
+ifneq (,$(filter pca9633,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/pca9633/include
+endif
+
 ifneq (,$(filter pca9685,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/pca9685/include
 endif
@@ -286,6 +322,10 @@ endif
 
 ifneq (,$(filter sdcard_spi,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/sdcard_spi/include
+endif
+
+ifneq (,$(filter sdp3x,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/sdp3x/include
 endif
 
 ifneq (,$(filter sds011,$(USEMODULE)))

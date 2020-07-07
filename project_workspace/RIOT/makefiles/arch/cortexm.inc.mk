@@ -14,7 +14,7 @@ ifneq (llvm,$(TOOLCHAIN))
   CFLAGS += -mno-thumb-interwork
 
   # work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85606
-  ifneq (,$(filter cortex-m0%,$(CPU_ARCH)))
+  ifeq (armv6m,$(CPU_ARCH))
     CFLAGS_CPU += -march=armv6s-m
   endif
 endif
@@ -32,17 +32,6 @@ LINKFLAGS += -T$(LINKER_SCRIPT) -Wl,--fatal-warnings
 
 LINKFLAGS += $(CFLAGS_CPU) $(CFLAGS_DBG) $(CFLAGS_OPT) -static -lgcc -nostartfiles
 LINKFLAGS += -Wl,--gc-sections
-
-# Tell the build system that the CPU depends on the Cortex-M common files:
-USEMODULE += cortexm_common
-# Export the peripheral drivers to be linked into the final binary:
-USEMODULE += periph
-# include common periph code
-USEMODULE += cortexm_common_periph
-
-# all cortex MCU's use newlib as libc
-USEMODULE += newlib
-
 
 # extract version inside the first parentheses
 ARM_GCC_VERSION = $(shell $(TARGET_ARCH)-gcc --version | sed -n '1 s/[^(]*(\([^\)]*\)).*/\1/p')
@@ -69,49 +58,46 @@ ifneq (1,$(BUILD_IN_DOCKER))
 endif # BUILD_IN_DOCKER
 
 CFLAGS += -DCPU_MODEL_$(call uppercase_and_underscore,$(CPU_MODEL))
-CFLAGS += -DCPU_ARCH_$(call uppercase_and_underscore,$(CPU_ARCH))
+CFLAGS += -DCPU_CORE_$(call uppercase_and_underscore,$(CPU_CORE))
 
-# set the compiler specific CPU and FPU options
-ifneq (,$(filter $(CPU_ARCH),cortex-m4f cortex-m7))
-  ifneq (,$(filter cortexm_fpu,$(DISABLE_MODULE)))
-    CFLAGS_FPU ?= -mfloat-abi=soft
+# Add corresponding FPU CFLAGS
+# clang assumes there is an FPU, no CFLAGS necessary
+ifneq (llvm, $(TOOLCHAIN))
+  ifeq ($(CPU_CORE),cortex-m7)
+    _CORTEX_HW_FPU_CFLAGS = -mfloat-abi=hard -mfpu=fpv5-sp-d16
   else
-    USEMODULE += cortexm_fpu
-    # clang assumes there is an FPU
-    ifneq (llvm,$(TOOLCHAIN))
-      ifeq ($(CPU_ARCH),cortex-m7)
-        CFLAGS_FPU ?= -mfloat-abi=hard -mfpu=fpv5-sp-d16
-      else
-        CFLAGS_FPU ?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
-      endif
-    endif
+    _CORTEX_HW_FPU_CFLAGS = -mfloat-abi=hard -mfpu=fpv4-sp-d16
   endif
+endif
+# Add soft or hard FPU CFLAGS depending on the module
+ifneq (,$(filter cortexm_fpu,$(USEMODULE)))
+  CFLAGS_FPU ?= $(_CORTEX_HW_FPU_CFLAGS)
 else
   CFLAGS_FPU ?= -mfloat-abi=soft
 endif
 
-ifeq ($(CPU_ARCH),cortex-m4f)
+ifeq ($(CPU_CORE),cortex-m4f)
   MCPU = cortex-m4
 else
-  MCPU ?= $(CPU_ARCH)
+  MCPU ?= $(CPU_CORE)
 endif
 
 # CMSIS DSP needs to know about the CPU core
 ifneq (,$(filter cmsis-dsp,$(USEPKG)))
   # definition needed to use cmsis-dsp headers
-  ifeq ($(CPU_ARCH),cortex-m0)
+  ifeq ($(CPU_CORE),cortex-m0)
     CFLAGS += -DARM_MATH_CM0
-  else ifeq ($(CPU_ARCH),cortex-m0plus)
+  else ifeq ($(CPU_CORE),cortex-m0plus)
     CFLAGS += -DARM_MATH_CM0PLUS
-  else ifeq ($(CPU_ARCH),cortex-m3)
+  else ifeq ($(CPU_CORE),cortex-m3)
     CFLAGS += -DARM_MATH_CM3
-  else ifeq ($(CPU_ARCH),cortex-m4)
+  else ifeq ($(CPU_CORE),cortex-m4)
     CFLAGS += -DARM_MATH_CM4
-  else ifeq ($(CPU_ARCH),cortex-m4f)
+  else ifeq ($(CPU_CORE),cortex-m4f)
     CFLAGS += -DARM_MATH_CM4
-  else ifeq ($(CPU_ARCH),cortex-m7)
+  else ifeq ($(CPU_CORE),cortex-m7)
     CFLAGS += -DARM_MATH_CM7
-  else ifeq ($(CPU_ARCH),cortex-m23)
+  else ifeq ($(CPU_CORE),cortex-m23)
     CFLAGS += -DARM_MATH_CM23
   endif
 endif
@@ -125,9 +111,6 @@ endif
 
 # CPU depends on the cortex-m common module, so include it:
 include $(RIOTCPU)/cortexm_common/Makefile.include
-
-# use the nano-specs of Newlib when available
-USEMODULE += newlib_nano
 
 # Avoid overriding the default rule:
 all:

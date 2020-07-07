@@ -1,6 +1,6 @@
 PROGRAMMER ?= openocd
 
-PROGRAMMERS_SUPPORTED := bmp dfu-util openocd stm32flash
+PROGRAMMERS_SUPPORTED := bmp dfu-util openocd stm32flash jlink
 
 ifeq (,$(filter $(PROGRAMMER), $(PROGRAMMERS_SUPPORTED)))
   $(error Programmer $(PROGRAMMER) not supported)
@@ -37,6 +37,11 @@ ifeq (bmp,$(PROGRAMMER))
   include $(RIOTMAKE)/tools/bmp.inc.mk
 endif
 
+ifeq (jlink,$(PROGRAMMER))
+  JLINK_DEVICE ?= $(CPU_MODEL)
+  include $(RIOTMAKE)/tools/jlink.inc.mk
+endif
+
 ifeq (dfu-util,$(PROGRAMMER))
   # optionally, use dfu-util to flash via usb
   # note: needs a bootloader flashed before, config below is compatible
@@ -50,9 +55,11 @@ ifeq (dfu-util,$(PROGRAMMER))
 endif
 
 ifeq (stm32flash,$(PROGRAMMER))
+	ROM_OFFSET ?= 0x0
 	FLASHER = stm32flash
 	DEBUGGER =
 	FLASHFILE ?= $(BINFILE)
 	PROG_BAUD ?= 57600
-	FFLAGS = -b $(PROG_BAUD) -w $(FLASHFILE) -g 0x0 $(PORT)
+	BIN_ADDR ?= $(shell echo  $$(($(ROM_START_ADDR) + $(ROM_OFFSET))))
+	FFLAGS = -v -b $(PROG_BAUD) -w $(FLASHFILE) -S $(BIN_ADDR) -g $(BIN_ADDR) $(PORT)
 endif

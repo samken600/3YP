@@ -31,6 +31,7 @@
 /boards/sodaq-sara-aff/                     @leandrolanzieri
 /boards/stk3*00/                            @basilfx
 /boards/openmote*/                          @MrKevinWeiss
+/boards/cc1352p-launchpad                   @luisan00
 
 /core/                                      @kaspar030
 
@@ -61,9 +62,11 @@
 /doc/                                       @aabadie @jia200x
 
 /dist/tools/sliptty/                        @miri64
+/dist/tools/dhcpv6-pd_ia/                   @miri64
 
 /drivers/ad7746/                            @leandrolanzieri
 /drivers/at24mac/                           @benpicco
+/drivers/at86rf215/                         @benpicco
 /drivers/at86rf2xx/                         @daniel-k @Hyungsin @jia200x @smlng @miri64
 /drivers/bh1900nux/                         @wosym
 /drivers/cc110x/                            @maribu
@@ -137,7 +140,4 @@
 
 # KConfig maintainers will be notified about all KConfig changes
 Kconfig                                     @leandrolanzieri @jia200x @cgundogan
-Makefile.dep                                @aabadie @fjmolinas
-Makefile.features                           @aabadie @fjmolinas
-Makefile.include                            @aabadie @fjmolinas
 pm.c                                        @roberthartung @kaspar030

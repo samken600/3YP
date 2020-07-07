@@ -1,5 +1,7 @@
-# Use Segger's RTT by default for stdio on this board
-DEFAULT_MODULE += stdio_rtt
+# Use stdio_cdc_acm unless another stdio_% is already used
+ifeq (,$(filter stdio_% slipdev_stdio,$(USEMODULE)))
+  USEMODULE += stdio_cdc_acm
+endif
 
 ifneq (,$(filter saul_default,$(USEMODULE)))
   USEMODULE += saul_gpio

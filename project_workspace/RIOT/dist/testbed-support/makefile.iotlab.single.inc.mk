@@ -65,7 +65,7 @@ IOTLAB_NODE_AUTO_NUM ?= 1
 IOTLAB_ARCHI_arduino-zero   = arduino-zero:xbee
 IOTLAB_ARCHI_b-l072z-lrwan1 = st-lrwan1:sx1276
 IOTLAB_ARCHI_b-l475e-iot01a = st-iotnode:multi
-IOTLAB_ARCHI_firefly        = firefly
+IOTLAB_ARCHI_firefly        = firefly:multi
 IOTLAB_ARCHI_frdm-kw41z     = frdm-kw41z:multi
 IOTLAB_ARCHI_iotlab-a8-m3   = a8:at86rf231
 IOTLAB_ARCHI_iotlab-m3      = m3:at86rf231
@@ -94,6 +94,14 @@ else
   _NODES_DEPLOYED = $(shell iotlab-experiment --jmespath='"0"' --format='" ".join' get $(_IOTLAB_EXP_ID) --deployment)
   _NODES_LIST_OPTION = --nodes
   _NODES_FLASH_OPTION = --flash
+  ifneq (,$(filter-out wsn430-% firefly,$(BOARD)))
+    # All boards in IoT-LAB except firefly and WSN430 can be flashed using $(BINFILE).
+    # On IoT-LAB, firefly only accepts $(ELFFILE) and WSN320 boards on accept $(HEXFILE).
+    # Using $(BINFILE) speeds up the firmware upload since the file is much
+    # smaller than an elffile.
+    # This feature is only available in cli-tools version >= 3.
+    FLASHFILE = $(BINFILE)
+  endif
 endif
 
 # Try detecting the node automatically

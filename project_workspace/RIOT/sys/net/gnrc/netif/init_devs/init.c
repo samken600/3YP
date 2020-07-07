@@ -32,9 +32,19 @@ void gnrc_netif_init_devs(void)
         auto_init_stm32_eth();
     }
 
+    if (IS_USED(MODULE_AUTO_INIT_AT86RF215)) {
+        extern void auto_init_at86rf215(void);
+        auto_init_at86rf215();
+    }
+
     if (IS_USED(MODULE_AUTO_INIT_AT86RF2XX)) {
         extern void auto_init_at86rf2xx(void);
         auto_init_at86rf2xx();
+    }
+
+    if (IS_USED(MODULE_ATWINC15X0)) {
+        extern void auto_init_atwinc15x0(void);
+        auto_init_atwinc15x0();
     }
 
     if (IS_USED(MODULE_MRF24J40)) {
@@ -107,6 +117,11 @@ void gnrc_netif_init_devs(void)
     if (IS_USED(MODULE_KW2XRF)) {
         extern void auto_init_kw2xrf(void);
         auto_init_kw2xrf();
+    }
+
+    if (IS_USED(MODULE_KW41ZRF)) {
+        extern void auto_init_kw41zrf(void);
+        auto_init_kw41zrf();
     }
 
     if (IS_USED(MODULE_USBUS_CDC_ECM)) {

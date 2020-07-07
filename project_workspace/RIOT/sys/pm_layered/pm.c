@@ -34,17 +34,9 @@
 #endif
 
 /**
- * @brief Power Management mode typedef
- */
-typedef union {
-    uint32_t val_u32;
-    uint8_t val_u8[PM_NUM_MODES];
-} pm_blocker_t;
-
-/**
  * @brief Global variable for keeping track of blocked modes
  */
-volatile pm_blocker_t pm_blocker = { .val_u32 = PM_BLOCKER_INITIAL };
+static volatile pm_blocker_t pm_blocker = { .val_u32 = PM_BLOCKER_INITIAL };
 
 void pm_set_lowest(void)
 {
@@ -87,11 +79,17 @@ void pm_unblock(unsigned mode)
     irq_restore(state);
 }
 
+pm_blocker_t pm_get_blocker(void)
+{
+    return pm_blocker;
+}
+
 #ifndef PROVIDES_PM_LAYERED_OFF
 void pm_off(void)
 {
-    pm_blocker.val_u32 = 0;
-    pm_set_lowest();
-    while(1) {}
+    irq_disable();
+    while(1) {
+        pm_set(0);
+    }
 }
 #endif

@@ -150,7 +150,7 @@ The documentation must be under the proper doxygen group, you can compile the
 documentation by calling `make doc` and then open the generated html file on
 any browser.
 
-```md
+@code
 /**
 @defgroup    boards_foo FooBoard
 @ingroup     boards
@@ -170,7 +170,34 @@ any browser.
   ...
 
 */
+@endcode
+
+# Helper tools
+
+To help you start porting a board, the RIOT build system provides the
+`generate-board` make target. It is a wrapper around the
+[riotgen](https://pypi.org/project/riotgen/) command line tool that is helpful
+when starting to port a board: all required files are generated with
+copyright headers, doxygen groups, etc, so you can concentrate on the port.
+The board source files are created in the `boards/<board name>` directory.
+
+**Usage:**
+
+From the RIOT base directory, run:
 ```
+make generate-board
+```
+Then answer a few questions about the driver:
+- Board name: Enter a name for your board. It will be used as the name
+  of the board directory under `boards`.
+- Board displayed name: Enter the name of the board, as displayed in the
+  Doxygen documentation.
+- CPU name: Enter the name of the CPU embedded on the board.
+- CPU model name: Enter the precise model name of the CPU.
+- Features provided: CPU features provided (and configured) for this board.
+
+Other global information (author name, email, organization) should be retrieved
+automatically from your git configuration.
 
 # Using Common code                                         {#common-board-code}
 
@@ -183,7 +210,7 @@ already defined in the common code. Unless having specific configurations or
 initialization you might not need a `board.c` or `board.h`. Another common use
 case is common peripheral configurations:
 
-```diff
+@code
 -\#include "cfg_timer_tim5.h"
 +/**
 + * @name   Timer configuration
@@ -203,7 +230,7 @@ case is common peripheral configurations:
 +
 +#define TIMER_NUMOF         ARRAY_SIZE(timer_config)
 +/** @} */
-```
+@endcode
 
 If you want to use common makefiles, include them at the end of the specific
 `Makefile`, e.g. for a `Makefile.features`:
@@ -226,9 +253,10 @@ All `BOARD`s in RIOT reside in `RIOTBOARD` (`RIOTBOARD` being a make variable
 set to `$(RIOTBOARD)/boards`).
 
 If one wants to use a `BOARD` outside of `RIOTBOARD`, the way to go is setting
-the `BOARDSDIR` variable to the path to the directory containing your external
-boards, e.g.: `BOARDSDIR=/home/external-boards/` (this would commonly be done
-in your application `Makefile` or your environment).
+the `EXTERNAL_BOARD_DIRS` variable to the path to the directory containing your
+external boards, e.g.: `EXTERNAL_BOARD_DIRS=/home/external-boards/` (this would
+commonly be done in your application `Makefile` or your environment). You can
+specify multiple directories separated by spaces.
 
 ```
 /home/
@@ -281,7 +309,7 @@ In this case some special considerations must be taken with the makefiles:
   `include $(RIOTBOARD)/foo-parent/Makefile.*include*`
 
 An example can be found in
-[`tests/external_board_native`](https://github.com/RIOT-OS/RIOT/tree/master/tests/external_board_native`)
+[`tests/external_board_native`](https://github.com/RIOT-OS/RIOT/tree/master/tests/external_board_native)
 
 # Tools                                                          {#boards-tools}
 

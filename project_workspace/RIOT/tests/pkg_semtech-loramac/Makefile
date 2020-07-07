@@ -26,4 +26,15 @@ USEMODULE += fmt
 
 FEATURES_OPTIONAL += periph_eeprom
 
+# Default IotLab Config to run the test
+ifneq (,$(filter iotlab%,$(MAKECMDGOALS)))
+  IOTLAB_NODES ?= 1
+  IOTLAB_TYPE  ?= st-lrwan1:sx1276
+  IOTLAB_SITE  ?= saclay
+  include $(RIOTBASE)/dist/testbed-support/Makefile.iotlab
+endif
+
+# Can't be run on ci since it requires gateway + lora node
+TEST_ON_CI_BLACKLIST = all
+
 include $(RIOTBASE)/Makefile.include

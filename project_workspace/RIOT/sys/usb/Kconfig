@@ -45,12 +45,14 @@ endchoice
 config USB_PID
     hex "Product ID"
     range 0x0000 0xFFFF
+    default 0x7D01
     help
         You must provide your own PID.
 
 config USB_VID
     hex "Vendor ID"
     range 0x0000 0xFFFF
+    default 0x1209
     help
         You must provide your own VID.
 
@@ -79,4 +81,6 @@ config USB_DEFAULT_LANGID
     help
         The default value is EN-US (0x0409).
 
+
+rsource "usbus/Kconfig"
 endif # KCONFIG_USB

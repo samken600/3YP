@@ -20,6 +20,8 @@
 #ifndef NET_GNRC_NETIF_CONF_H
 #define NET_GNRC_NETIF_CONF_H
 
+#include <kernel_defines.h>
+
 #include "net/ieee802154.h"
 #include "net/ethernet/hdr.h"
 #include "net/gnrc/ipv6/nib/conf.h"
@@ -30,13 +32,15 @@ extern "C" {
 #endif
 
 /**
- * @brief   Maximum number of network interfaces
+ * @brief   Single interface optimizations
  *
- * @note    Intentionally not calling it `GNRC_NETIF_NUMOF` to not require
- *          rewrites throughout the stack.
+ *          Define to 1 to allow GNRC optimizations when only one interface
+ *          is available.
+ *
+ * @note    This MUST NOT be enabled if there's more than one interface.
  */
-#ifndef GNRC_NETIF_NUMOF
-#define GNRC_NETIF_NUMOF            (1)
+#if DOXYGEN
+#define GNRC_NETIF_SINGLE
 #endif
 
 /**
@@ -47,14 +51,19 @@ extern "C" {
 #endif
 
 /**
- * @brief       Message queue size for network interface threads
+ * @brief       Default message queue size for network interface threads (as
+ *              exponent of 2^n).
+ *
+ *              As the queue size ALWAYS needs to be power of two, this option
+ *              represents the exponent of 2^n, which will be used as the size
+ *              of the queue.
  *
  * @attention   This has influence on the used stack memory of the thread, so
  *              the thread's stack size might need to be adapted if this is
  *              changed.
  */
-#ifndef CONFIG_GNRC_NETIF_MSG_QUEUE_SIZE
-#define CONFIG_GNRC_NETIF_MSG_QUEUE_SIZE  (16U)
+#ifndef CONFIG_GNRC_NETIF_MSG_QUEUE_SIZE_EXP
+#define CONFIG_GNRC_NETIF_MSG_QUEUE_SIZE_EXP  (4U)
 #endif
 
 /**
@@ -74,7 +83,7 @@ extern "C" {
  *
  * @note    Used for calculation of @ref GNRC_NETIF_IPV6_GROUPS_NUMOF
  */
-#if GNRC_IPV6_NIB_CONF_ROUTER
+#if IS_ACTIVE(CONFIG_GNRC_IPV6_NIB_ROUTER)
 #define GNRC_NETIF_IPV6_RTR_ADDR   (1)
 #else
 #define GNRC_NETIF_IPV6_RTR_ADDR   (0)
@@ -129,7 +138,7 @@ extern "C" {
 #elif   MODULE_CC110X
 #define GNRC_NETIF_L2ADDR_MAXLEN   (1U)
 #else
-#define GNRC_NETIF_L2ADDR_MAXLEN   (GNRC_IPV6_NIB_L2ADDR_MAX_LEN)
+#define GNRC_NETIF_L2ADDR_MAXLEN   (CONFIG_GNRC_IPV6_NIB_L2ADDR_MAX_LEN)
 #endif
 #endif
 
@@ -147,10 +156,29 @@ extern "C" {
 #ifndef CONFIG_GNRC_NETIF_MIN_WAIT_AFTER_SEND_US
 #define CONFIG_GNRC_NETIF_MIN_WAIT_AFTER_SEND_US   (0U)
 #endif
+/** @} */
+
+/**
+ * @brief   Message queue size for network interface threads
+ */
+#ifndef GNRC_NETIF_MSG_QUEUE_SIZE
+#define GNRC_NETIF_MSG_QUEUE_SIZE   (1 << CONFIG_GNRC_NETIF_MSG_QUEUE_SIZE_EXP)
+#endif
+
+/**
+ * @brief   Enable the usage of non standard MTU for 6LoWPAN network interfaces
+ *
+ * @experimental
+ *
+ * This feature is non compliant with RFC 4944 and might not be supported by
+ * other implementations.
+ */
+#ifndef CONFIG_GNRC_NETIF_NONSTANDARD_6LO_MTU
+#define CONFIG_GNRC_NETIF_NONSTANDARD_6LO_MTU 0
+#endif
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* NET_GNRC_NETIF_CONF_H */
-/** @} */

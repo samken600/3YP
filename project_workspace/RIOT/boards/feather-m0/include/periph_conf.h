@@ -86,10 +86,8 @@ static const tc32_conf_t timer_config[] = {
         .gclk_ctrl      = GCLK_CLKCTRL_ID_TCC2_TC3,
 #if CLOCK_USE_PLL || CLOCK_USE_XOSC32_DFLL
         .gclk_src       = SAM0_GCLK_1MHZ,
-        .prescaler      = TC_CTRLA_PRESCALER_DIV1,
 #else
         .gclk_src       = SAM0_GCLK_MAIN,
-        .prescaler      = TC_CTRLA_PRESCALER_DIV8,
 #endif
         .flags          = TC_CTRLA_MODE_COUNT16,
     },
@@ -100,10 +98,8 @@ static const tc32_conf_t timer_config[] = {
         .gclk_ctrl      = GCLK_CLKCTRL_ID_TC4_TC5,
 #if CLOCK_USE_PLL || CLOCK_USE_XOSC32_DFLL
         .gclk_src       = SAM0_GCLK_1MHZ,
-        .prescaler      = TC_CTRLA_PRESCALER_DIV1,
 #else
         .gclk_src       = SAM0_GCLK_MAIN,
-        .prescaler      = TC_CTRLA_PRESCALER_DIV8,
 #endif
         .flags          = TC_CTRLA_MODE_COUNT32,
     }
@@ -151,31 +147,34 @@ static const uart_conf_t uart_config[] = {
  */
 #define PWM_0_EN            1
 #define PWM_1_EN            1
-#define PWM_MAX_CHANNELS    2
-/* for compatibility with test application */
-#define PWM_0_CHANNELS      PWM_MAX_CHANNELS
-#define PWM_1_CHANNELS      PWM_MAX_CHANNELS
+
+#if PWM_0_EN
+/* PWM0 channels */
+static const pwm_conf_chan_t pwm_chan0_config[] = {
+    /* GPIO pin, MUX value, TCC channel */
+    { GPIO_PIN(PA, 7), GPIO_MUX_E, 1 }, /* ~9 */
+};
+#endif
+#if PWM_1_EN
+/* PWM1 channels */
+static const pwm_conf_chan_t pwm_chan1_config[] = {
+    /* GPIO pin, MUX value, TCC channel */
+    { GPIO_PIN(PA, 16), GPIO_MUX_E, 0 }, /* ~11 */
+};
+#endif
 
 /* PWM device configuration */
 static const pwm_conf_t pwm_config[] = {
 #if PWM_0_EN
-    {TCC0, {
-        /* GPIO pin, MUX value, TCC channel */
-        { GPIO_UNDEF, (gpio_mux_t)0,  0 },
-        { GPIO_PIN(PA, 7), GPIO_MUX_E, 1 }, /* ~9 */
-    }},
+    {TCC0, pwm_chan0_config, ARRAY_SIZE(pwm_chan0_config)},
 #endif
 #if PWM_1_EN
-    {TCC2, {
-        /* GPIO pin, MUX value, TCC channel */
-        { GPIO_PIN(PA, 16), GPIO_MUX_E, 0 }, /* ~11 */
-        { GPIO_UNDEF, (gpio_mux_t)0, 1 },
-    }},
+    {TCC2, pwm_chan1_config, ARRAY_SIZE(pwm_chan1_config)},
 #endif
 };
 
 /* number of devices that are actually defined */
-#define PWM_NUMOF           (2U)
+#define PWM_NUMOF           ARRAY_SIZE(pwm_config)
 /** @} */
 
 /**
@@ -220,6 +219,10 @@ static const spi_conf_t spi_config[] = {
         .miso_pad = SPI_PAD_MISO_0,
         .mosi_pad = SPI_PAD_MOSI_2_SCK_3,
         .gclk_src = SAM0_GCLK_MAIN,
+#ifdef MODULE_PERIPH_DMA
+        .tx_trigger = SERCOM4_DMAC_ID_TX,
+        .rx_trigger = SERCOM4_DMAC_ID_RX,
+#endif
     }
 };
 
@@ -245,23 +248,12 @@ static const i2c_conf_t i2c_config[] = {
 /** @} */
 
 /**
- * @name    RTC configuration
+ * @name RTT configuration
  * @{
  */
-#define RTC_DEV             RTC->MODE2
-/** @} */
-
-/**
- * @name    RTT configuration
- * @{
- */
-#define RTT_DEV             RTC->MODE0
-#define RTT_IRQ             RTC_IRQn
-#define RTT_IRQ_PRIO        10
-#define RTT_ISR             isr_rtc
-#define RTT_MAX_VALUE       (0xffffffff)
+#ifndef RTT_FREQUENCY
 #define RTT_FREQUENCY       (32768U)    /* in Hz. For changes see `rtt.c` */
-#define RTT_RUNSTDBY        (1)         /* Keep RTT running in sleep states */
+#endif
 /** @} */
 
 /**

@@ -84,7 +84,7 @@
  *
  * - @ref ztimer_periph_rtt_init "ztimer_periph_rtt" interface for periph_rtt
  * - @ref ztimer_periph_rtc_init "ztimer_periph_rtc" interface for periph_rtc
- * - @ref ztimer_periph_timer_init "ztimer_periphtimer" interface for periph_timer
+ * - @ref ztimer_periph_timer_init "ztimer_periph_timer" interface for periph_timer
  *
  * Filter submodules:
  *
@@ -224,6 +224,11 @@ extern "C" {
 #endif
 
 /**
+ * @brief   Disables interaction with pm_layered for a clock
+ */
+#define ZTIMER_CLOCK_NO_REQUIRED_PM_MODE (UINT8_MAX)
+
+/**
  * @brief ztimer_base_t forward declaration
  */
 typedef struct ztimer_base ztimer_base_t;
@@ -296,6 +301,9 @@ struct ztimer_clock {
     uint32_t max_value;             /**< maximum relative timer value       */
     uint32_t lower_last;            /**< timer value at last now() call     */
     ztimer_now_t checkpoint;        /**< cumulated time at last now() call  */
+#endif
+#if MODULE_PM_LAYERED || DOXYGEN
+    uint8_t required_pm_mode;       /**< min. pm mode required for the clock to run */
 #endif
 };
 
@@ -373,16 +381,6 @@ int ztimer_msg_receive_timeout(ztimer_clock_t *clock, msg_t *msg,
 
  /* created with dist/tools/define2u16.py */
 #define MSG_ZTIMER 0xc83e   /**< msg type used by ztimer_msg_receive_timeout */
-
-/*
- * @brief ztimer_now() for extending timers
- *
- * @internal
- *
- * @param[in]   clock          ztimer clock to operate on
- * @return  Current count on the clock @p clock
- */
-ztimer_now_t _ztimer_now_extend(ztimer_clock_t *clock);
 
 /**
  * @brief ztimer_now() for extending timers
@@ -487,6 +485,23 @@ void ztimer_update_head_offset(ztimer_clock_t *clock);
  */
 void ztimer_init(void);
 
+/**
+ * @brief   Initialize possible ztimer extension intermediate timer
+ *
+ * This will basically just set a timer to (clock->max_value >> 1), *if*
+ * max_value is not UINT32_MAX.
+ *
+ * This is called automatically by all ztimer backends and extension modules.
+ *
+ * @internal
+ */
+static inline void ztimer_init_extend(ztimer_clock_t *clock)
+{
+    if (clock->max_value < UINT32_MAX) {
+        clock->ops->set(clock, clock->max_value >> 1);
+    }
+}
+
 /* default ztimer virtual devices */
 /**
  * @brief   Default ztimer microsecond clock
@@ -498,8 +513,43 @@ extern ztimer_clock_t *const ZTIMER_USEC;
  */
 extern ztimer_clock_t *const ZTIMER_MSEC;
 
+/**
+ * @brief   Base ztimer for the microsecond clock (ZTIMER_USEC)
+ *
+ * This ztimer will reference the counter device object at the end of the
+ * chain of ztimer_clock_t for ZTIMER_USEC.
+ *
+ * If the base counter device object's frequency (CONFIG_ZTIMER_USEC_BASE_FREQ)
+ * is not 1MHz then ZTIMER_USEC will be converted on top of this one. Otherwise
+ * they will reference the same ztimer_clock.
+ *
+ * To avoid chained conversions its better to base new ztimer_clock on top of
+ * ZTIMER_USEC_BASE running at CONFIG_ZTIMER_USEC_BASE_FREQ.
+ *
+ */
+extern ztimer_clock_t *const ZTIMER_USEC_BASE;
+
+/**
+ * @brief   Base ztimer for the millisecond clock (ZTIMER_MSEC)
+ *
+ * This ztimer will reference the counter device object at the end of the
+ * chain of ztimer_clock_t for ZTIMER_MSEC.
+ *
+ * If ztimer_periph_rtt is not used then ZTIMER_MSEC_BASE will reference the
+ * same base as ZTIMER_USEC_BASE.
+ *
+ * If the base counter device object's frequency (CONFIG_ZTIMER_MSEC_BASE_FREQ)
+ * is not 1KHz then ZTIMER_MSEC will be converted on top of this one. Otherwise
+ * they will reference the same ztimer_clock.
+ *
+ * To avoid chained conversions its better to base new ztimer_clock on top of
+ * ZTIMER_MSEC_BASE running at CONFIG_ZTIMER_MSEC_BASE_FREQ.
+ *
+ */
+extern ztimer_clock_t *const ZTIMER_MSEC_BASE;
+
 #ifdef __cplusplus
-extern "C" {
+}
 #endif
 
 #endif /* ZTIMER_H */

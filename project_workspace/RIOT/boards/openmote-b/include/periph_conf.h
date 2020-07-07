@@ -25,47 +25,12 @@
 #include "cc2538_gpio.h"
 #include "periph_cpu.h"
 
+#include "cfg_clk_default.h"
+#include "cfg_timer_default.h"
+
 #ifdef __cplusplus
  extern "C" {
 #endif
-
-/**
- * @name    Clock system configuration
- * @{
- */
-#define CLOCK_CORECLOCK     (32000000U)     /* desired core clock frequency, 32MHz */
-/** @} */
-
-/**
- * @name    Timer configuration
- *
- * General purpose timers (GPT[0-3]) are configured consecutively and
- * in order (without gaps) starting from GPT0, i.e. if multiple timers are enabled.
- *
- * @{
- */
-static const timer_conf_t timer_config[] = {
-    {
-        .chn = 2,
-        .cfg = GPTMCFG_16_BIT_TIMER, /* required for XTIMER */
-    },
-    {
-        .chn = 1,
-        .cfg = GPTMCFG_32_BIT_TIMER,
-    },
-    {
-        .chn = 2,
-        .cfg = GPTMCFG_16_BIT_TIMER,
-    },
-    {
-        .chn = 1,
-        .cfg = GPTMCFG_32_BIT_TIMER,
-    },
-};
-
-#define TIMER_NUMOF         ARRAY_SIZE(timer_config)
-#define TIMER_IRQ_PRIO      1
-/** @} */
 
 /**
  * @name ADC configuration

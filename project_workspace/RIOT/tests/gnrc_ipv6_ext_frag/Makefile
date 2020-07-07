@@ -19,7 +19,6 @@ endif
 USEMODULE += auto_init_gnrc_netif
 # add dummy interface to test forwarding to smaller MTU
 USEMODULE += netdev_test
-GNRC_NETIF_NUMOF := 2
 # Specify the mandatory networking modules for IPv6
 USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_icmpv6_error
@@ -48,7 +47,7 @@ SHOULD_RUN_KCONFIG ?=
 .PHONY: ethos
 
 ethos:
-	$(Q)env -u CC -u CFLAGS make -C $(RIOTTOOLS)/ethos
+	$(Q)env -u CC -u CFLAGS $(MAKE) -C $(RIOTTOOLS)/ethos
 
 include $(RIOTBASE)/Makefile.include
 

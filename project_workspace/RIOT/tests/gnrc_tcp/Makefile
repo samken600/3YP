@@ -13,8 +13,8 @@ TIMEOUT_US ?= 3000000
 TEST_ON_CI_BLACKLIST += all
 
 CFLAGS += -DSHELL_NO_ECHO
-CFLAGS += -DGNRC_TCP_MSL=$(MSL_US)
-CFLAGS += -DGNRC_TCP_CONNECTION_TIMEOUT_DURATION=$(TIMEOUT_US)
+CFLAGS += -DGNRC_NETIF_SINGLE           # Only one interface used and it makes
+                                        # shell commands easier
 
 ifeq (native,$(BOARD))
   TERMFLAGS ?= $(TAP)
@@ -40,6 +40,17 @@ export TAPDEV = $(TAP)
 .PHONY: ethos
 
 ethos:
-	$(Q)env -u CC -u CFLAGS make -C $(RIOTTOOLS)/ethos
+	$(Q)env -u CC -u CFLAGS $(MAKE) -C $(RIOTTOOLS)/ethos
 
 include $(RIOTBASE)/Makefile.include
+
+# Set CONFIG_GNRC_TCP_MSL via CFLAGS if not being set via Kconfig
+ifndef CONFIG_GNRC_TCP_MSL
+  CFLAGS += -DCONFIG_GNRC_TCP_MSL=$(MSL_US)
+endif
+
+# Set CONFIG_GNRC_TCP_CONNECTION_TIMEOUT_DURATION via CFLAGS if not being set
+# via Kconfig
+ifndef CONFIG_GNRC_TCP_CONNECTION_TIMEOUT_DURATION
+  CFLAGS += -DCONFIG_GNRC_TCP_CONNECTION_TIMEOUT_DURATION=$(TIMEOUT_US)
+endif

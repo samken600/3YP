@@ -49,6 +49,10 @@ void auto_init(void)
         extern void init_schedstatistics(void);
         init_schedstatistics();
     }
+    if (IS_USED(MODULE_DUMMY_THREAD)) {
+        extern void dummy_thread_create(void);
+        dummy_thread_create();
+    }
     if (IS_USED(MODULE_EVENT_THREAD)) {
         LOG_DEBUG("Auto init event threads.\n");
         extern void auto_init_event_thread(void);
@@ -103,6 +107,11 @@ void auto_init(void)
         LOG_DEBUG("Bootstrapping openthread.\n");
         extern void openthread_bootstrap(void);
         openthread_bootstrap();
+    }
+    if (IS_USED(MODULE_AUTO_INIT_OPENWSN)) {
+        LOG_DEBUG("Bootstrapping openwsn.\n");
+        extern void openwsn_bootstrap(void);
+        openwsn_bootstrap();
     }
     if (IS_USED(MODULE_GCOAP) &&
         !IS_ACTIVE(CONFIG_GCOAP_NO_AUTO_INIT)) {
@@ -216,7 +225,6 @@ void auto_init(void)
         }
     }
 
-
     if (IS_USED(MODULE_AUTO_INIT_CAN)) {
         LOG_DEBUG("Auto init CAN.\n");
 
@@ -238,8 +246,7 @@ void auto_init(void)
         }
     }
 
-    if (IS_USED(MODULE_TEST_UTILS_INTERACTIVE_SYNC) &&
-        (!IS_USED(MODULE_SHELL_COMMANDS) || !IS_USED(MODULE_SHELL))) {
+    if (IS_USED(MODULE_TEST_UTILS_INTERACTIVE_SYNC) && !IS_USED(MODULE_SHELL)) {
         extern void test_utils_interactive_sync(void);
         test_utils_interactive_sync();
     }
@@ -254,5 +261,13 @@ void auto_init(void)
         LOG_DEBUG("Auto init 6LoWPAN border router DHCPv6 client\n");
         extern void gnrc_dhcpv6_client_6lbr_init(void);
         gnrc_dhcpv6_client_6lbr_init();
+    }
+
+    if (IS_USED(MODULE_AUTO_INIT_MULTIMEDIA)) {
+        LOG_DEBUG("auto_init MULTIMEDIA\n");
+        if (IS_USED(MODULE_DFPLAYER)) {
+            extern void auto_init_dfplayer(void);
+            auto_init_dfplayer();
+        }
     }
 }

@@ -160,9 +160,19 @@ static void _usage(char *cmdname)
               "measure round trip time (default: 4)");
     puts("     hoplimit: Set the IP time to life/hoplimit "
               "(default: interface config)");
-    puts("     ms timeout: Time to wait for a resonse in milliseconds "
+    puts("     ms timeout: Time to wait for a response in milliseconds "
               "(default: 1000). The option affects only timeout in absence "
               "of any responses, otherwise wait for two RTTs");
+}
+
+/* get the next netif, returns true if there are more */
+static bool _netif_get(gnrc_netif_t **current_netif)
+{
+    gnrc_netif_t *netif = *current_netif;
+    netif = gnrc_netif_iter(netif);
+
+    *current_netif = netif;
+    return !gnrc_netif_highlander() && gnrc_netif_iter(netif);
 }
 
 static int _configure(int argc, char **argv, _ping_data_t *data)
@@ -187,11 +197,12 @@ static int _configure(int argc, char **argv, _ping_data_t *data)
             if (iface) {
                 data->netif = gnrc_netif_get_by_pid(atoi(iface));
             }
-#if GNRC_NETIF_NUMOF == 1
-            else {
-                data->netif = gnrc_netif_iter(NULL);
+            /* preliminary select the first interface */
+            else if (_netif_get(&data->netif)) {
+                /* don't take it if there is more than one interface */
+                data->netif = NULL;
             }
-#endif
+
             if (ipv6_addr_from_str(&data->host, data->hostname) == NULL) {
                 break;
             }
@@ -372,7 +383,7 @@ static void _print_reply(_ping_data_t *data, gnrc_pktsnip_t *icmpv6,
             data->num_recv++;
             dupmsg += 7;
         }
-        if ((GNRC_NETIF_NUMOF == 1) || (if_pid == KERNEL_PID_UNDEF) ||
+        if (gnrc_netif_highlander() || (if_pid == KERNEL_PID_UNDEF) ||
             !ipv6_addr_is_link_local(from)) {
             printf("%u bytes from %s: icmp_seq=%u ttl=%u",
                    (unsigned)icmpv6->size,

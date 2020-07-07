@@ -30,8 +30,16 @@ extern int _version_handler(int argc, char **argv);
 extern int _id_handler(int argc, char **argv);
 #endif
 
+#ifdef MODULE_DFPLAYER
+extern int _sc_dfplayer(int argc, char **argv);
+#endif
+
 #ifdef MODULE_HEAP_CMD
 extern int _heap_handler(int argc, char **argv);
+#endif
+
+#ifdef MODULE_PERIPH_PM
+extern int _pm_handler(int argc, char **argv);
 #endif
 
 #ifdef MODULE_PS
@@ -55,6 +63,10 @@ extern int _saul(int argc, char **argv);
 
 #ifdef MODULE_PERIPH_RTC
 extern int _rtc_handler(int argc, char **argv);
+#endif
+
+#ifdef MODULE_RTT_CMD
+extern int _rtt_handler(int argc, char **argv);
 #endif
 
 #ifdef MODULE_MCI
@@ -159,23 +171,36 @@ extern int _loramac_handler(int argc, char **argv);
 extern int _nimble_netif_handler(int argc, char **argv);
 #endif
 
-#ifdef MODULE_TEST_UTILS_INTERACTIVE_SYNC
-extern int _test_start(int argc, char **argv);
-extern int _test_ready(int argc, char **argv);
+#ifdef MODULE_NIMBLE_STATCONN
+extern int _nimble_statconn_handler(int argc, char **argv);
 #endif
 
 #ifdef MODULE_SUIT_COAP
 extern int _suit_handler(int argc, char **argv);
 #endif
 
+#ifdef MODULE_CRYPTOAUTHLIB
+extern int _cryptoauth(int argc, char **argv);
+#endif
+
+#ifdef MODULE_USB_BOARD_RESET
+extern int _bootloader_handler(int argc, char **argv);
+#endif
+
 const shell_command_t _shell_command_list[] = {
     {"reboot", "Reboot the node", _reboot_handler},
     {"version", "Prints current RIOT_VERSION", _version_handler},
+#ifdef MODULE_USB_BOARD_RESET
+    {"bootloader", "Reboot to bootloader", _bootloader_handler},
+#endif
 #ifdef MODULE_CONFIG
     {"id", "Gets or sets the node's id.", _id_handler},
 #endif
 #ifdef MODULE_HEAP_CMD
     {"heap", "Prints heap statistics.", _heap_handler},
+#endif
+#ifdef MODULE_PERIPH_PM
+    { "pm", "interact with layered PM subsystem", _pm_handler },
 #endif
 #ifdef MODULE_PS
     {"ps", "Prints information about running threads.", _ps_handler},
@@ -199,6 +224,7 @@ const shell_command_t _shell_command_list[] = {
 #ifdef MODULE_GNRC_ICMPV6_ECHO
 #ifdef MODULE_XTIMER
     { "ping6", "Ping via ICMPv6", _gnrc_icmpv6_ping },
+    { "ping", "Ping via ICMPv6", _gnrc_icmpv6_ping },
 #endif
 #endif
 #ifdef MODULE_RANDOM
@@ -207,6 +233,9 @@ const shell_command_t _shell_command_list[] = {
 #endif
 #ifdef MODULE_PERIPH_RTC
     {"rtc", "control RTC peripheral interface",  _rtc_handler},
+#endif
+#ifdef MODULE_RTT_CMD
+    {"rtt", "control RTC peripheral interface",  _rtt_handler},
 #endif
 #ifdef MODULE_GNRC_IPV6_NIB
     {"nib", "Configure neighbor information base", _gnrc_ipv6_nib},
@@ -275,12 +304,17 @@ const shell_command_t _shell_command_list[] = {
 #ifdef MODULE_NIMBLE_NETIF
     { "ble", "Manage BLE connections for NimBLE", _nimble_netif_handler },
 #endif
-#ifdef MODULE_TEST_UTILS_INTERACTIVE_SYNC
-    { "r", "Test sync, Ready query", _test_ready },
-    { "s", "Test sync, Start test trigger", _test_start },
+#ifdef MODULE_NIMBLE_STATCONN
+    { "statconn", "NimBLE netif statconn", _nimble_statconn_handler},
 #endif
 #ifdef MODULE_SUIT_COAP
     { "suit", "Trigger a SUIT firmware update", _suit_handler },
+#endif
+#ifdef MODULE_CRYPTOAUTHLIB
+    { "cryptoauth", "Commands for Microchip CryptoAuth devices", _cryptoauth },
+#endif
+#ifdef MODULE_DFPLAYER
+    {"dfplayer", "Control a DFPlayer Mini MP3 player", _sc_dfplayer},
 #endif
     {NULL, NULL, NULL}
 };

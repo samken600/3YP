@@ -89,7 +89,8 @@ extern "C" {
 #define CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE     2048
 #define CONFIG_NUMBER_OF_UNIVERSAL_MAC_ADDRESS  4
 
-#define CONFIG_NEWLIB_NANO_FORMAT               0
+#define CONFIG_NEWLIB_NANO_FORMAT               1
+#define CONFIG_ESP32_DEEP_SLEEP_WAKEUP_DELAY    2000
 
 /**
  * Bluetooth configuration (DO NOT CHANGE)
@@ -157,7 +158,9 @@ extern "C" {
 #define CONFIG_ESP32_WIFI_CSI_ENABLED           0
 #define CONFIG_ESP32_WIFI_TASK_PINNED_TO_CORE_0 1
 #define CONFIG_ESP32_WIFI_TASK_PINNED_TO_CORE_1 0
-#define CONFIG_ESP32_WIFI_NVS_ENABLED           0
+#if MODULE_ESP_IDF_NVS_ENABLED
+#define CONFIG_ESP32_WIFI_NVS_ENABLED           1
+#endif
 
 /**
  * PHY configuration
