@@ -41,8 +41,8 @@ static const tc32_conf_t timer_config[] = {
         .mclk           = &MCLK->APBCMASK.reg,
         .mclk_mask      = MCLK_APBCMASK_TC0 | MCLK_APBCMASK_TC1,
         .gclk_id        = TC0_GCLK_ID,
-        .gclk_src       = SAM0_GCLK_MAIN,
-        .prescaler      = TC_CTRLA_PRESCALER(4),
+//        .gclk_src       = SAM0_GCLK_MAIN,
+        .gclk_src       = SAM0_GCLK_8MHZ,
         .flags          = TC_CTRLA_MODE_COUNT32,
     }
 };
@@ -85,7 +85,7 @@ static const uart_conf_t uart_config[] = {
  * @{
  */
 static const spi_conf_t spi_config[] = {
-    {
+    {   /* Internal AT86RF212B */
         .dev      = &(SERCOM4->SPI),
         .miso_pin = GPIO_PIN(PC, 19),
         .mosi_pin = GPIO_PIN(PB, 30),
@@ -96,8 +96,13 @@ static const spi_conf_t spi_config[] = {
         .miso_pad = SPI_PAD_MISO_0,
         .mosi_pad = SPI_PAD_MOSI_2_SCK_3,
         .gclk_src = SAM0_GCLK_MAIN,
+#ifdef MODULE_PERIPH_DMA
+        /* The SAML21 doesn't support DMA triggers on SERCOM5 (?) */
+        .tx_trigger = DMA_TRIGGER_DISABLED,
+        .rx_trigger = DMA_TRIGGER_DISABLED,
+#endif
     },
-    {
+    {   /* External SPI */
         .dev      = &(SERCOM1->SPI),
         .miso_pin = GPIO_PIN(PA, 16),
         .mosi_pin = GPIO_PIN(PA, 18),
@@ -108,6 +113,11 @@ static const spi_conf_t spi_config[] = {
         .miso_pad = SPI_PAD_MISO_0,
         .mosi_pad = SPI_PAD_MOSI_2_SCK_3,
         .gclk_src = SAM0_GCLK_MAIN,
+#ifdef MODULE_PERIPH_DMA
+        /* The SAML21 doesn't support DMA triggers on SERCOM5 (?) */
+        .tx_trigger = DMA_TRIGGER_DISABLED,
+        .rx_trigger = DMA_TRIGGER_DISABLED,
+#endif
     }
 };
 
@@ -145,8 +155,9 @@ static const i2c_conf_t i2c_config[] = {
  * @name    RTT configuration
  * @{
  */
+#ifndef RTT_FREQUENCY
 #define RTT_FREQUENCY                           (32768U)
-#define RTT_MAX_VALUE                           (0xffffffffU)
+#endif
 /** @} */
 
 /**
