@@ -129,7 +129,7 @@ extern "C" {
  * send a WR with the given hardware (including processor) and data rate.
  */
 #ifndef GNRC_LWMAC_TIME_BETWEEN_WR_US
-#define GNRC_LWMAC_TIME_BETWEEN_WR_US        (30U *US_PER_MS) // 50
+#define GNRC_LWMAC_TIME_BETWEEN_WR_US        (50U *US_PER_MS) // 50
 #endif
 
 /**
