@@ -32,13 +32,12 @@
 #define PHYSICAL_NETIF 5
 
 #define MAIN_QUEUE_SIZE     (8)
+
+#ifndef BTN0_INT_FLANK
+#define BTN0_INT_FLANK GPIO_RISING
+#endif
+
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
-
-/* import "ifconfig" shell command, used for printing addresses */
-/* extern int _gnrc_netif_config(int argc, char **argv); */
-
-int get_temperature(int argc, char **argv);
-int get_humidity(int argc, char **argv);
 
 int toggle_led(int argc, char **argv) {
     (void)argc;
@@ -48,11 +47,17 @@ int toggle_led(int argc, char **argv) {
     return 0;
 }
 
-
 void cb(void *arg) {
     (void)arg;
     puts("RTT Callback");
 }
+
+#if defined(MODULE_PERIPH_GPIO_IRQ) && defined(BTN0_PIN)
+static void btn_cb(void *ctx) {
+    (void)ctx;
+    puts("BTN0 pressed.");
+}
+#endif
 
 void radio_off(gnrc_netif_t *netif) {
     netopt_state_t devstate = NETOPT_STATE_SLEEP;
@@ -109,10 +114,6 @@ int off(int argc, char **argv) {
     radio_off(netif);
     puts("Radio is sleeping...");
 
-//    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_ULP32K;
-    OSCCTRL->XOSCCTRL.bit.ENABLE = 0;
-    puts("low power clock");
-
     uint32_t start = rtt_get_counter();
     rtt_set_alarm((start + 10 * RTT_FREQUENCY) & RTT_MAX_VALUE, cb, 0);
     puts("Alarm set, sleeping");
@@ -123,16 +124,10 @@ int off(int argc, char **argv) {
     
     puts("Woken...");
     
-//    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_OSC32K;
-    OSCCTRL->XOSCCTRL.bit.ENABLE = 1;
-    puts("clock reverted");
-    
-    //xtimer_init();
     xtimer_sleep(1);
 
     puts("Timer works");
     radio_on(netif);
-    //ps();
     return 0;
 }
 
@@ -152,7 +147,7 @@ static const shell_command_t shell_commands[] = {
     { "off", "waits 10 second", off },
     { "radio_off", "turn radio off", cmd_radio_off },
     { "radio_on", "turn radio on", cmd_radio_on },
-    { "set", "sets 10 sec rtt", set_rtt },
+    { "set", "tests 10 sec rtt", set_rtt },
     { NULL, NULL, NULL }
 };
 
@@ -179,6 +174,20 @@ int main(void)
 
     /* enable low power cache mode */
     NVMCTRL->CTRLB.bit.READMODE = NVMCTRL_CTRLB_READMODE_LOW_POWER_Val;
+
+
+    gnrc_netif_t *netif = gnrc_netif_get_by_pid(PHYSICAL_NETIF);
+    if(netif == NULL) {
+        printf("Is at86rf2xx on pid %d?", PHYSICAL_NETIF);
+        return 1;
+    }
+    radio_off(netif);
+    puts("Radio is off");
+
+    #if defined(MODULE_PERIPH_GPIO_IRQ) && defined(BTN0_PIN)
+    puts("using BTN0 as wake-up source");
+    gpio_init_int(BTN0_PIN, BTN0_MODE, BTN0_INT_FLANK, btn_cb, NULL);
+    #endif
 
     /* initialize shell on board */
     char line_buf[SHELL_DEFAULT_BUFSIZE];

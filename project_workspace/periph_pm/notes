@@ -1,0 +1,13 @@
+3.271V at Vcc
+
+through 100k
+3.266V at pin
+3.261V at other pin
+
+<0.2uA here...
+expect about 38uA quiescent from voltage reg (max 70)
+max 0.6uA from capacitors
+
+might need to group pins to ground...
+
+
