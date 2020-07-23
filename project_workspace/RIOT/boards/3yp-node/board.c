@@ -17,6 +17,7 @@
 #include "periph/gpio.h"
 
 void led_init(void);
+void power_init(void);
 
 void board_init(void)
 {
@@ -25,6 +26,9 @@ void board_init(void)
 
     /* initialize the boards LEDs */
     led_init();
+    
+    /* initialize load switch */
+    power_init();
 }
 
 
@@ -36,3 +40,10 @@ void led_init(void)
     gpio_init(LED0_PIN, GPIO_OUT);
     gpio_set(LED0_PIN); /* gpio is inverted => clear */
 }
+
+void power_init(void)
+{
+    gpio_init(SENSOR_POWER_PIN, GPIO_OUT);
+    gpio_set(SENSOR_POWER_PIN); /* gpio not inverted */
+}
+

@@ -62,6 +62,19 @@ extern "C" {
 /** @} */
 
 /**
+ * @name    Power pin definitions for load switch
+ * @{
+ */
+#define SENSOR_POWER_PORT           PORT->Group[0]
+#define SENSOR_POWER_PIN            GPIO_PIN(PA, 28)
+#define SENSOR_POWER_MASK           (1 << 28)
+
+#define SENSOR_POWER_ON             (SENSOR_POWER_PORT.OUTSET.reg = SENSOR_POWER_MASK)
+#define SENSOR_POWER_OFF            (SENSOR_POWER_PORT.OUTCLR.reg = SENSOR_POWER_MASK)
+#define SENSOR_POWER_TOGGLE         (SENSOR_POWER_PORT.OUTTGL.reg = SENSOR_POWER_MASK)
+/** @} */
+
+/**
  * @brief   Initialize board specific hardware, including clock, LEDs and std-IO
  */
 void board_init(void);
