@@ -64,7 +64,7 @@ USEMODULE += gnrc_rpl
 
 
 # include mac layer to use
-USEMODULE += gnrc_lwmac
+#USEMODULE += gnrc_lwmac
 CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
 
 # Comment this out to disable code in RIOT that does safety checking
