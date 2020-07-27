@@ -32,10 +32,13 @@ USEMODULE += gnrc_ipv6_router_default # MUST HAVE ONE ROUTER
 USEMODULE += gnrc_udp
 USEMODULE += gnrc_sock_udp
 
+# Say what PID expect to have radio on so can set power
+CFLAGS += -DAT86RF2XX_PID=6
+
 # Add rpl routing
 USEMODULE += gnrc_rpl
 USEMODULE += auto_init_gnrc_rpl
-CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=7
+CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=6
 # CFLAGS += -DGNRC_MAC_RX_QUEUE_SIZE=16
 # CFLAGS += -DGNRC_MAC_TX_QUEUE_SIZE=16
 # CFLAGS += -DGNRC_LWMAC_IPC_MSG_QUEUE_SIZE=32

@@ -19,7 +19,6 @@
 
 #include <stdio.h>
 
-//#include "periph/rtt.h"
 //#include "periph/pm.h"
 #include "net/nanocoap_sock.h"
 #include "xtimer.h"
@@ -27,11 +26,7 @@
 #include "periph/gpio.h"
 #include "shell.h"
 
-/*
-#define MODULE_SI7006
-#include "si70xx_params.h"
-#include "si70xx.h"
-*/
+#define COAP_ADDR {0xfd, 0x00, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}
 
 #define COAP_INBUF_SIZE (256U)
 
@@ -55,11 +50,6 @@ void *nanocoap_thread(void *arg) {
     return NULL;
 }
 
-/* global object for si70xx sensor */
-//si70xx_t dev;
-//int get_temperature(int argc, char **argv);
-//int get_humidity(int argc, char **argv);
-
 int toggle_led(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -76,9 +66,73 @@ int toggle_sensor(int argc, char **argv) {
     return 0;
 }
 
+int coap_send(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
+
+    const char *path = "temp";
+    uint8_t buf[32];
+    size_t len = sizeof(buf);
+//    ipv6_addr_t result;
+//    ipv6_addr_from_str(&result, "fe80::44bb:e7ff:fe54:68c1");
+//    fd00:dead:beef::1
+    sock_udp_ep_t remote = { .port=COAP_PORT, .family=AF_INET6, .netif=6, .addr={.ipv6=COAP_ADDR} };
+
+    ssize_t res = nanocoap_get(&remote, path, buf, len);
+
+    if(res < 0) {
+        printf("error: %d", res);
+        return res;
+    }
+
+    puts("success");
+    //coap_pkt_t *pkt = (coap_pkt_t*)buf;
+
+    printf("payload is: %s\n", buf);
+    return res;
+}
+
+int coap_put(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
+
+    coap_pkt_t pkt;
+    ssize_t res, len;
+    uint8_t buf[32];
+    //uint8_t *pktpos = buf;
+    const char str[5] = "data";
+
+    pkt.hdr = (coap_hdr_t*)buf;
+    ssize_t hdrlen = coap_build_hdr(pkt.hdr, COAP_TYPE_CON, NULL, 0, COAP_METHOD_PUT, 1);
+        
+    coap_pkt_init(&pkt, buf, sizeof(buf), hdrlen);
+    coap_opt_add_uri_path(&pkt, "temp");
+    coap_opt_add_format(&pkt, COAP_FORMAT_TEXT);
+    len = coap_opt_finish(&pkt, COAP_OPT_FINISH_PAYLOAD);
+
+    pkt.payload_len = strlen(str);
+    memcpy(pkt.payload, str, pkt.payload_len);
+    len += pkt.payload_len;
+
+    /*coap_opt_put_uri_path(pktpos, 0, "/temp");
+    coap_put_option_ct(pktpos, COAP_OPT_URI_PATH, COAP_FORMAT_TEXT);
+    pkt.payload = str;
+    pkt.payload_len = sizeof(str);*/
+
+    sock_udp_ep_t remote = { .port=COAP_PORT, .family=AF_INET6, .netif=6, .addr={.ipv6=COAP_ADDR} };
+
+    res = nanocoap_request(&pkt, NULL, &remote, sizeof(buf));
+    if(res < 0) {
+        printf("error %d", res);
+        return res;
+    }
+    printf("success");
+    return res;
+}
+
 static const shell_command_t shell_commands[] = {
-//    { "get_temp", "gets temperature in celcius", get_temperature },
-//    { "get_humid", "gets relative humidity", get_humidity },
+    { "coap_put", "does a coap put", coap_put },
+    { "coap_send", "sends coap get to laptop", coap_send },
     { "toggle_led", "toggles LED", toggle_led },
     { "toggle_sensor", "toggles sensor power", toggle_sensor },
     { NULL, NULL, NULL }
@@ -88,13 +142,8 @@ static const shell_command_t shell_commands[] = {
 int main(void)
 {
     puts("RIOT nanocoap example application with shell and si70xx temperature sensor");
-    /* turn on the temp sensor and init power toggle pin */
 
-    /* initialise the temperature sensor */
-    //if(si70xx_init(&dev, &si70xx_params[0]) == 0) {
-    //    puts("[OK]");
-    //}
-    //else puts("[ERROR]");
+    /* sensor is on automatically */
 
     /* nanocoap_server uses gnrc sock which uses gnrc which needs a msg queue */
     msg_init_queue(_main_msg_queue, MAIN_QUEUE_SIZE);
@@ -115,31 +164,4 @@ int main(void)
     /* should be never reached */
     return 0;
 }
-
-/*
-int get_temperature(int argc, char **argv) {
-    (void)argc;
-    (void)argv;
-    int16_t temperature;
-    puts("Getting temp...\n");
-
-    / get temp in celsius /
-    temperature = si70xx_get_temperature(&dev);
-    printf("temperature: %d.%02d C\n", temperature / 100, temperature % 100);
-
-    return 0;
-}
-
-int get_humidity(int argc, char **argv) {
-    (void)argc;
-    (void)argv;
-    uint16_t humid;
-    puts("Getting humidity...\n");
-
-    / get temp in celsius /
-    humid = si70xx_get_relative_humidity(&dev);
-    printf("relative humidity: %d.%02d\n", humid / 100, humid % 100);
-
-    return 0;
-}*/
 
