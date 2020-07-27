@@ -57,6 +57,7 @@ USEMODULE += gnrc_uhcpc
 # Optionally include RPL as a routing protocol. When includede gnrc_uhcpc will
 # configure the node as a RPL DODAG root when receiving a prefix.
 USEMODULE += gnrc_rpl
+USEMODULE += auto_init_gnrc_rpl
 
 # CFLAGS += -DGNRC_MAC_TX_QUEUE_SIZE=16
 # CFLAGS += -DGNRC_MAC_RX_QUEUE_SIZE=16
