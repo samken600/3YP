@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MODULE_SI7006
 #include "si70xx_params.h"
 #include "si70xx.h"
 #define SENSOR_POWER_PIN GPIO_PIN(PA, 28)

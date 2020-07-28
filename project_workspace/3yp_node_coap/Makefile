@@ -15,7 +15,7 @@ USEMODULE += ps
 USEMODULE += printf_float
 
 # include to interface with d18 temp sensor
-USEMODULE += si7021
+USEMODULE += si7006
 
 # Include packages that pull up and auto-init the link layer.
 # NOTE: 6LoWPAN will be included if IEEE802.15.4 devices are present
