@@ -13,6 +13,7 @@ USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += printf_float
+USEMODULE += xtimer
 
 # include to interface with d18 temp sensor
 USEMODULE += jc42
