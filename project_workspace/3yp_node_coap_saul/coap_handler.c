@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "xtimer.h"
 #include "board.h"
 #include "phydat.h"
 #include "saul_reg.h"
@@ -17,8 +18,6 @@
 
 #include "fmt.h"
 #include "net/nanocoap.h"
-
-//extern si70xx_t dev;
 
 /* internal value that can be read/written via CoAP */
 static uint8_t internal_value = 0;
@@ -110,6 +109,7 @@ static ssize_t _temp_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *co
 
     // get temp in celsius
     SENSOR_POWER_ON;
+    xtimer_usleep(250000);
 
     phydat_t res;
     dev = saul_reg_find_type(SAUL_SENSE_TEMP);

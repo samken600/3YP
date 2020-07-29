@@ -1,4 +1,4 @@
-from coapthon.server.coap import CoAP
+from coapthon.forward_proxy.coap import CoAP
 from coapthon.resources.resource import Resource
 from coapthon.defines import Codes, Content_types
 
@@ -24,7 +24,7 @@ class BasicResource(Resource):
 class CoAPServer(CoAP):
     def __init__(self, host, port):
         CoAP.__init__(self, (host, port))
-        self.add_resource('/temp', BasicResource())
+#        self.add_resource('/temp', BasicResource())
 
 def main():
     server = CoAPServer("::", 5683)
