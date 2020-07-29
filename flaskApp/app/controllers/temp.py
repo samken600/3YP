@@ -20,10 +20,26 @@ def temp():
 
     data = request.get_json()
     if request.method == 'POST':
-        if data.get('time', None) is not None and data.get('temp', None) is not None and data.get('node', None) is not None:
-            data['time'] = dateutil.parser.parse(data['time'])
+        if data.get('temp', None) is not None and data.get('hwaddr', None) is not None:
+            data['hwaddr'] = str(data['hwaddr']).upper().strip()
             data['temp'] = float(data['temp'])
-            data['node'] = int(data['node'])
+
+            node = mongo.db.nodes.find_one({'hwaddr': data['hwaddr']})
+            if node is None:
+                node_num = mongo.db.nodes.count()
+                node_dict = { 'hwaddr': data['hwaddr'], 'node_num': int(node_num) }
+                mongo.db.nodes.insert_one(node_dict)
+                data['node'] = int(node_num)
+            else:
+                data['node'] = int(node['node_num'])
+
+            if data.get('time', None) is not None:
+                data['time'] = datetime.datetime.utcfromtimestamp(int(data['time']))
+                data['true_time'] = True
+            else:
+                data['time'] = datetime.datetime.utcnow()
+                data['true_time'] = False
+
             if mongo.db.temp.count({'time': data['time'], 'node': data['node']}) == 0:
                 mongo.db.temp.insert_one(data)
                 return jsonify({'ok': True, 'message': 'Data added sucessfully'}), 200
