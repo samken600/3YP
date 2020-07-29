@@ -1,6 +1,7 @@
 from coapthon.server.coap import CoAP
 from coapthon.resources.resource import Resource
 from coapthon.defines import Codes, Content_types
+import config
 
 class BasicResource(Resource):
     def __init__(self, name="BasicResource", coap_server=None):
@@ -24,9 +25,15 @@ class BasicResource(Resource):
 class CoAPServer(CoAP):
     def __init__(self, host, port):
         CoAP.__init__(self, (host, port))
-        self.add_resource('/temp', BasicResource())
+        try:
+            if(MONGO):
+                self.add_resource('/temp', MongoResource())
+            else:
+                self.add_resource('/temp', BasicResource())
+        except NameError:
+            self.add_resource('/temp', MongoResource())
 
-def main():
+def run():
     server = CoAPServer("::", 5683)
     try:
         server.listen(10)
@@ -35,5 +42,3 @@ def main():
         server.close()
         print("Exiting...")
 
-if __name__ == "__main__":
-    main()
