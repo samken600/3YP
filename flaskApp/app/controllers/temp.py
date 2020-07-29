@@ -32,6 +32,8 @@ def temp():
                 data['node'] = int(node_num)
             else:
                 data['node'] = int(node['node_num'])
+            data.pop('hwaddr')
+
 
             if data.get('time', None) is not None:
                 data['time'] = datetime.datetime.utcfromtimestamp(int(data['time']))

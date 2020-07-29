@@ -30,7 +30,13 @@ class TempMongoResource(Resource):
         data = json.loads(request.payload)
         item = {}
         if data.get('temp', None) is not None and data.get('hwaddr', None) is not None:
-            item['temp'] = float(data['temp'])
+            if data.get('time', None) is not None:
+                item['time'] = datetime.datetime.utcfromtimestamp(int(data['time']))
+                true_time = True
+            else:
+                item['time'] = datetime.datetime.utcnow()
+                true_time = False
+
             data['hwaddr'] = str(data['hwaddr']).upper().strip()
 
             node = db.nodes.find_one({'hwaddr': data['hwaddr']})
@@ -42,12 +48,9 @@ class TempMongoResource(Resource):
             else:
                 item['node'] = int(node['node_num'])
 
-            if data.get('time', None) is not None:
-                item['time'] = datetime.datetime.utcfromtimestamp(int(data['time']))
-                item['true_time'] = True
-            else:
-                item['time'] = datetime.datetime.utcnow()
-                item['true_time'] = False
+            item['temp'] = float(data['temp'])
+
+            item['true_time'] = true_time
 
             if db.temp.count({'time': item['time'], 'node': item['node']}) == 0:
                 db.temp.insert_one(item)
