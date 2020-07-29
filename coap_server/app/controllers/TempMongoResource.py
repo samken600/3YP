@@ -31,11 +31,12 @@ class TempMongoResource(Resource):
         item = {}
         if data.get('temp', None) is not None and data.get('hwaddr', None) is not None:
             item['temp'] = float(data['temp'])
+            data['hwaddr'] = str(data['hwaddr']).upper().strip()
 
             node = db.nodes.find_one({'hwaddr': data['hwaddr']})
             if node is None:
                 node_num = db.nodes.count()
-                node_dict = { 'hwaddr': str(data['hwaddr']), 'node_num': int(node_num) }
+                node_dict = { 'hwaddr': data['hwaddr'], 'node_num': int(node_num) }
                 db.nodes.insert_one(node_dict)
                 item['node'] = int(node_num)
             else:
