@@ -30,28 +30,7 @@ int coap_get(int argc, char **argv) {
     (void)argc;
     (void)argv;
 
-    uint8_t buf[128];
-    uint8_t ipv6[16] = COAP_ADDR;
-    ssize_t res = coap_get_uri_via_proxy("coap://178.128.43.8/time", ipv6, buf, sizeof(buf));
-    
-    if(res > 0) {
-        printf("payload is: %s    bytes: %d\n", buf, res);
-    }
-    else {
-        printf("error: %d\n", res); 
-        return res;
-    }
-
-    uint8_t *end;
-    uint32_t epoch = strtoul((char*)buf, (char**)&end, 10);
-    if(end==buf || *end != '\0' || errno == ERANGE) {
-        puts("error: entered string is not number");
-        return res;
-    }
-
-    epoch_offset = epoch - (xtimer_now_usec64()/1000000);
-    printf("epoch offset %ld\n", epoch_offset);
-    return res;
+    return update_epoch();
 }
 
 int coap_post(int argc, char **argv) {

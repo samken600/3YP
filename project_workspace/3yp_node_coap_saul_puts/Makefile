@@ -56,6 +56,8 @@ USEMODULE += fmt
 #USEMODULE += gnrc_lwmac
 CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
 
+# CFLAGS += -DISR_STACKSIZE=1024
+
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:

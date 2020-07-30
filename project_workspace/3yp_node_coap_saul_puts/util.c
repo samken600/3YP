@@ -18,10 +18,12 @@ ssize_t get_hwaddr(uint8_t *hwaddr) {
 ssize_t coap_get_uri_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t *buf, ssize_t len) {
     coap_pkt_t pkt;
     ssize_t pkt_len, res;
+    puts("1");
 
     pkt.hdr=(coap_hdr_t*)buf;
+    puts("2");
     ssize_t hdrlen = coap_build_hdr(pkt.hdr, COAP_TYPE_CON, NULL, 0, COAP_METHOD_GET, 1);
-
+    puts("3");
     
     coap_pkt_init(&pkt, buf, len, hdrlen);
     coap_opt_add_proxy_uri(&pkt, uri);  //"coap://178.128.43.8/time");
@@ -96,3 +98,27 @@ ssize_t coap_post_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t 
     return res;
 }
 
+ssize_t update_epoch(void) {
+    uint8_t buf[128];
+    uint8_t ipv6[16] = COAP_ADDR;
+    ssize_t res = coap_get_uri_via_proxy("coap://178.128.43.8/time", ipv6, buf, sizeof(buf));
+    
+    if(res > 0) {
+        printf("payload is: %s    bytes: %d\n", buf, res);
+    }
+    else {
+        printf("error: %d\n", res); 
+        return res;
+    }
+
+    uint8_t *end;
+    uint32_t epoch = strtoul((char*)buf, (char**)&end, 10);
+    if(end==buf || *end != '\0' || errno == ERANGE) {
+        puts("error: entered string is not number");
+        return res;
+    }
+
+    epoch_offset = epoch - (xtimer_now_usec64()/1000000);
+    printf("epoch offset %ld\n", epoch_offset);
+    return res;
+}
