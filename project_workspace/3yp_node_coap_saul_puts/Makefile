@@ -14,6 +14,8 @@ USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += printf_float
 USEMODULE += xtimer
+#USEMODULE += periph_rtt
+USEMODULE += ztimer_msec ztimer_periph_rtt
 
 # include to interface with d18 temp sensor
 USEMODULE += jc42

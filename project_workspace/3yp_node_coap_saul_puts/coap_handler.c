@@ -18,6 +18,10 @@
 
 #include "fmt.h"
 #include "net/nanocoap.h"
+#include "util.h"
+
+extern xtimer_t xt_get, xt_put;
+extern uint32_t epoch_period, temp_period;
 
 static ssize_t _riot_board_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *context)
 {
@@ -146,10 +150,61 @@ static ssize_t _txpow_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *c
             COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
 }
 
+static ssize_t _period_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *context) {
+    (void)context;
+
+    ssize_t p = 0;
+    char rsp[16];
+    unsigned code = COAP_CODE_EMPTY;
+    xtimer_t *xt;
+    uint32_t *period;
+
+    char target[CONFIG_NANOCOAP_URI_MAX];
+    coap_opt_get_string(pkt, COAP_OPT_URI_QUERY, (uint8_t*)target, CONFIG_NANOCOAP_URI_MAX, '&');
+    if(strcmp(target, "&epoch") == 0) {
+        xt = &xt_get;
+        period = &epoch_period;
+    }
+    else if(strcmp(target, "&temp") == 0) {
+        xt = &xt_put;
+        period = &temp_period;
+    }
+    else {
+        printf("no valid query: %s\n", target);
+        return coap_reply_simple(pkt, COAP_CODE_BAD_OPTION, buf, len,
+                                 COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
+    }
+
+    unsigned method_flag = coap_method2flag(coap_get_code_detail(pkt));
+
+    switch(method_flag) {
+    case COAP_GET:
+        p += fmt_u32_dec(rsp, ((*period) * US_PER_SEC));
+        code = COAP_CODE_205;
+        break;
+
+    case COAP_PUT: {
+        char payload[16] = { 0 };
+        memcpy(payload, (char*)pkt->payload, pkt->payload_len);
+        uint8_t *end;
+        uint32_t new_period = strtoul((char*)payload, (char**)&end, 10);
+        set_period(xt, (new_period * US_PER_SEC), period);
+        printf("set period to %ld seconds\n", *period);
+
+        code = COAP_CODE_CHANGED;
+        break;
+    }
+    }
+
+    return coap_reply_simple(pkt, code, buf, len,
+                             COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
+}
+
 /* must be sorted by path (ASCII order) */
 const coap_resource_t coap_resources[] = {
     COAP_WELL_KNOWN_CORE_DEFAULT_HANDLER,
-    { "/led", COAP_POST | COAP_PUT, _led_handler, NULL },
+    { "/led", COAP_PUT, _led_handler, NULL },
+    { "/period", COAP_GET | COAP_PUT, _period_handler, NULL },
     { "/riot/board", COAP_GET, _riot_board_handler, NULL },
     { "/temp", COAP_GET, _temp_handler, NULL },
     { "/txpower", COAP_PUT, _txpow_handler, NULL },

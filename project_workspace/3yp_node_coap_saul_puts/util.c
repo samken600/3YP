@@ -1,4 +1,12 @@
 #include "util.h"
+#include "phydat.h"
+#include "saul_reg.h"
+#include "fmt.h"
+#include "net/nanocoap_sock.h"
+#include "ztimer.h"
+
+#define ENABLE_DEBUG    (0)
+#include "debug.h"
 
 // hwaddr is last 64 bits of ipv6 for netif, but with +2 on top byte
 ssize_t get_hwaddr(uint8_t *hwaddr) {
@@ -6,24 +14,42 @@ ssize_t get_hwaddr(uint8_t *hwaddr) {
     gnrc_netif_t *iface;
     iface = gnrc_netif_get_by_pid(PHYSICAL_NETIF);
     if(iface == NULL) {
-        printf("Is radio on pid %d?\n", PHYSICAL_NETIF);
+        DEBUG("Is radio on pid %d?\n", PHYSICAL_NETIF);
         return 0;
     }
     memcpy(hwaddr, iface->l2addr, iface->l2addr_len);
 //    char addr_str[(iface->l2addr_len)*3];
-//    printf("HWAddr: %s\n", gnrc_netif_addr_to_str(hwaddr, iface->l2addr_len, addr_str));
+//    DEBUG("HWAddr: %s\n", gnrc_netif_addr_to_str(hwaddr, iface->l2addr_len, addr_str));
     return iface->l2addr_len;
 }    
+
+phydat_t *get_temp(phydat_t *res) {
+    // get temp in celcius
+    SENSOR_POWER_ON;
+    xtimer_usleep(250000);
+
+    saul_reg_t *dev = saul_reg_find_type(SAUL_SENSE_TEMP);
+    if(dev == NULL) {
+        DEBUG("error: no temperature sensors found\n");
+        return NULL;
+    }
+
+    int dim = saul_reg_read(dev, res);
+    if(dim <= 0) {
+        DEBUG("error: failed to read from device\n");
+        return NULL;
+    }
+
+    SENSOR_POWER_OFF;
+    return res;
+}
 
 ssize_t coap_get_uri_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t *buf, ssize_t len) {
     coap_pkt_t pkt;
     ssize_t pkt_len, res;
-    puts("1");
 
     pkt.hdr=(coap_hdr_t*)buf;
-    puts("2");
     ssize_t hdrlen = coap_build_hdr(pkt.hdr, COAP_TYPE_CON, NULL, 0, COAP_METHOD_GET, 1);
-    puts("3");
     
     coap_pkt_init(&pkt, buf, len, hdrlen);
     coap_opt_add_proxy_uri(&pkt, uri);  //"coap://178.128.43.8/time");
@@ -36,7 +62,7 @@ ssize_t coap_get_uri_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8
     res = nanocoap_request(&pkt, NULL, &remote, len);
 
     if(res < 0) {
-        printf("error: %d\n", res);
+        DEBUG("error: %d\n", res);
         return res;
     }
     else {
@@ -50,7 +76,7 @@ ssize_t coap_get_uri_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8
         }
         else {
             res = pkt.payload_len;
-            puts("success\n");
+            DEBUG("success\n");
         }
     }
 
@@ -79,7 +105,7 @@ ssize_t coap_post_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t 
 
     res = nanocoap_request(&pkt, NULL, &remote, len);
     if(res < 0) {
-        printf("error %d\n", res);
+        DEBUG("error %d\n", res);
         return res;
     }
     else {
@@ -104,21 +130,62 @@ ssize_t update_epoch(void) {
     ssize_t res = coap_get_uri_via_proxy("coap://178.128.43.8/time", ipv6, buf, sizeof(buf));
     
     if(res > 0) {
-        printf("payload is: %s    bytes: %d\n", buf, res);
+        DEBUG("payload is: %s    bytes: %d\n", buf, res);
     }
     else {
-        printf("error: %d\n", res); 
+        DEBUG("error: %d\n", res); 
         return res;
     }
 
     uint8_t *end;
     uint32_t epoch = strtoul((char*)buf, (char**)&end, 10);
     if(end==buf || *end != '\0' || errno == ERANGE) {
-        puts("error: entered string is not number");
+        DEBUG("error: entered string is not number\n");
         return res;
     }
 
-    epoch_offset = epoch - (xtimer_now_usec64()/1000000);
-    printf("epoch offset %ld\n", epoch_offset);
+    epoch_offset = epoch - (ztimer_now(ZTIMER_MSEC) / MS_PER_SEC);
+    DEBUG("epoch offset %ld\n", epoch_offset);
     return res;
+}
+
+ssize_t send_temp(void) {
+    uint8_t buf[256];
+    char str[128];
+    uint8_t ipv6[16] = COAP_ADDR;
+
+    phydat_t temperature;
+    
+    if(get_temp(&temperature) == NULL || temperature.unit != UNIT_TEMP_C) return -1;
+    char temp_str[8];
+    uint8_t temp_str_len = fmt_s16_dfp(temp_str, temperature.val[0], (int)temperature.scale);
+    temp_str[temp_str_len] = '\0';
+
+    uint32_t time = epoch_offset + (ztimer_now(ZTIMER_MSEC) / MS_PER_SEC);
+    uint8_t hwaddr[GNRC_NETIF_L2ADDR_MAXLEN];
+    ssize_t addr_len = get_hwaddr(hwaddr);
+    char addr_str[addr_len*3];
+
+    ssize_t str_len = sprintf(str, "{\"hwaddr\": \"%s\", \"temp\": %s, \"time\": %ld}", gnrc_netif_addr_to_str(hwaddr, addr_len, addr_str), temp_str, time);
+    DEBUG("Payload is: %s, bytes: %d\n", str, str_len);
+
+    ssize_t res = coap_post_via_proxy("coap://178.128.43.8/temp", ipv6, buf, str, sizeof(buf), str_len);
+
+    if(res > 0) {
+        DEBUG("payload is: %s    bytes: %d\n", buf, res);
+        DEBUG("success\n");
+    }
+    else {
+        DEBUG("error: %d\n", res); 
+    }
+    return res;
+}
+
+void set_period(xtimer_t *xt, const uint32_t offset, uint32_t *period) {
+    xtimer_remove(xt);
+    *period = offset;
+
+    xtimer_set(xt, *period);
+
+    return;
 }

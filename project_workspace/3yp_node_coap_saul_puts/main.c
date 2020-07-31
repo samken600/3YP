@@ -22,20 +22,29 @@
 //#include "periph/pm.h"
 #include "net/nanocoap_sock.h"
 #include "xtimer.h"
+#include "ztimer.h"
 #include "shell.h"
 #include "msg.h"
 
 #include "serial_commands.h"
 #include "util.h"
 
-#define EPOCH_PERIOD 10 * SEC_PER_MIN * US_PER_SEC
+#define EPOCH_MSG 0
+#define TEMP_MSG  1
 
-#define COAP_INBUF_SIZE (256U)
+#define DEFAULT_EPOCH_PERIOD 5 * SEC_PER_MIN * US_PER_SEC
+#define DEFAULT_TEMP_PERIOD  2 * SEC_PER_MIN * US_PER_SEC
 
-#define MAIN_QUEUE_SIZE     (8)
+#define HANDLER_QUEUE_SIZE (8)
+#define COAP_INBUF_SIZE    (256U)
+#define MAIN_QUEUE_SIZE    (16)
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
+static msg_t _handler_msg_queue[HANDLER_QUEUE_SIZE];
+
+
 int32_t epoch_offset;
-xtimer_t xt;
+xtimer_t xt_get, xt_put;
+uint32_t epoch_period, temp_period;
 
 /**/
 char nanocoap_thread_stack[THREAD_STACKSIZE_MAIN];
@@ -55,21 +64,41 @@ void epoch_timer_cb(void *arg) {
     kernel_pid_t* pid = arg;
 
     msg_t msg;
-    msg.content.value = 0;
+    msg.content.value = EPOCH_MSG;
+    puts("sending epoch msg...");
     
-    msg_try_send(&msg, *pid);
+    int rsp = msg_try_send(&msg, *pid);
+    printf("eresponse: %d\n", rsp);
 
-    xtimer_set(&xt, EPOCH_PERIOD);
+    xtimer_set(&xt_get, epoch_period);
 }
 
-char epoch_thread_stack[THREAD_STACKSIZE_MAIN];
-void *epoch_thread(void *arg) {
+void temp_timer_cb(void *arg) {
+    kernel_pid_t* pid = arg;
+
+    msg_t msg;
+    msg.content.value = TEMP_MSG;
+    puts("sending temp msg...");
+    
+    int rsp = msg_try_send(&msg, *pid);
+    printf("tresponse: %d\n", rsp);
+
+    xtimer_set(&xt_put, temp_period);
+}
+
+char handler_thread_stack[THREAD_STACKSIZE_MAIN];
+void *handler_thread(void *arg) {
     (void)arg;
+
+    msg_init_queue(_handler_msg_queue, HANDLER_QUEUE_SIZE);
     
     msg_t msg;
     while(1) {
         msg_receive(&msg);
-        update_epoch();
+        printf("value is %ld\n", msg.content.value);
+        if(msg.content.value == EPOCH_MSG) update_epoch();
+        else if(msg.content.value == TEMP_MSG) send_temp();
+        else puts("Unknown message");
     }
 
     return NULL;
@@ -97,14 +126,24 @@ int main(void)
     puts("Waiting for address autoconfiguration...");
     xtimer_sleep(3);
 
-    kernel_pid_t pid = thread_create(epoch_thread_stack, sizeof(epoch_thread_stack),
+    epoch_period = DEFAULT_EPOCH_PERIOD;
+    temp_period  = DEFAULT_TEMP_PERIOD;
+
+    kernel_pid_t pid = thread_create(handler_thread_stack, sizeof(handler_thread_stack),
                                      THREAD_PRIORITY_MAIN + 1, THREAD_CREATE_STACKTEST,
-                                     epoch_thread, NULL, "epoch_thread");
+                                     handler_thread, NULL, "handler_thread");
 
     update_epoch();
-    xt.callback = epoch_timer_cb;
-    xt.arg = &pid;
-    xtimer_set(&xt, EPOCH_PERIOD);
+    xtimer_sleep(1);
+    update_epoch();
+
+    xt_get.callback = epoch_timer_cb;
+    xt_get.arg = &pid;
+    xtimer_set(&xt_get, epoch_period);
+    
+    xt_put.callback = temp_timer_cb;
+    xt_put.arg = &pid;
+    xtimer_set(&xt_put, temp_period);
 
     /* initialize nanocoap server instance by starting thread */
     thread_create(nanocoap_thread_stack, sizeof(nanocoap_thread_stack),

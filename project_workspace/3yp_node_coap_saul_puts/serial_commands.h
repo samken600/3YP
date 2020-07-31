@@ -1,11 +1,6 @@
 #ifndef SERIAL_COMMANDS_H
 #define SERIAL_COMMANDS_H
 
-#include "board.h"
-#include "fmt.h"
-#include "xtimer.h"
-#include "util.h"
-
 extern int32_t epoch_offset;
 
 int toggle_led(int argc, char **argv);
