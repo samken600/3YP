@@ -1,3 +1,4 @@
+import logging
 from coapthon.forward_proxy.coap import CoAP
 from coapthon.resources.resource import Resource
 from coapthon.defines import Codes, Content_types
@@ -27,6 +28,7 @@ class CoAPServer(CoAP):
 #        self.add_resource('/temp', BasicResource())
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     server = CoAPServer("::", 5683)
     try:
         server.listen(10)
