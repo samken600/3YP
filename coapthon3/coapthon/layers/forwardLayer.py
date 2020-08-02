@@ -1,6 +1,6 @@
 import copy
 from coapthon.messages.request import Request
-from coapclient import HelperClient
+from coapthon.client.helperclient import HelperClient
 from coapthon.messages.response import Response
 from coapthon import defines
 from coapthon.resources.remoteResource import RemoteResource
