@@ -97,7 +97,7 @@ void *handler_thread(void *arg) {
         msg_receive(&msg);
         printf("value is %ld\n", msg.content.value);
         if(msg.content.value == EPOCH_MSG) update_epoch();
-        else if(msg.content.value == TEMP_MSG) send_temp();
+        else if(msg.content.value == TEMP_MSG) get_reading();
         else puts("Unknown message");
     }
 

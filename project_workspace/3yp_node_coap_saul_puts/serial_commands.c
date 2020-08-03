@@ -44,6 +44,6 @@ int coap_post(int argc, char **argv) {
     (void)argc;
     (void)argv;
 
-    return send_temp();
+    return get_reading();
 }
 

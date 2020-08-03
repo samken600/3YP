@@ -1,10 +1,78 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "phydat.h"
+#include "xtimer.h"
+#include <stdlib.h>
+
+#define MAX_SENDS_PER_PERIOD  8
+#define MAX_READING_LIST_SIZE 128
 #define PHYSICAL_NETIF 6
 #define COAP_ADDR {0xfd, 0x00, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}
 
 extern int32_t epoch_offset;
+
+typedef struct reading_node {
+    phydat_t temperature;
+    uint32_t time;
+    struct reading_node *next;
+} reading_node_t;
+
+typedef struct {
+    reading_node_t *head;
+    uint16_t length;
+} reading_list_t;
+
+static inline void reading_remove_packet(reading_list_t *list) {
+    reading_node_t *head = list->head;
+
+    // return if queue empty
+    if(list->head == NULL) return;
+
+    // move head to next node
+    list->head = list->head->next;
+
+    // free the head
+    free(head);
+    
+    list->length = list->length - 1;
+    return;
+}
+
+static inline void reading_add(reading_list_t *list, phydat_t temp, uint32_t time) {
+    reading_node_t *new_node;
+    reading_node_t *last_node = list->head;
+    
+    // allocate memory
+    new_node = malloc(sizeof(reading_node_t));
+
+    // fill data
+    new_node->temperature = temp;
+    new_node->time = time;
+    
+    // node is being appended
+    new_node->next = NULL;
+
+    if(list->head == NULL) {
+        list->head = new_node;
+        list->length = 1;
+        return;
+    }
+
+    // find end of list
+    while(last_node->next != NULL) {
+        last_node = last_node->next;
+    }
+
+    // add in new node
+    last_node->next = new_node;
+
+    list->length++;
+    if(list->length > MAX_READING_LIST_SIZE) {
+        reading_remove_head(list);
+    }
+    return;
+}
 
 ssize_t get_hwaddr(uint8_t *hwaddr);
 
@@ -16,7 +84,9 @@ ssize_t coap_post_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t 
 
 ssize_t update_epoch(void);
 
-ssize_t send_temp(void);
+ssize_t send_temp(reading_list_t *list);
+
+ssize_t get_reading(void);
 
 void set_period(xtimer_t *xt, const uint32_t offset, uint32_t *period);
 

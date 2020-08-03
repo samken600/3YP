@@ -5,8 +5,10 @@
 #include "net/nanocoap_sock.h"
 #include "ztimer.h"
 
-#define ENABLE_DEBUG    (0)
+#define ENABLE_DEBUG    (1)
 #include "debug.h"
+
+static reading_list_t reading_list = {.length = 0, .head = NULL};
 
 // hwaddr is last 64 bits of ipv6 for netif, but with +2 on top byte
 ssize_t get_hwaddr(uint8_t *hwaddr) {
@@ -18,8 +20,8 @@ ssize_t get_hwaddr(uint8_t *hwaddr) {
         return 0;
     }
     memcpy(hwaddr, iface->l2addr, iface->l2addr_len);
-//    char addr_str[(iface->l2addr_len)*3];
-//    DEBUG("HWAddr: %s\n", gnrc_netif_addr_to_str(hwaddr, iface->l2addr_len, addr_str));
+    char addr_str[(iface->l2addr_len)*3];
+    DEBUG("HWAddr: %s\n", gnrc_netif_addr_to_str(hwaddr, iface->l2addr_len, addr_str));
     return iface->l2addr_len;
 }    
 
@@ -149,19 +151,19 @@ ssize_t update_epoch(void) {
     return res;
 }
 
-ssize_t send_temp(void) {
+ssize_t send_reading(reading_list_t *list) {
     uint8_t buf[256];
     char str[128];
     uint8_t ipv6[16] = COAP_ADDR;
 
-    phydat_t temperature;
+    phydat_t temperature = list->head->temperature;
     
-    if(get_temp(&temperature) == NULL || temperature.unit != UNIT_TEMP_C) return -1;
+    //if(get_temp(&temperature) == NULL || temperature.unit != UNIT_TEMP_C) return -1;
     char temp_str[8];
     uint8_t temp_str_len = fmt_s16_dfp(temp_str, temperature.val[0], (int)temperature.scale);
     temp_str[temp_str_len] = '\0';
 
-    uint32_t time = epoch_offset + (ztimer_now(ZTIMER_MSEC) / MS_PER_SEC);
+    uint32_t time = list->head->time;//epoch_offset + (ztimer_now(ZTIMER_MSEC) / MS_PER_SEC);
     uint8_t hwaddr[GNRC_NETIF_L2ADDR_MAXLEN];
     ssize_t addr_len = get_hwaddr(hwaddr);
     char addr_str[addr_len*3];
@@ -174,11 +176,38 @@ ssize_t send_temp(void) {
     if(res > 0) {
         DEBUG("payload is: %s    bytes: %d\n", buf, res);
         DEBUG("success\n");
+        reading_remove_head(&reading_list);
+    }
+    else if(res == -406){
+        DEBUG("packet was DUP, code: %d, assume already received\n", res); 
+        reading_remove_head(&reading_list);
     }
     else {
-        DEBUG("error: %d\n", res); 
+        if(res == -400) {
+            DEBUG("bad request, assume packet corruption so resend\n");
+        }
+        DEBUG("an error occured sending temp packet, keeping for retransmission...");
     }
     return res;
+}
+
+ssize_t get_reading(void) {
+    phydat_t temperature;
+    if(get_temp(&temperature) == NULL || temperature.unit != UNIT_TEMP_C) return -1;
+    uint32_t time = epoch_offset + (ztimer_now(ZTIMER_MSEC) / MS_PER_SEC);
+
+    DEBUG("Adding to queue\n");
+    reading_add(&reading_list, temperature, time);
+    DEBUG("Length now %d\n", reading_list.length);
+
+    for(int i = 0; i<MAX_SENDS_PER_PERIOD; i++) {
+        if(reading_list.length == 0) break;
+        DEBUG("Length now %d\n", reading_list.length);
+        send_reading(&reading_list);
+        DEBUG("Queue pos %d\n", i);
+    }
+
+    return 0;    
 }
 
 void set_period(xtimer_t *xt, const uint32_t offset, uint32_t *period) {
