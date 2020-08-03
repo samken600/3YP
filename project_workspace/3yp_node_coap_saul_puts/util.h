@@ -23,17 +23,35 @@ typedef struct {
     uint16_t length;
 } reading_list_t;
 
-static inline void reading_remove_packet(reading_list_t *list) {
+static inline void reading_remove(reading_list_t *list, reading_node_t *node) {
     reading_node_t *head = list->head;
 
     // return if queue empty
     if(list->head == NULL) return;
 
-    // move head to next node
-    list->head = list->head->next;
+    if(list->head == node) {
+        // move head to next node
+        list->head = list->head->next;
+        // free the head
+        free(head);
+        return;
+    }
+    
+    // find node in list
+    while(head->next != node && head!=NULL) 
+        head = head->next;
 
-    // free the head
-    free(head);
+    // return if not found
+    if(head==NULL) return;
+
+    // store pointer to element after node
+    reading_node_t *temp = head->next->next;
+    
+    // free node
+    free(head->next);
+
+    // join up list again
+    head->next = temp;
     
     list->length = list->length - 1;
     return;
@@ -69,7 +87,7 @@ static inline void reading_add(reading_list_t *list, phydat_t temp, uint32_t tim
 
     list->length++;
     if(list->length > MAX_READING_LIST_SIZE) {
-        reading_remove_head(list);
+        reading_remove(list, list->head);
     }
     return;
 }
