@@ -198,17 +198,16 @@ ssize_t get_reading(void) {
 
     DEBUG("Adding to queue\n");
     reading_add(&reading_list, temperature, time);
-    DEBUG("Length now %d\n", reading_list.length);
 
     reading_node_t *temp = reading_list.head;
 
     for(int i = 0; i<MAX_SENDS_PER_PERIOD; i++) {
         if(temp == NULL) break;
-        DEBUG("Length now %d\n", reading_list.length);
         send_reading(temp);
         DEBUG("Queue pos %d\n", i);
         temp = temp->next;
     }
+    DEBUG("Length now %d\n", reading_list.length);
 
     return 0;    
 }
