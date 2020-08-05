@@ -106,7 +106,9 @@ class IfconfigListParser(ShellInteractionParser):
                     if stats is not None:
                         current["stats"] = stats
                         # assume stats to be always last
-                        break
+                        current = None
+                        parse_blacklist = False
+                        parse_ipv6 = False
             offset += len(line)
         return netifs
 
@@ -279,6 +281,7 @@ class Ifconfig(ShellInteraction):
     def ifconfig_list(self, netif=None, timeout=-1, async_=False):
         return self.ifconfig_cmd(netif=netif, timeout=timeout, async_=async_)
 
+    @ShellInteraction.check_term
     def ifconfig_cmd(self, netif=None, args=None, timeout=-1, async_=False):
         cmd = "ifconfig"
         if netif is not None:
@@ -286,7 +289,7 @@ class Ifconfig(ShellInteraction):
         if args is not None:
             if netif is None:
                 raise ValueError("netif required when args are provided")
-            cmd += " {args}".format(args=" ".join(args))
+            cmd += " {args}".format(args=" ".join(str(a) for a in args))
         return self.cmd(cmd, timeout=timeout, async_=False)
 
     def ifconfig_help(self, netif, timeout=-1, async_=False):
@@ -370,6 +373,7 @@ class Ifconfig(ShellInteraction):
 
 
 class TXTSnd(ShellInteraction):
+    @ShellInteraction.check_term
     def netif_txtsnd(self, netif, target, data, timeout=-1, async_=False):
         cmd = "txtsnd {netif} {target} {data}".format(
             netif=netif,
