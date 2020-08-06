@@ -21,14 +21,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "at86rf2xx.h"
-#include "at86rf2xx_params.h"
-
-#define AT86RF2XX_NUM   ARRAY_SIZE(at86rf2xx_params)
-
-at86rf2xx_t devs[AT86RF2XX_NUM];
-
 #include "periph/pm.h"
 #ifdef MODULE_PERIPH_GPIO
 #include "board.h"
@@ -41,16 +33,9 @@ at86rf2xx_t devs[AT86RF2XX_NUM];
 #include "pm_layered.h"
 #endif
 
-#define SENSOR_POWER_PIN GPIO_PIN(PA, 28)
-
 extern int _pm_handler(int argc, char **argv);
 
 #include "shell.h"
-
-static void _event_cb(netdev_t *dev, netdev_event_t event) {
-    (void)dev;
-    (void)event;
-}
 
 #ifndef BTN0_INT_FLANK
 #define BTN0_INT_FLANK  GPIO_RISING
@@ -192,27 +177,6 @@ static const shell_command_t shell_commands[] = {
 int main(void)
 {
     char line_buf[SHELL_DEFAULT_BUFSIZE];
-    gpio_init(SENSOR_POWER_PIN, GPIO_OUT);
-    gpio_clear(SENSOR_POWER_PIN);
-
-    unsigned dev_success = 0;
-    for (unsigned i = 0; i < AT86RF2XX_NUM; i++) {
-        netopt_enable_t en = NETOPT_ENABLE;
-        const at86rf2xx_params_t *p = &at86rf2xx_params[i];
-        netdev_t *dev = (netdev_t *)(&devs[i]);
-
-        printf("Initializing AT86RF2xx radio at SPI_%d\n", p->spi);
-        at86rf2xx_setup(&devs[i], p);
-        dev->event_callback = _event_cb;        
-        if (dev->driver->init(dev) < 0) {
-            continue;
-        }
-        dev->driver->set(dev, NETOPT_RX_END_IRQ, &en, sizeof(en));
-        dev_success++;
-
-        netopt_state_t sleepstate = NETOPT_STATE_SLEEP;
-        dev->driver->set(dev, NETOPT_STATE, &sleepstate, sizeof(sleepstate));
-    }
 
     /* print test application information */
 #ifdef MODULE_PM_LAYERED
@@ -238,7 +202,6 @@ int main(void)
     puts("using BTN0 as wake-up source");
     gpio_init_int(BTN0_PIN, BTN0_MODE, BTN0_INT_FLANK, btn_cb, NULL);
 #endif
-
 
     /* run the shell and wait for the user to enter a mode */
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);

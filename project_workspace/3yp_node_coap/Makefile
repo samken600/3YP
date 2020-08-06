@@ -3,7 +3,7 @@ APPLICATION = nanocoap_server
 
 # If no BOARD is found in the environment, use this default:
 BOARD = 3yp-node
-ISM = 868
+DEFAULT_CHANNEL = 0 # 868MHz
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../RIOT/

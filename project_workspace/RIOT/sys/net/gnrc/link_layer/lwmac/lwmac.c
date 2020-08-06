@@ -27,7 +27,6 @@
 
 #include "timex.h"
 #include "random.h"
-#include "od.h"
 #include "periph/rtt.h"
 #include "periph/pm.h"
 #include "net/gnrc/netif.h"

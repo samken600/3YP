@@ -98,10 +98,9 @@ static int _init(netdev_t *netdev)
     at86rf2xx_hardware_reset(dev);
 
     /* test if the device is responding */
-    while (at86rf2xx_reg_read(dev, AT86RF2XX_REG__PART_NUM) != AT86RF2XX_PARTNUM) {
+    if (at86rf2xx_reg_read(dev, AT86RF2XX_REG__PART_NUM) != AT86RF2XX_PARTNUM) {
         DEBUG("[at86rf2xx] error: unable to read correct part number\n");
-        DEBUG("Hanging...");
-        //return -ENOTSUP;
+        return -ENOTSUP;
     }
 
     /* reset device to default values and put it into RX state */
