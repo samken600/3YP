@@ -17,10 +17,6 @@ USEMODULE += xtimer
 #USEMODULE += periph_rtt
 USEMODULE += ztimer_msec ztimer_periph_rtt
 
-# include to interface with d18 temp sensor
-USEMODULE += jc42
-CFLAGS += -DJC42_PARAM_ADDR=0x19
-
 # example uses saul
 USEMODULE += saul_default
 

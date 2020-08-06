@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Samuel Kendall <sjk2g17@soton.ac.uk>
+ * Copyright (C) 2020 Samuel Kendall <sjk2g17@soton.ac.uk>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -39,17 +39,10 @@ void *nanocoap_thread(void *arg) {
     return NULL;
 }
 
-
-static const shell_command_t shell_commands[] = {
-    { NULL, NULL, NULL }
-};
-
-
 int main(void)
 {
-    puts("RIOT nanocoap example application with shell and si70xx temperature sensor");
-
-    /* sensor is on automatically */
+    puts("RIOT nanocoap example application with SAUL. Make sure your sensor drivers are included" 
+         "and configured either in the board folder configuration or in the Makefile here");
 
     /* nanocoap_server uses gnrc sock which uses gnrc which needs a msg queue */
     msg_init_queue(_main_msg_queue, MAIN_QUEUE_SIZE);
@@ -64,7 +57,7 @@ int main(void)
 
     /* initialize shell on board */
     char line_buf[SHELL_DEFAULT_BUFSIZE];
-    shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
+    shell_run(NULL, line_buf, SHELL_DEFAULT_BUFSIZE);
 
     /* should be never reached */
     return 0;

@@ -1,13 +1,5 @@
-/*
- * Copyright (C) 2017 Baptiste Clenet <bapclenet@gmail.com>
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License v2.1. See the file LICENSE in the top level
- * directory for more details.
- */
-
 /**
- * @defgroup    boards_samr30-xpro Atmel SAM R30 Xplained Pro
+ * @defgroup    boards_3yp-node Atmel SAM R30 based node
  * @ingroup     boards
  * @brief       Support for the Atmel SAM R30 Xplained Pro board.
  * @{
@@ -15,7 +7,7 @@
  * @file
  * @brief       Board specific definitions for the Atmel SAM R30 Xplained Pro board.
  *
- * @author      Baptiste Clenet <bapclenet@gmail.com>
+ * @author      Samuel Kendall <sjk2g17@soton.ac.uk>
  */
 
 #ifndef BOARD_H
@@ -72,6 +64,15 @@ extern "C" {
 #define SENSOR_POWER_ON             (SENSOR_POWER_PORT.OUTSET.reg = SENSOR_POWER_MASK)
 #define SENSOR_POWER_OFF            (SENSOR_POWER_PORT.OUTCLR.reg = SENSOR_POWER_MASK)
 #define SENSOR_POWER_TOGGLE         (SENSOR_POWER_PORT.OUTTGL.reg = SENSOR_POWER_MASK)
+/** @} */
+
+/**
+ * @name MCP9808 configuration. Uses standard JC42 interface
+ * @{
+ */
+#define JC42_PARAM_I2C_DEV          I2C_DEV(0)
+#define JC42_PARAM_ADDR             (0x19)
+#define JC42_PARAM_SPEED            I2C_SPEED_FAST
 /** @} */
 
 /**

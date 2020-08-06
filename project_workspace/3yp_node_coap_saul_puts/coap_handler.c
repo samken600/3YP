@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2020 Samuel Kendall <sjk2g17@soton.ac.uk>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -39,10 +39,11 @@ static ssize_t _temp_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *co
     unsigned code = COAP_CODE_EMPTY;
     saul_reg_t *dev;
 
-    // get temp in celsius
+    /* turn on sensor and wait for 1st reading */
     SENSOR_POWER_ON;
     xtimer_usleep(250000);
 
+    /* find an temperature sensor device in the saul register */
     phydat_t res;
     dev = saul_reg_find_type(SAUL_SENSE_TEMP);
     if(dev == NULL) {
@@ -51,6 +52,7 @@ static ssize_t _temp_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *co
                                  COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
     }
 
+    /* read the sensor */
     int dim = saul_reg_read(dev, &res);
     if(dim <= 0) {
         puts("error: failed to read from device");
@@ -60,6 +62,7 @@ static ssize_t _temp_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *co
 
     SENSOR_POWER_OFF;
     
+    /* convert sensor reading to json format and set payload to this, return json to client */
     p = phydat_to_json(&res, dim, rsp);
     code = COAP_CODE_CONTENT;
     
@@ -77,6 +80,7 @@ static ssize_t _led_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *con
     saul_reg_t *dev;
     phydat_t data;
 
+    /* find an LED device in the saul register */
     dev = saul_reg_find_type(SAUL_ACT_SWITCH);
     if(dev == NULL) {
         puts("error: no led/switch found");
@@ -84,26 +88,32 @@ static ssize_t _led_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *con
                                  COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
     }
 
+    /* ensure data buffer is zeroed */
     memset(&data, 0, sizeof(data));
+
+    /* copy payload to local buffer. expect to be less than 16. might be better way to ensure this */
     char payload[16] = { 0 };
     memcpy(payload, (char*)pkt->payload, pkt->payload_len);
 
+    /* parse payload and confirm returned a valid integer */
+    /* anything negative or zero means off, anything positive means on */
     char *end;
     data.val[0] = (strtol(payload, &end, 10) > 0) ? 1 : 0;
     if(end==payload || *end != '\0' || errno == ERANGE) {
         puts("error: entered string is not number");
         return coap_reply_simple(pkt, COAP_CODE_UNSUPPORTED_CONTENT_FORMAT, buf, len,
                                  COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
-
     }
-    dim = saul_reg_write(dev, &data);
 
+    /* write value to LED*/
+    dim = saul_reg_write(dev, &data);
     if(dim <= 0) {
         puts("error: failed to write to device");
         return coap_reply_simple(pkt, COAP_CODE_INTERNAL_SERVER_ERROR, buf, len,
                                  COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
     }
 
+    /* return confirmation of change to client. no payload */
     code = COAP_CODE_CHANGED;
 
     return coap_reply_simple(pkt, code, buf, len,
@@ -117,8 +127,8 @@ static ssize_t _txpow_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *c
     char rsp[16];
     unsigned code = COAP_CODE_EMPTY;
     gnrc_netif_t *netif;
-    phydat_t data;
 
+    /* get netif based on pid supplied in makefile. likely better way to do this */
     netif = gnrc_netif_get_by_pid(AT86RF2XX_PID);
     if(netif == NULL) {
         puts("error: netif not found on speicified PID");
@@ -126,10 +136,12 @@ static ssize_t _txpow_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *c
                                  COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
     }
 
-    memset(&data, 0, sizeof(data));
+    /* copy payload to local buffer. again, size only expects 16 */
+    /* might be worth checking payload_len is less than this and error if not */
     char payload[16] = { 0 };
     memcpy(payload, (char*)pkt->payload, pkt->payload_len);
 
+    /* parse incoming payload and ensure is a number */
     char *end;
     int16_t tx_power = strtol(payload, &end, 10);
     if(end==payload || *end != '\0' || errno == ERANGE) {
@@ -139,13 +151,14 @@ static ssize_t _txpow_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *c
 
     }
 
+    /* set txpower in transciever driver */
     netif->dev->driver->set(netif->dev,
                             NETOPT_TX_POWER,
                             &tx_power,
                             sizeof(tx_power));
 
+    /* return confirmation of change */
     code = COAP_CODE_CHANGED;
-
     return coap_reply_simple(pkt, code, buf, len,
             COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
 }
@@ -158,8 +171,10 @@ static ssize_t _period_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *
     unsigned code = COAP_CODE_EMPTY;
     xtimer_t *xt;
     uint32_t *period;
-
     char target[CONFIG_NANOCOAP_URI_MAX];
+
+    /* get uri query string. will be single string seperated by & */
+    /* only accept two queries alone */
     coap_opt_get_string(pkt, COAP_OPT_URI_QUERY, (uint8_t*)target, CONFIG_NANOCOAP_URI_MAX, '&');
     if(strcmp(target, "&epoch") == 0) {
         xt = &xt_get;
@@ -175,19 +190,22 @@ static ssize_t _period_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *
                                  COAP_FORMAT_TEXT, (uint8_t*)rsp, p);
     }
 
+    /* find out coap method and process based on this */
     unsigned method_flag = coap_method2flag(coap_get_code_detail(pkt));
-
     switch(method_flag) {
     case COAP_GET:
+        /* get period and save to response buffer */
         p += fmt_u32_dec(rsp, ((*period) * US_PER_SEC));
         code = COAP_CODE_205;
         break;
 
     case COAP_PUT: {
+        /* parse payload and ensure is valid integer */
         char payload[16] = { 0 };
         memcpy(payload, (char*)pkt->payload, pkt->payload_len);
         uint8_t *end;
         uint32_t new_period = strtoul((char*)payload, (char**)&end, 10);
+        /* set period of specified timer to payload (in seconds) */
         set_period(xt, (new_period * US_PER_SEC), period);
         printf("set period to %ld seconds\n", *period);
 
