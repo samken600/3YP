@@ -1,14 +1,14 @@
-nanocoap saul example
+nanocoap saul post example
 =======================
 
-This application shows how you can use saul with a nanocoap server in order to serve temperature readings to a client.
+This application shows how you can use saul with a nanocoap server in order to POST temperature readings to a server, alongside timestamping readings to give a 1 second accuracy.
 It uses the GNRC network stack through RIOT's
 [sock API](http://doc.riot-os.org/group__net__sock.html).
 
 Usage
 =====
 
-This application was designed to work with read hardware. Should work on the SAMR30-Xplained pro boards as well as SAMR21 boards with some minor tweaks. A sensor is also required to make readings from.
+This application was designed to work with read hardware. Should work on the SAMR30-Xplained pro boards as well as SAMR21 boards with some minor tweaks. A sensor is required in order to make readings from.
 
 Before starting, make sure you have setup RIOT and installed neccessary dependencies as specified in the [RIOT Setup README](../README.md).
 
@@ -81,6 +81,10 @@ This is part of the CoAP specifications. It works only with GET requests.
 * `/txpower`: sets tx power of transceiver on chip. This assumes that the netif
   set in the Makefile is the netif the radio driver is on. Only works with PUT.
 
+* `/period`: sets or gets period of both temperature readings and of updating the 
+  epoch offset to account for clock drift. Times are in seconds. Specified by using
+  query ?epoch or ?temp at the end of the URI.
+
 There are multiple external CoAP clients you can use to easily test the server.
 One good option is lib-coap, which is available as an ubuntu package.
 
@@ -91,9 +95,11 @@ libcoap CLI
 
 The routing for this is setup automatically by the border router, so no need to specify the interface!
 
-* Get the name of the board:
+This can be used for configuring the period or manually making temperature readings. See above interface.
+
+* Set the period of temperature readings to 1 minute:
 ```
-    # coap-client -m get coap://[2001:db8::e805:bc73:5270:6e8c]/riot/board
+    # coap-client -m put coap://[2001:db8::e805:bc73:5270:6e8c]/period?temp -e 60
 ```
 
 * Update the LED state:
@@ -112,3 +118,5 @@ CoAPthon3
 This is a python implementation of CoAP that can be found [(here](https://github.com/Tanganelli/CoAPthon3). This can be used to implement a CoAP server or a send requests acting as a client.
 
 Without some modifications, this will only accept utf-8 encoded tokens and cause a server crash if this is violated. There is a pull request that patches this ([here](https://github.com/Tanganelli/CoAPthon3/pull/20)) although this has not yet been merged due to some tests failing.
+
+The [coap\_server](../../coap_server) uses this. The server can be run and used as the target for these post requests. This can be done via a proxy by running [coap\_forwarder](../../coap_forwarder).

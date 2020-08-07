@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2020 Samuel Kendall <sjk2g17@soton.ac.uk>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -11,9 +11,9 @@
  * @{
  *
  * @file
- * @brief       CoAP example server application (using nanocoap)
+ * @brief       CoAP temperature server/client application
  *
- * @author      Kaspar Schleiser <kaspar@schleiser.de>
+ * @author      Samuel Kendall <sjk2g17@soton.ac.uk>
  * @}
  */
 
