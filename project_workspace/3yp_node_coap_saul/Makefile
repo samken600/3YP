@@ -30,27 +30,21 @@ USEMODULE += gnrc_udp
 USEMODULE += gnrc_sock_udp
 
 # Say what PID expect to have radio on so can set power
-CFLAGS += -DAT86RF2XX_PID=6
+CFLAGS += -DPHYS_PID=6
 
 # Add rpl routing
 USEMODULE += gnrc_rpl
 USEMODULE += auto_init_gnrc_rpl
 CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=6
-# CFLAGS += -DGNRC_MAC_RX_QUEUE_SIZE=16
-# CFLAGS += -DGNRC_MAC_TX_QUEUE_SIZE=16
-# CFLAGS += -DGNRC_LWMAC_IPC_MSG_QUEUE_SIZE=32
 
 # Additional networking modules that can be dropped if not needed
 USEMODULE += gnrc_icmpv6_echo
 
+# include nanocoap socket so can run coap server
 USEMODULE += nanocoap_sock
 
 # include this for nicely formatting the returned internal value
 USEMODULE += fmt
-
-# include mac layer to use
-#USEMODULE += gnrc_lwmac
-CFLAGS += -DGNRC_LWMAC_ENABLE_LOW_POWER=0
 
 # Comment this out to enable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

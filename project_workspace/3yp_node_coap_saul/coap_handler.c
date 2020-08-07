@@ -120,7 +120,7 @@ static ssize_t _txpow_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len, void *c
     gnrc_netif_t *netif;
 
     /* get netif based on pid supplied in makefile. likely better way to do this */
-    netif = gnrc_netif_get_by_pid(AT86RF2XX_PID);
+    netif = gnrc_netif_get_by_pid(PHYS_PID);
     if(netif == NULL) {
         puts("error: netif not found on speicified PID");
         return coap_reply_simple(pkt, COAP_CODE_NOT_IMPLEMENTED, buf, len, 
