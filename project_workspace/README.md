@@ -48,7 +48,7 @@ make all
 sudo make install 
 ``` 
 
-See the README within the directory for more detailed information.
+See the README within the directory for more detailed information. Potential fixes for common issues can be found [here](https://github.com/RIOT-OS/RIOT/wiki/OpenOCD). A common one is LIBUSB_ERROR_ACCESS. In openocd/contrib, there should be a `.rules` file called something like `60-openocd.rules`. This can be copied to your udev rules directory (/etc/udev/rules.d/), which should fix this issue.
 
 ## Building and flashing the programs
 
