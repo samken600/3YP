@@ -10,6 +10,8 @@ Usage
 
 This application was designed to work with read hardware. Should work on the SAMR30-Xplained pro boards as well as SAMR21 boards with some minor tweaks.
 
+Before starting, make sure you have setup RIOT and installed neccessary dependencies as specified in the [RIOT Setup README](../README.md).
+
 To compile for a specific target board, i.e. the samr30-xpro board, use
 
 ```
