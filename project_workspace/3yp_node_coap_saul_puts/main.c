@@ -41,12 +41,10 @@
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
 static msg_t _handler_msg_queue[HANDLER_QUEUE_SIZE];
 
-
 int32_t epoch_offset;
 xtimer_t xt_get, xt_put;
 uint32_t epoch_period, temp_period;
 
-/**/
 char nanocoap_thread_stack[THREAD_STACKSIZE_MAIN];
 void *nanocoap_thread(void *arg) {
     (void) arg;
@@ -60,6 +58,7 @@ void *nanocoap_thread(void *arg) {
     return NULL;
 }
 
+/* callback tells handler thread to get the epoch time */
 void epoch_timer_cb(void *arg) {
     kernel_pid_t* pid = arg;
 
@@ -73,6 +72,7 @@ void epoch_timer_cb(void *arg) {
     xtimer_set(&xt_get, epoch_period);
 }
 
+/* callback tells handler thread to POST the temperature */
 void temp_timer_cb(void *arg) {
     kernel_pid_t* pid = arg;
 
@@ -86,10 +86,12 @@ void temp_timer_cb(void *arg) {
     xtimer_set(&xt_put, temp_period);
 }
 
+/* thread handles CoAP client operations */
 char handler_thread_stack[THREAD_STACKSIZE_MAIN];
 void *handler_thread(void *arg) {
     (void)arg;
 
+    /* use queue to prevent message collisions and lost messages */
     msg_init_queue(_handler_msg_queue, HANDLER_QUEUE_SIZE);
     
     msg_t msg;
@@ -101,6 +103,7 @@ void *handler_thread(void *arg) {
         else puts("Unknown message");
     }
 
+    /* should never be reached */
     return NULL;
 }
 
@@ -126,17 +129,21 @@ int main(void)
     puts("Waiting for address autoconfiguration...");
     xtimer_sleep(3);
 
+    /* initialise default periods */
     epoch_period = DEFAULT_EPOCH_PERIOD;
     temp_period  = DEFAULT_TEMP_PERIOD;
 
+    /* start handler thread */
     kernel_pid_t pid = thread_create(handler_thread_stack, sizeof(handler_thread_stack),
                                      THREAD_PRIORITY_MAIN + 1, THREAD_CREATE_STACKTEST,
                                      handler_thread, NULL, "handler_thread");
 
+    /* ensure that epoch offset is set correctly on boot. twice to lower chance of error */
     update_epoch();
     xtimer_sleep(1);
     update_epoch();
 
+    /* configure and start timers to determine when PUT and GET requests are made */
     xt_get.callback = epoch_timer_cb;
     xt_get.arg = &pid;
     xtimer_set(&xt_get, epoch_period);
