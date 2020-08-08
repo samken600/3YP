@@ -64,10 +64,8 @@ void epoch_timer_cb(void *arg) {
 
     msg_t msg;
     msg.content.value = EPOCH_MSG;
-    puts("sending epoch msg...");
     
     int rsp = msg_try_send(&msg, *pid);
-    printf("eresponse: %d\n", rsp);
 
     xtimer_set(&xt_get, epoch_period);
 }
@@ -78,10 +76,8 @@ void temp_timer_cb(void *arg) {
 
     msg_t msg;
     msg.content.value = TEMP_MSG;
-    puts("sending temp msg...");
     
     int rsp = msg_try_send(&msg, *pid);
-    printf("tresponse: %d\n", rsp);
 
     xtimer_set(&xt_put, temp_period);
 }
@@ -97,7 +93,7 @@ void *handler_thread(void *arg) {
     msg_t msg;
     while(1) {
         msg_receive(&msg);
-        printf("value is %ld\n", msg.content.value);
+        //printf("value is %ld\n", msg.content.value);
         if(msg.content.value == EPOCH_MSG) update_epoch();
         else if(msg.content.value == TEMP_MSG) get_reading();
         else puts("Unknown message");

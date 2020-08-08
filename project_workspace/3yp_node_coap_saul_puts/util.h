@@ -97,23 +97,8 @@ static inline void reading_add(reading_list_t *list, phydat_t temp, uint32_t tim
     return;
 }
 
-/* get hwaddr of netif and save in hwaddr, return address length */
-static ssize_t get_hwaddr(uint8_t *hwaddr);
-
-/* get temperature via saul and store reading in res. returns pointer to result */
-static phydat_t *get_temp(phydat_t *res);
-
-/* sends get request to uri via proxy_addr. stores response in buf, which is of size len */
-static ssize_t coap_get_uri_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t *buf, ssize_t len);
-
-/* sends post request to uri via proxy_addr. stores response in buf, which is of size len. payload is of size payload_len */
-static ssize_t coap_post_via_proxy(const char *uri, const uint8_t *proxy_addr, uint8_t *buf, const char *payload, ssize_t len, ssize_t payload_len);
-
 /* send get request and use time returned to update epoch offset */
 ssize_t update_epoch(void);
-
-/* post temperature reading stored in node to server */
-static ssize_t send_reading(reading_node_t *node);
 
 /* make temperature reading, add to queue, and post to server */
 ssize_t get_reading(void);
