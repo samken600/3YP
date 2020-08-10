@@ -24,6 +24,7 @@
 
 #include "at86rf2xx.h"
 #include "at86rf2xx_params.h"
+#include <periph/spi.h>
 
 #define AT86RF2XX_NUM   ARRAY_SIZE(at86rf2xx_params)
 
@@ -194,6 +195,10 @@ int main(void)
     char line_buf[SHELL_DEFAULT_BUFSIZE];
     gpio_init(SENSOR_POWER_PIN, GPIO_OUT);
     gpio_clear(SENSOR_POWER_PIN);
+
+    
+//    spi_acquire(SPI_DEV(1), GPIO_PIN(PA, 17), SPI_MODE_3, SPI_CLK_1MHZ);
+
 
     unsigned dev_success = 0;
     for (unsigned i = 0; i < AT86RF2XX_NUM; i++) {

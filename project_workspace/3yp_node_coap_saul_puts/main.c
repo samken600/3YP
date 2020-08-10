@@ -66,6 +66,7 @@ void epoch_timer_cb(void *arg) {
     msg.content.value = EPOCH_MSG;
     
     int rsp = msg_try_send(&msg, *pid);
+    (void)rsp;
 
     xtimer_set(&xt_get, epoch_period);
 }
@@ -78,6 +79,7 @@ void temp_timer_cb(void *arg) {
     msg.content.value = TEMP_MSG;
     
     int rsp = msg_try_send(&msg, *pid);
+    (void)rsp;
 
     xtimer_set(&xt_put, temp_period);
 }
