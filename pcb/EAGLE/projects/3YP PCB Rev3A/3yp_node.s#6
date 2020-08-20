@@ -8595,7 +8595,7 @@ Source: AVX .. aphvc.pdf</description>
 <pin name="GND" x="0" y="-2.54" length="middle" direction="pwr"/>
 <pin name="EN" x="0" y="-5.08" length="middle"/>
 <pin name="GND@1" x="27.94" y="0" length="middle" direction="pwr" rot="R180"/>
-<pin name="OUT" x="27.94" y="-2.54" length="middle" direction="sup" rot="R180"/>
+<pin name="V_REG" x="27.94" y="-2.54" length="middle" direction="sup" rot="R180"/>
 </symbol>
 <symbol name="DS3231SN#">
 <wire x1="5.08" y1="2.54" x2="27.94" y2="2.54" width="0.254" layer="94"/>
@@ -9012,7 +9012,7 @@ Source: &lt;a href="http://www.ti.com/lit/ds/symlink/tps78233.pdf"&gt; Datasheet
 <connect gate="G$1" pin="GND" pad="2"/>
 <connect gate="G$1" pin="GND@1" pad="4"/>
 <connect gate="G$1" pin="IN" pad="1"/>
-<connect gate="G$1" pin="OUT" pad="5"/>
+<connect gate="G$1" pin="V_REG" pad="5"/>
 </connects>
 <technologies>
 <technology name="">
@@ -9573,7 +9573,7 @@ For a 18650 3.6V Battery</text>
 <wire x1="200.66" y1="167.64" x2="200.66" y2="165.1" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="167.64" x2="200.66" y2="167.64" width="0.1524" layer="91"/>
 <junction x="200.66" y="167.64"/>
-<pinref part="IC2" gate="G$1" pin="OUT"/>
+<pinref part="IC2" gate="G$1" pin="V_REG"/>
 </segment>
 <segment>
 <wire x1="50.8" y1="116.84" x2="48.26" y2="116.84" width="0.1524" layer="91"/>
