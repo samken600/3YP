@@ -35,7 +35,7 @@ CFLAGS += -DPHYS_PID=6
 # Add rpl routing
 USEMODULE += gnrc_rpl
 USEMODULE += auto_init_gnrc_rpl
-CFLAGS += -DGNRC_RPL_DEFAULT_NETIF=6
+# CFLAGS += -DCONFIG_GNRC_RPL_DEFAULT_NETIF=6
 
 # Additional networking modules that can be dropped if not needed
 USEMODULE += gnrc_icmpv6_echo
