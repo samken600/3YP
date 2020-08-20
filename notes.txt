@@ -1,0 +1,68 @@
+https://github.com/RIOT-OS/RIOT.git
+
+
+project_workspace/RIOT/sys/include/net/gnrc/rpl.h
+project_workspace/RIOT/sys/include/net/gnrc/lwmac/lwmac.h
+
+project_workspace/RIOT/cpu/saml21/periph/pm.c
+project_workspace/RIOT/cpu/saml21/Makefile.features
+
+f]wwq	2w1`2zz3r5tghujiedrtfyguiop[fghjnkllfvbnmfvggbgvrdrdddwsww2qqqqerfvtgvt6ggy7y7by7bh7hu88unju8ji9ji9kjjijkokok,o,,lplpl.lpl;[.;[;;[/'/'''**698102
+
+openocd '-c interface ftdi' -f '/home/skendall/work/3yp/project_workspace/RIOT/boards/3yp-node/dist/openocd.cfg' -c 'tcl_port 0' -c 'telnet_port 0' -c 'gdb_port 0' -c 'init' -c 'targets' -c 'reset halt' -c 'at91samd bootloader 0' -c 'flash write_image erase "/home/skendal/work/3yp/project_workspace/RIOT/tests/periph_pm/bin/3yp-node/tests_periph_pm.elf" 0 ' -c 'verify_image "/home/skendall/work/3yp/project_workspace/RIOT/tests/periph_pm/bin/3yp-node/tests_periph_pm.elf" 0' -c 'reset run' -c 'shutdown' 
+
+ssize_t nanocoap_get(sock_udp_ep_t *remote, const char *path, uint8_t *buf, size_t len)
+{
+    ssize_t res;
+    coap_pkt_t pkt;
+    uint8_t *pktpos = buf;
+
+    pkt.hdr = (coap_hdr_t*)buf;
+    pktpos += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, NULL, 0, COAP_METHOD_GET, 1);
+    pktpos += coap_opt_put_uri_path(pktpos, 0, path);
+    pkt.payload = pktpos;
+    pkt.payload_len = 0;
+
+    res = nanocoap_request(&pkt, NULL, remote, len);
+    if (res < 0) {
+        return res;
+    }
+    else {
+        res = coap_get_code(&pkt);
+        if (res != 205) {
+            res = -res;L
+        }
+        else {
+            if (pkt.payload_len) {
+                memmove(buf, pkt.payload, pkt.payload_len);
+            }
+            res = pkt.payload_len;
+        }
+    }
+    return res;
+}
+
+vim bootstram seems cool, give it a go
+1596159639 at 02:41:53
+52:14
+just over 10 mins... pretty poor. will look at ztimer tomorrow. ideally use for everything, since runs off rtt?
+also look at datasheet accuracies for timer
+also look at auto putting
+
+
+then look at adding in power sleeping when no timers
+then look to combine with lwmac. can then reduce power even more
+
+remind kirk about providing RTC to look at
+update kirk on progress
+
+14:18:47
+1596201504
+
+14:20:58
+1596201505
+14:31:29
+
+0xFFFF   F    8    B   B   B   1  1E86F   F
+         47   43   39  35  31  27    0
+

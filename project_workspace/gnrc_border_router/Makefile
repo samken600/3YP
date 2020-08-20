@@ -51,6 +51,8 @@ USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
 
+# CFLAGS += -DCONFIG_IEEE802154_DEFAULT_TXPOWER=-6
+
 # include UHCP client
 USEMODULE += gnrc_uhcpc
 
