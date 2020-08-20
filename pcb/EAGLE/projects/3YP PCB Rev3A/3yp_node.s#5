@@ -8443,10 +8443,10 @@ Source: AVX .. aphvc.pdf</description>
 <text x="29.21" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
 <text x="29.21" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
 <pin name="OUT" x="0" y="0" length="middle" direction="sup"/>
-<pin name="GND_1" x="0" y="-2.54" length="middle"/>
+<pin name="GND@1" x="0" y="-2.54" length="middle"/>
 <pin name="ON/OFF" x="0" y="-5.08" length="middle"/>
 <pin name="NC" x="33.02" y="0" length="middle" direction="nc" rot="R180"/>
-<pin name="GND_2" x="33.02" y="-2.54" length="middle" rot="R180"/>
+<pin name="GND@2" x="33.02" y="-2.54" length="middle" rot="R180"/>
 <pin name="IN" x="33.02" y="-5.08" length="middle" rot="R180"/>
 </symbol>
 <symbol name="19-46-1-TGG">
@@ -8714,8 +8714,8 @@ Source: &lt;a href="https://www.vishay.com/docs/66597/sip32431.pdf"&gt; Datashee
 <devices>
 <device name="" package="SOT65P210X110-6N">
 <connects>
-<connect gate="G$1" pin="GND_1" pad="2"/>
-<connect gate="G$1" pin="GND_2" pad="5"/>
+<connect gate="G$1" pin="GND@1" pad="2"/>
+<connect gate="G$1" pin="GND@2" pad="5"/>
 <connect gate="G$1" pin="IN" pad="4"/>
 <connect gate="G$1" pin="NC" pad="6"/>
 <connect gate="G$1" pin="ON/OFF" pad="3"/>
@@ -9678,7 +9678,7 @@ For a 18650 3.6V Battery</text>
 <pinref part="GND16" gate="1" pin="GND"/>
 <pinref part="C5" gate="G$1" pin="2"/>
 <wire x1="175.26" y1="48.26" x2="175.26" y2="50.8" width="0.1524" layer="91"/>
-<pinref part="S3" gate="G$1" pin="GND_2"/>
+<pinref part="S3" gate="G$1" pin="GND@2"/>
 <wire x1="182.88" y1="58.42" x2="180.34" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="180.34" y1="58.42" x2="180.34" y2="48.26" width="0.1524" layer="91"/>
 <wire x1="180.34" y1="48.26" x2="175.26" y2="48.26" width="0.1524" layer="91"/>
@@ -9688,7 +9688,7 @@ For a 18650 3.6V Battery</text>
 <pinref part="C6" gate="G$1" pin="2"/>
 <pinref part="GND18" gate="1" pin="GND"/>
 <wire x1="220.98" y1="45.72" x2="220.98" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="S3" gate="G$1" pin="GND_1"/>
+<pinref part="S3" gate="G$1" pin="GND@1"/>
 <wire x1="215.9" y1="58.42" x2="238.76" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="238.76" y1="58.42" x2="238.76" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="238.76" y1="43.18" x2="220.98" y2="43.18" width="0.1524" layer="91"/>
@@ -10326,6 +10326,12 @@ For a 18650 3.6V Battery</text>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="102,1,215.9,55.88,OUT,SENSOR_POW,,,,"/>
+<approved hash="102,1,195.58,167.64,V_REG,VCC,,,,"/>
+<approved hash="104,1,109.22,17.78,IC4,VCC,SENSOR_POW,,,"/>
+<approved hash="104,1,180.34,129.54,IC3,VCC,SENSOR_POW,,,"/>
+</errors>
 </schematic>
 </drawing>
 <compatibility>

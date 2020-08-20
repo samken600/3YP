@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="5" unitdist="mil" unit="mil" style="dots" multiple="1" display="yes" altdistance="1" altunitdist="mil" altunit="mil"/>
+<grid distance="50" unitdist="mil" unit="mil" style="dots" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -2596,7 +2596,12 @@ Please make sure your boards conform to these design rules.
 <via x="81.28" y="12.7254" extent="1-16" drill="0.35" diameter="0.6"/>
 <via x="85.09" y="10.1854" extent="1-16" drill="0.35" diameter="0.6"/>
 <via x="82.55" y="10.1854" extent="1-16" drill="0.35" diameter="0.6"/>
-<via x="88.4174" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="86.5124" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="84.7344" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="82.8294" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="88.1634" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="90.0684" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
+<via x="91.5924" y="22.098" extent="1-16" drill="0.35" diameter="0.6"/>
 </signal>
 <signal name="SAMR30_RF_OUT">
 <contactref element="IC1" pad="J23"/>
