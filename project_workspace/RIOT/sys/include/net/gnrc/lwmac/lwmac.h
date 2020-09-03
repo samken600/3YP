@@ -102,7 +102,7 @@ extern "C" {
  */
 
 #ifndef CONFIG_GNRC_LWMAC_WAKEUP_INTERVAL_US
-#define CONFIG_GNRC_LWMAC_WAKEUP_INTERVAL_US        (500LU *US_PER_MS)
+#define CONFIG_GNRC_LWMAC_WAKEUP_INTERVAL_US        (250LU *US_PER_MS)
 #endif
 
 /**
@@ -139,7 +139,7 @@ extern "C" {
  */
 
 #ifndef CONFIG_GNRC_LWMAC_TIME_BETWEEN_WR_US
-#define CONFIG_GNRC_LWMAC_TIME_BETWEEN_WR_US        (50U *US_PER_MS)
+#define CONFIG_GNRC_LWMAC_TIME_BETWEEN_WR_US        (32U *US_PER_MS)
 #endif
 
 /**
@@ -226,7 +226,7 @@ extern "C" {
  */
 
 #ifndef CONFIG_GNRC_LWMAC_DATA_DELAY_US
-#define CONFIG_GNRC_LWMAC_DATA_DELAY_US             (60U *US_PER_MS)
+#define CONFIG_GNRC_LWMAC_DATA_DELAY_US             (50U *US_PER_MS)
 #endif
 
 /**
@@ -327,7 +327,7 @@ extern "C" {
  *
  */
 #ifndef GNRC_LWMAC_ENABLE_LOW_POWER
-#define GNRC_LWMAC_ENABLE_LOW_POWER        (1)
+#define GNRC_LWMAC_ENABLE_LOW_POWER        (0)
 #endif
 /** @} */
 
