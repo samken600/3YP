@@ -77,6 +77,10 @@ The table below shows the connections between the FTDI cable and the board. The 
 
 The headers on board are shown below:
 
+![New Board Headers](../report/3YPNewHeaders.png )
+
+Old board (legacy):
+
 ![Programming and I2C Header](../report/ProgI2CHeader.png) &nbsp;   &nbsp;   &nbsp;   &nbsp; ![SPI Header](../report/SPIHeader.png)
 
 
