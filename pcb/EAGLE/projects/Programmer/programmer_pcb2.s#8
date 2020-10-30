@@ -297,6 +297,22 @@
 <wire x1="-0.275" y1="-1.45" x2="-0.275" y2="1.45" width="0.2" layer="21"/>
 <wire x1="-1.875" y1="1.5" x2="-0.625" y2="1.5" width="0.2" layer="21"/>
 </package>
+<package name="CKC5106-ND">
+<description>&lt;b&gt;CKC5106-ND&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="1" x="0" y="-4.75" drill="0.9" diameter="1.45"/>
+<pad name="2" x="0" y="0" drill="0.9" diameter="1.45"/>
+<text x="-0.3718" y="0.0312" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="-0.3718" y="0.0312" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="-5.395" y1="9.55" x2="5.395" y2="9.55" width="0.254" layer="51"/>
+<wire x1="5.395" y1="9.55" x2="5.395" y2="-9.55" width="0.254" layer="51"/>
+<wire x1="5.395" y1="-9.55" x2="-5.395" y2="-9.55" width="0.254" layer="51"/>
+<wire x1="-5.395" y1="-9.55" x2="-5.395" y2="9.55" width="0.254" layer="51"/>
+<wire x1="-5.395" y1="-9.55" x2="-5.395" y2="9.55" width="0.254" layer="21"/>
+<wire x1="-5.395" y1="9.55" x2="5.395" y2="9.55" width="0.254" layer="21"/>
+<wire x1="5.395" y1="9.55" x2="5.395" y2="-9.55" width="0.254" layer="21"/>
+<wire x1="5.395" y1="-9.55" x2="-5.395" y2="-9.55" width="0.254" layer="21"/>
+</package>
 <package name="LEDC2012X110N">
 <description>&lt;b&gt;2.0x1.25 SMT LED 1.1mm thickness&lt;/b&gt;&lt;br&gt;
 </description>
@@ -425,24 +441,6 @@
 <wire x1="-1.27" y1="-1.27" x2="11.43" y2="-1.27" width="0.2" layer="21"/>
 <wire x1="11.43" y1="-1.27" x2="11.43" y2="3.81" width="0.2" layer="21"/>
 <wire x1="11.43" y1="3.81" x2="0" y2="3.81" width="0.2" layer="21"/>
-</package>
-<package name="09.03290.01">
-<description>&lt;b&gt;09.03290.01&lt;/b&gt;&lt;br&gt;
-</description>
-<pad name="1" x="0" y="0" drill="0.8" diameter="1.3"/>
-<pad name="2" x="-2.54" y="0" drill="0.8" diameter="1.3"/>
-<pad name="3" x="2.54" y="0" drill="0.8" diameter="1.3"/>
-<text x="-0.869" y="0.082" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="-0.869" y="0.082" size="1.27" layer="27" align="center">&gt;VALUE</text>
-<wire x1="-5" y1="1.25" x2="5" y2="1.25" width="0.254" layer="51"/>
-<wire x1="5" y1="1.25" x2="5" y2="-1.25" width="0.254" layer="51"/>
-<wire x1="5" y1="-1.25" x2="-5" y2="-1.25" width="0.254" layer="51"/>
-<wire x1="-5" y1="-1.25" x2="-5" y2="1.25" width="0.254" layer="51"/>
-<wire x1="-5" y1="1.25" x2="-5" y2="-1.25" width="0.254" layer="21"/>
-<wire x1="-5" y1="-1.25" x2="5" y2="-1.25" width="0.254" layer="21"/>
-<wire x1="5" y1="-1.25" x2="5" y2="1.25" width="0.254" layer="21"/>
-<wire x1="5" y1="1.25" x2="-5" y2="1.25" width="0.254" layer="21"/>
-<circle x="0.002" y="-1.853" radius="0.067" width="0.254" layer="25"/>
 </package>
 </packages>
 <packages3d>
@@ -598,6 +596,15 @@
 <pin name="GND@1" x="27.94" y="0" length="middle" direction="pwr" rot="R180"/>
 <pin name="V_REG" x="27.94" y="-2.54" length="middle" direction="sup" rot="R180"/>
 </symbol>
+<symbol name="L101011MS02Q">
+<text x="0" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="0" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="1" x="0" y="0" length="middle"/>
+<pin name="2" x="22.86" y="0" length="middle" rot="R180"/>
+<circle x="6.35" y="0" radius="1.27" width="0.254" layer="94"/>
+<circle x="16.51" y="0" radius="1.27" width="0.254" layer="94"/>
+<wire x1="6.35" y1="0" x2="16.51" y2="5.08" width="0.254" layer="94"/>
+</symbol>
 <symbol name="KP-2012CGCK">
 <wire x1="5.08" y1="0" x2="10.16" y2="2.54" width="0.254" layer="94"/>
 <wire x1="10.16" y1="-2.54" x2="10.16" y2="2.54" width="0.254" layer="94"/>
@@ -688,17 +695,6 @@
 <pin name="6" x="22.86" y="-5.08" length="middle" rot="R180"/>
 <pin name="8" x="22.86" y="-7.62" length="middle" rot="R180"/>
 <pin name="10" x="22.86" y="-10.16" length="middle" rot="R180"/>
-</symbol>
-<symbol name="09-03290.01">
-<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-7.62" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-7.62" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
-<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
-<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
-<pin name="1" x="0" y="-2.54" length="middle"/>
-<pin name="2" x="0" y="0" length="middle"/>
-<pin name="3" x="0" y="-5.08" length="middle"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -974,6 +970,33 @@ Source: &lt;a href="http://www.ti.com/lit/ds/symlink/tps78233.pdf"&gt; Datasheet
 </device>
 </devices>
 </deviceset>
+<deviceset name="L101011MS02Q" prefix="S">
+<description>&lt;b&gt;SWITCH SLIDE SPST 4A 125V&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="http://www.ckswitches.com/media/1423/l.pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="L101011MS02Q" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="CKC5106-ND">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="ARROW_PART_NUMBER" value="L101011MS02Q" constant="no"/>
+<attribute name="ARROW_PRICE-STOCK" value="https://www.arrow.com/en/products/l101011ms02q/ck" constant="no"/>
+<attribute name="DESCRIPTION" value="SWITCH SLIDE SPST 4A 125V" constant="no"/>
+<attribute name="HEIGHT" value="mm" constant="no"/>
+<attribute name="MANUFACTURER_NAME" value="C &amp; K COMPONENTS" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="L101011MS02Q" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="611-L101011MS02Q" constant="no"/>
+<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/CK/L101011MS02Q?qs=LgMIjt8LuD9j8DCrk%2FIjYQ%3D%3D" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="KP-2012CGCK" prefix="LED">
 <description>&lt;b&gt;Green Chip LED  2.0x1.25mm Kingbright KP-2012CGCK Green LED, 570 nm, 2012 (0805), Rectangle Lens SMD Package&lt;/b&gt;&lt;p&gt;
 Source: &lt;a href="https://componentsearchengine.com/Datasheets/2/KP-2012CGCK.pdf"&gt; Datasheet &lt;/a&gt;</description>
@@ -1157,34 +1180,6 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/2/M20-9980545.p
 <attribute name="MANUFACTURER_PART_NUMBER" value="M20-9980545" constant="no"/>
 <attribute name="MOUSER_PART_NUMBER" value="855-M20-9980545" constant="no"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Harwin/M20-9980545?qs=%252Bk6%2F5FB6qrlY8xJEYbERXQ%3D%3D" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="09-03290.01" prefix="S">
-<description>&lt;b&gt;EOZ - 09-03290.01 - SWITCH, SPDT-CO, 0.5A, 12V, PCB, BLACK&lt;/b&gt;&lt;p&gt;
-Source: &lt;a href="http://eao.com/fileadmin/countries/uk/eoz/pdf/EOZ_1K2_slide_switch.pdf"&gt; Datasheet &lt;/a&gt;</description>
-<gates>
-<gate name="G$1" symbol="09-03290.01" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="09.03290.01">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="ARROW_PART_NUMBER" value="09-03290.01" constant="no"/>
-<attribute name="ARROW_PRICE-STOCK" value="" constant="no"/>
-<attribute name="DESCRIPTION" value="EOZ - 09-03290.01 - SWITCH, SPDT-CO, 0.5A, 12V, PCB, BLACK" constant="no"/>
-<attribute name="HEIGHT" value="mm" constant="no"/>
-<attribute name="MANUFACTURER_NAME" value="EOZ" constant="no"/>
-<attribute name="MANUFACTURER_PART_NUMBER" value="09-03290.01" constant="no"/>
-<attribute name="MOUSER_PART_NUMBER" value="" constant="no"/>
-<attribute name="MOUSER_PRICE-STOCK" value="" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -9162,6 +9157,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <part name="GND13" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="C15" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="1u"/>
 <part name="C16" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="1u"/>
+<part name="S2" library="SamacSys_Parts" deviceset="L101011MS02Q" device=""/>
 <part name="GND14" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="LED1" library="SamacSys_Parts" deviceset="KP-2012CGCK" device="" override_package3d_urn="urn:adsk.eagle:package:22674427/2" override_package_urn="urn:adsk.eagle:footprint:22674428/1"/>
 <part name="LED2" library="SamacSys_Parts" deviceset="KP-2012SURCK" device="" override_package3d_urn="urn:adsk.eagle:package:22674413/2" override_package_urn="urn:adsk.eagle:footprint:22674415/1"/>
@@ -9186,7 +9182,6 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <part name="J4" library="SamacSys_Parts" deviceset="M20-9980545" device="" override_package3d_urn="urn:adsk.eagle:package:22672647/2" override_package_urn="urn:adsk.eagle:footprint:22672648/1"/>
 <part name="C19" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="100n"/>
 <part name="GND20" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="S3" library="SamacSys_Parts" deviceset="09-03290.01" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -9384,6 +9379,10 @@ TCK -&gt; SWCLK</text>
 <attribute name="NAME" x="26.924" y="201.041" size="1.778" layer="95"/>
 <attribute name="VALUE" x="26.924" y="195.961" size="1.778" layer="96"/>
 </instance>
+<instance part="S2" gate="G$1" x="271.78" y="83.82" smashed="yes">
+<attribute name="NAME" x="288.29" y="91.44" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="288.29" y="88.9" size="1.778" layer="96" align="center-left"/>
+</instance>
 <instance part="GND14" gate="1" x="322.58" y="68.58" smashed="yes">
 <attribute name="VALUE" x="320.04" y="66.04" size="1.778" layer="96"/>
 </instance>
@@ -9472,10 +9471,6 @@ TCK -&gt; SWCLK</text>
 </instance>
 <instance part="GND20" gate="1" x="114.3" y="60.96" smashed="yes">
 <attribute name="VALUE" x="111.76" y="58.42" size="1.778" layer="96"/>
-</instance>
-<instance part="S3" gate="G$1" x="294.64" y="81.28" smashed="yes" rot="R180">
-<attribute name="NAME" x="278.13" y="73.66" size="1.778" layer="95" rot="R180" align="center-left"/>
-<attribute name="VALUE" x="278.13" y="76.2" size="1.778" layer="96" rot="R180" align="center-left"/>
 </instance>
 </instances>
 <busses>
@@ -10028,9 +10023,9 @@ TCK -&gt; SWCLK</text>
 <label x="93.98" y="200.66" size="1.778" layer="95" rot="R180"/>
 </segment>
 <segment>
-<wire x1="304.8" y1="86.36" x2="294.64" y2="86.36" width="0.1524" layer="91"/>
-<label x="302.26" y="86.36" size="1.778" layer="95" rot="R180"/>
-<pinref part="S3" gate="G$1" pin="3"/>
+<pinref part="S2" gate="G$1" pin="1"/>
+<wire x1="271.78" y1="83.82" x2="264.16" y2="83.82" width="0.1524" layer="91"/>
+<label x="271.78" y="83.82" size="1.778" layer="95" rot="R180"/>
 </segment>
 <segment>
 <wire x1="312.42" y1="147.32" x2="307.34" y2="147.32" width="0.1524" layer="91"/>
@@ -10045,9 +10040,9 @@ TCK -&gt; SWCLK</text>
 </net>
 <net name="N$11" class="0">
 <segment>
+<pinref part="S2" gate="G$1" pin="2"/>
 <pinref part="J1" gate="G$1" pin="1"/>
 <wire x1="294.64" y1="83.82" x2="312.42" y2="83.82" width="0.1524" layer="91"/>
-<pinref part="S3" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$12" class="0">

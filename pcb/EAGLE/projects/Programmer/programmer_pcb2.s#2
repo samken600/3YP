@@ -9119,7 +9119,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <part name="IC1" library="SamacSys_Parts" deviceset="FT232HL-REEL" device="" package3d_urn="urn:adsk.eagle:package:22672114/1" override_package3d_urn="urn:adsk.eagle:package:22672369/2" override_package_urn="urn:adsk.eagle:footprint:22672370/1" override_locally_modified="yes"/>
 <part name="FRAME1" library="frames" library_urn="urn:adsk.eagle:library:229" deviceset="A3L-LOC" device="" value="1"/>
 <part name="GND1" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="J1" library="SamacSys_Parts" deviceset="MC-254-08-00-ST-DIP" device="" override_package3d_urn="urn:adsk.eagle:package:22672650/2" override_package_urn="urn:adsk.eagle:footprint:22672651/1"/>
+<part name="J1" library="SamacSys_Parts" deviceset="MC-254-08-00-ST-DIP" device="" override_package3d_urn="urn:adsk.eagle:package:22674816/2" override_package_urn="urn:adsk.eagle:footprint:22674817/1"/>
 <part name="FB1" library="SamacSys_Parts" deviceset="BLM18EG601SN1D" device="" override_package3d_urn="urn:adsk.eagle:package:22674262/2" override_package_urn="urn:adsk.eagle:footprint:22674263/1"/>
 <part name="J2" library="SamacSys_Parts" deviceset="0480372200" device="" override_package3d_urn="urn:adsk.eagle:package:22674649/2" override_package_urn="urn:adsk.eagle:footprint:22674650/1"/>
 <part name="GND2" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
