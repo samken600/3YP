@@ -16,11 +16,10 @@ USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += printf_float
-
 USEMODULE += xtimer
 
-# include to interface with d18 temp sensor
-USEMODULE += si7021
+USEMODULE += saul_default
+CFLAGS += -DCONFIG_HDC1000_I2C_ADDRESS=0x40
 
 # Include packages that pull up and auto-init the link layer.
 # NOTE: 6LoWPAN will be included if IEEE802.15.4 devices are present

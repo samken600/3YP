@@ -28,11 +28,6 @@
 #include "shell.h"
 #include "net/gnrc/netif.h"
 
-#define MODULE_SI7006
-
-#include "si70xx_params.h"
-#include "si70xx.h"
-
 #define COAP_INBUF_SIZE (256U)
 
 #define MAIN_QUEUE_SIZE     (8)
@@ -42,9 +37,6 @@ static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
 /* extern int _gnrc_netif_config(int argc, char **argv); */
 extern gnrc_netif_t *lwmac_netif;
 
-si70xx_t dev;
-int get_temperature(int argc, char **argv);
-int get_humidity(int argc, char **argv);
 void _gnrc_lwmac_set_netdev_state(gnrc_netif_t *netif, netopt_state_t devstate);
 
 int toggle_led(int argc, char **argv) {
@@ -112,8 +104,6 @@ int off(int argc, char **argv) {
 }
 
 static const shell_command_t shell_commands[] = {
-    { "get_temp", "gets temperature in celcius", get_temperature },
-    { "get_humid", "gets relative humidity", get_humidity },
     { "toggle_led", "toggles LED", toggle_led},
     { "off", "waits 10 second", off},
     { NULL, NULL, NULL }
@@ -152,42 +142,13 @@ int main(void)
 //                  THREAD_PRIORITY_MAIN + 1, THREAD_CREATE_STACKTEST,
 //                  nanocoap_thread, NULL, "nanocoap_thread");
 
-    gpio_init(GPIO_PIN(PA,14), GPIO_OUT);
 
 
     /* initialize shell on board */
     char line_buf[SHELL_DEFAULT_BUFSIZE];
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
-
-
+    
     /* should be never reached */
-    return 0;
-}
-
-
-int get_temperature(int argc, char **argv) {
-    (void)argc;
-    (void)argv;
-    int16_t temperature;
-    puts("Getting temp...\n");
-
-    /* get temp in celsius */
-    temperature = si70xx_get_temperature(&dev);
-    printf("temperature: %d.%02d C\n", temperature / 100, temperature % 100);
-
-    return 0;
-}
-
-int get_humidity(int argc, char **argv) {
-    (void)argc;
-    (void)argv;
-    uint16_t humid;
-    puts("Getting humidity...\n");
-
-    /* get temp in celsius */
-    humid = si70xx_get_relative_humidity(&dev);
-    printf("relative humidity: %d.%02d\n", humid / 100, humid % 100);
-
     return 0;
 }
 

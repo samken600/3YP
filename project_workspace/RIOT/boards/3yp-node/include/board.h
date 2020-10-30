@@ -49,9 +49,18 @@ extern "C" {
  * @{
  */
 #define BTN0_PORT                   PORT->Group[0]
-#define BTN0_PIN                    GPIO_PIN(PA, 7)
+#define BTN0_PIN                    GPIO_PIN(PA, 27)
 #define BTN0_MODE                   GPIO_IN_PU
 /** @} */
+
+/**
+ * @name    RTC Int pin definitions
+ * @{
+ */
+#define RTC_PORT                    PORT->Group[0]
+#define RTC_PIN                     GPIO_PIN(PA, 6)
+/** @} */
+
 
 /**
  * @name    Power pin definitions for load switch
@@ -67,12 +76,10 @@ extern "C" {
 /** @} */
 
 /**
- * @name MCP9808 configuration. Uses standard JC42 interface
+ * @name HDC1080 configuration. Uses same interface as HDC1000
  * @{
  */
-#define JC42_PARAM_I2C_DEV          I2C_DEV(0)
-#define JC42_PARAM_ADDR             (0x19)
-#define JC42_PARAM_SPEED            I2C_SPEED_FAST
+//#define CONFIG_HDC1000_I2C_ADDRESS  (0x40)
 /** @} */
 
 /**

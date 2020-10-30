@@ -1,4 +1,4 @@
-BOARD ?= slstk3401a
+BOARD ?= 3yp-node
 RIOTBASE ?= $(CURDIR)/../RIOT/
 include $(RIOTBASE)/tests/Makefile.tests_common
 
